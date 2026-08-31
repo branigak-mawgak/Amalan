@@ -2808,7 +2808,7 @@ window.renderBlocks=(container,blocks)=>{if(!container)return;container.replaceC
 <script id="rc71-import-storage-engine">
 (function(){
 'use strict';
-const DB_NAME='RC71_IMPORT_STORAGE',DB_VER=2;
+const DB_NAME='RC73_IMPORT_STORAGE',DB_VER=1;
 let dbp;
 function openDB(){if(dbp)return dbp;dbp=new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,DB_VER);
 r.onupgradeneeded=()=>{const d=r.result;
@@ -2816,7 +2816,7 @@ if(!d.objectStoreNames.contains('library'))d.createObjectStore('library',{keyPat
 if(!d.objectStoreNames.contains('documents'))d.createObjectStore('documents',{keyPath:'id',autoIncrement:true});
 if(!d.objectStoreNames.contains('media'))d.createObjectStore('media',{keyPath:'id',autoIncrement:true});};
 r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});return dbp}
-async function put(store,v){const d=await openDB();return new Promise((ok,no)=>{const q=d.transaction(store,'readwrite').objectStore(store).add(v);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}
+async function put(store,v){const d=await openDB();return new Promise((ok,no)=>{const q=d.transaction(store,'readwrite').objectStore(store).put(v);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}
 function notify(s){if(typeof window.showToast==='function')window.showToast(s);else if(typeof window.toast==='function')window.toast(s);else console.log(s)}
 async function zipEntries(buf){
  const u=new Uint8Array(buf),dv=new DataView(buf),sig=0x06054b50;let eocd=-1;
@@ -2866,12 +2866,18 @@ async function importLibraryFile(file){
  notify('Berhasil impor bacaan: '+title);
 }
 async function importDocument(file){
- const name=file?.name||'', type=file?.type||'';
- if(!/\.(pdf|docx)$/i.test(name) && !/application\/(pdf|vnd.openxmlformats-officedocument.wordprocessingml.document)/i.test(type)) throw Error('Format dokumen tidak didukung');
- const buf=await file.arrayBuffer();
- await put('documents',{name,type:type||'application/octet-stream',size:file.size,blob:buf,createdAt:Date.now()});
+ const name=(file?.name||'').trim(), type=file?.type||'';
+ if(!file || !name) throw Error('File belum dipilih');
+ const isPdf=/\.pdf$/i.test(name)||/pdf/i.test(type);
+ const isDocx=/\.docx$/i.test(name)||/wordprocessingml/i.test(type);
+ if(!isPdf&&!isDocx) throw Error('Gunakan file PDF atau DOCX');
+ // Store the original Blob, not a reconstructed/partial buffer. This is more reliable on iPad Safari.
+ const blob=file instanceof Blob?file:new Blob([await file.arrayBuffer()],{type:type||'application/octet-stream'});
+ const record={id:'doc:'+Date.now()+':'+Math.random().toString(36).slice(2),name,type:(isPdf?'application/pdf':type||'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),size:blob.size,blob,createdAt:Date.now()};
+ await put('documents',record);
  document.dispatchEvent(new CustomEvent('rc71-documents-updated'));
- notify('Dokumen tersimpan: '+file.name);
+ notify('Dokumen tersimpan: '+name);
+ return record;
 }
 async function importMedia(files){
  let count=0;
@@ -3007,7 +3013,7 @@ function render(){
   list.appendChild(c);
  });
 }
-async function openImportDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open('RC71_IMPORT_STORAGE',2);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function openImportDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open('RC73_IMPORT_STORAGE',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
 async function getDocuments(){const d=await openImportDB();return new Promise((ok,no)=>{const q=d.transaction('documents','readonly').objectStore('documents').getAll();q.onsuccess=()=>ok(q.result||[]);q.onerror=()=>no(q.error)})}
 async function deleteDocument(id){const d=await openImportDB();return new Promise((ok,no)=>{const q=d.transaction('documents','readwrite').objectStore('documents').delete(id);q.onsuccess=()=>ok();q.onerror=()=>no(q.error)})}
 function blobOfDoc(d){return d.blob instanceof Blob?d.blob:new Blob([d.blob],{type:d.type||'application/pdf'})}
@@ -3919,7 +3925,7 @@ function findPdfFromTarget(target){
  }
  return null;
 }
-async function getDocs(){return new Promise((resolve,reject)=>{const r=indexedDB.open('RC71_IMPORT_STORAGE',2);r.onsuccess=()=>{const db=r.result;const q=db.transaction('documents','readonly').objectStore('documents').getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)};r.onerror=()=>reject(r.error)})}
+async function getDocs(){return new Promise((resolve,reject)=>{const r=indexedDB.open('RC73_IMPORT_STORAGE',1);r.onsuccess=()=>{const db=r.result;const q=db.transaction('documents','readonly').objectStore('documents').getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)};r.onerror=()=>reject(r.error)})}
 async function openByName(name){const docs=await getDocs();const d=docs.find(x=>(x.name||'')===name);if(d)await open(d);else alert('File PDF tidak ditemukan di penyimpanan impor.')}
 // Capture before the old text-extraction Teleprompter handlers. This preserves the PDF page exactly, including its original colors.
 document.addEventListener('click',async e=>{
@@ -4075,5 +4081,62 @@ html:-webkit-full-screen .book{
 })();
 </script>
 
+
+<!-- RC73 REV2: reading, Smart Counter, and iPad PDF import hardening -->
+<style id="rc73-rev2-reading">
+/* Every ayah gets two real columns: fixed number + independently wrapping text. */
+.para.ayah{display:grid!important;grid-template-columns:38px minmax(0,1fr)!important;column-gap:12px!important;align-items:start!important;padding:9px 10px!important;margin:0 0 12px!important;line-height:1.78!important;overflow:visible!important;}
+.para.ayah .ayah-no{grid-column:1!important;grid-row:1!important;position:relative!important;inset:auto!important;margin:0.14em 0 0!important;width:32px!important;height:32px!important;min-width:32px!important;}
+.para.ayah .ayah-text{grid-column:2!important;grid-row:1!important;display:block!important;min-width:0!important;overflow-wrap:anywhere!important;word-break:normal!important;}
+.para.ayah .ayah-text .semantic{display:inline!important;}
+@media (orientation:portrait) and (min-width:600px){
+ .book{width:calc(100vw - 28px)!important;max-width:none!important;padding:24px 26px 46px!important;}
+ .reader-wrap{padding-left:14px!important;padding-right:14px!important;}
+ .para{font-size:clamp(21px,2.55vw,28px)!important;line-height:1.78!important;}
+ .para.ayah{grid-template-columns:42px minmax(0,1fr)!important;column-gap:14px!important;padding:11px 12px!important;}
+ .para.ayah .ayah-no{width:36px!important;height:36px!important;min-width:36px!important;font-size:13px!important;}
+}
+@media (orientation:landscape) and (min-width:700px){
+ .book{width:min(calc(100vw - 42px),1240px)!important;max-width:1240px!important;padding:24px 34px 50px!important;}
+ .para{font-size:clamp(20px,1.85vw,26px)!important;line-height:1.74!important;}
+ .para.ayah{grid-template-columns:44px minmax(0,1fr)!important;column-gap:16px!important;padding:10px 14px!important;}
+ .para.ayah .ayah-no{width:38px!important;height:38px!important;min-width:38px!important;}
+}
+</style>
+<script id="rc73-rev2-hardening">
+(()=>{'use strict';
+  function normalizeAyahLayout(root=document){
+    root.querySelectorAll?.('.para.ayah').forEach(p=>{
+      const no=p.querySelector(':scope > .ayah-no'); if(!no)return;
+      let text=p.querySelector(':scope > .ayah-text');
+      if(!text){
+        text=document.createElement('span'); text.className='ayah-text';
+        const nodes=[...p.childNodes].filter(n=>n!==no);
+        nodes.forEach(n=>text.appendChild(n)); p.appendChild(text);
+      }
+    });
+  }
+  function repeatValue(el){
+    if(!el)return 0;
+    const direct=Number(el.dataset.repeatTarget||el.dataset.repeat||0); if(direct>0)return direct;
+    const t=(el.innerText||el.textContent||'').replace(/\s+/g,' ').trim();
+    let m=[...t.matchAll(/(?:^|[\s(\[])(\d{1,4})\s*(?:x|×|kali)\b/ig)];
+    if(m.length){const n=Number(m[m.length-1][1]);if(n>0)return n;}
+    m=t.match(/(?:dibaca|ulangi|ulang)\s*(?:sebanyak\s*)?(\d{1,4})\s*(?:kali|x|×)/i);return m?Number(m[1]):0;
+  }
+  function bindRepeat(el,index){
+    const n=repeatValue(el); if(!n)return;
+    el.dataset.repeat=String(n); el.dataset.repeatTarget=String(n); el.classList.add('repeatable');
+    if(!el.querySelector('.repeat-badge')){const b=document.createElement('span');b.className='repeat-badge';b.textContent='📿 '+n+'×';el.appendChild(document.createTextNode(' '));el.appendChild(b);}
+    if(!el.dataset.rc73CounterBound){el.dataset.rc73CounterBound='1';el.addEventListener('click',e=>{if(e.target.closest('button,a,input,textarea,select'))return;e.stopPropagation();window.SmartDzikirCounter?.activate?.(el,index);});}
+  }
+  function scanRepeats(root=document){[...root.querySelectorAll?.('.para')||[]].forEach((el,i)=>bindRepeat(el,i));}
+  function boot(){normalizeAyahLayout();scanRepeats();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){if(n.nodeType===1){normalizeAyahLayout(n);scanRepeats(n);}}}).observe(document.body,{childList:true,subtree:true});
+  // Re-scan before Auto Fokus starts/moves so imported/edited repetitions are never skipped.
+  document.addEventListener('click',e=>{if(e.target.closest('#autoFocusBtn,#af76PlayPause,#af76Next,#nextBtn'))scanRepeats();},true);
+})();
+</script>
 </body>
 </html>
