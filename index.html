@@ -964,10 +964,17 @@ body.rc71-native-pip-active{
 </style>
 </head>
 <body data-amalan-build="RC71-RC76-SMART-COUNTER-AUTO-TARGET" data-revision="RC71-RC76-SMART-COUNTER-AUTO-TARGET">
-<button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
-<button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
-<button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button>
-<nav aria-label="Kontrol Smart Counter" class="smart-counter-controls" id="smartCounterControls"><button aria-label="Pause atau Play Smart Counter" class="stop" id="scPausePlay" title="Pause / Play" type="button">⏸</button><button aria-label="Reset ke 0" class="counter-reset" id="scReset" title="Reset ke 0" type="button">0</button></nav><div class="tasbih-target-panel" id="tasbihTargetPanel" aria-hidden="true"><div class="tasbih-target-card"><b>📿 Tasbih Digital</b><span>Pilih target hitungan</span><div class="tasbih-target-options"><button data-target="1">1×</button><button data-target="3">3×</button><button data-target="7">7×</button><button data-target="11">11×</button><button data-target="33">33×</button><button data-target="41">41×</button><button data-target="100">100×</button></div><label>Target lain <input id="tasbihCustomTarget" inputmode="numeric" min="1" max="9999" type="number" placeholder="mis. 99"></label><div class="tasbih-target-actions"><button id="tasbihStartCustom" type="button">Mulai</button><button id="tasbihClose" type="button">Tutup</button></div></div></div>
+<button aria-label="Tasbih Digital" id="manualSmartCounterBtn" title="Tasbih Digital" type="button">📿</button>
+<div id="smartCounterDock" class="rc77-counter-dock" aria-live="polite" hidden>
+  <button type="button" class="rc77-count" id="rc77CounterAdd" title="Tambah +1"><strong id="rc77CounterValue">0 / 0</strong><span id="rc77CounterLabel">Tasbih Digital</span></button>
+  <div class="rc77-counter-actions">
+    <button type="button" id="rc77PausePlay" title="Pause / Play">⏸</button>
+    <button type="button" id="rc77Reset" title="Reset ke 0">0</button>
+    <button type="button" id="rc77Exit" title="Keluar Smart Counter">✕</button>
+  </div>
+</div>
+<nav aria-label="Kontrol Smart Counter" class="smart-counter-controls" id="smartCounterControls" hidden></nav>
+<div class="tasbih-target-panel" id="tasbihTargetPanel" aria-hidden="true"><div class="tasbih-target-card"><b>📿 Tasbih Digital</b><span>Pilih target perhitungan</span><div class="tasbih-target-options"><button data-target="1">1×</button><button data-target="3">3×</button><button data-target="7">7×</button><button data-target="11">11×</button><button data-target="33">33×</button><button data-target="41">41×</button><button data-target="100">100×</button></div><label>Target lain <input id="tasbihCustomTarget" inputmode="numeric" min="1" max="9999" type="number" placeholder="mis. 99"></label><div class="tasbih-target-actions"><button id="tasbihStartCustom" type="button">Mulai</button><button id="tasbihClose" type="button">Tutup</button></div></div></div>
 <div aria-live="polite" class="counter-toast" id="counterToast">Selesai</div>
 <div class="progress"><i id="bar"></i></div><div class="app"><header><button aria-label="Buka menu" class="icon" id="menuBtn">☰</button><h1>Amalan Muslim</h1><button aria-label="Bookmark" class="icon" id="bookmarkBtn">🔖</button><button aria-label="Layar penuh" class="icon" id="appFullscreenBtn" title="Layar penuh">⛶</button><button aria-label="Ganti tema" class="icon" id="themeBtn">◐</button></header><main class="reader-wrap" id="reader"><article class="book">
 
@@ -3875,264 +3882,61 @@ window.RC72VisualPDFTeleprompter={open,close,start,stop};
      The PDF is intentionally NOT copied into this repository. If the PDF was
      previously imported by RC71/RC72 on the same GitHub Pages origin, it is
      recovered from IndexedDB automatically. -->
-<script id="rc72-auto-open-existing-pdf">
-(()=>{
-'use strict';
-/* RC72 Revision 2 — RC71 PDF bridge.
-   RC71 and RC72 normally share the same GitHub Pages origin, but their
-   IndexedDB database/store names may differ.  Discover the existing PDF
-   instead of assuming RC72_IMPORT_STORAGE is the only database. */
-const TARGET_DB='RC72_IMPORT_STORAGE', TARGET_STORE='documents';
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const pdfLike=(v,name='')=>{
-  try{
-    const type=(v?.type||v?.mime||'').toLowerCase();
-    const nm=(v?.name||name||'').toLowerCase();
-    return type.includes('pdf')||nm.endsWith('.pdf');
-  }catch{return false}
-};
-function findBlob(record){
-  const seen=new WeakSet();
-  function walk(v,key=''){
-    if(v==null)return null;
-    if(v instanceof Blob && (pdfLike(v,key)||v.type==='application/pdf')) return {blob:v,name:key||'Doa Ziarah.pdf',type:v.type||'application/pdf'};
-    if(typeof File!=='undefined' && v instanceof File)return {blob:v,name:v.name||key||'Doa Ziarah.pdf',type:v.type||'application/pdf'};
-    if(typeof v!=='object')return null;
-    if(seen.has(v))return null; seen.add(v);
-    if(v.blob instanceof Blob && pdfLike(v,v.name||key)) return {blob:v.blob,name:v.name||key||'Doa Ziarah.pdf',type:v.type||v.mime||v.blob.type||'application/pdf',created:v.created||v.lastModified||''};
-    if(v.file instanceof Blob && pdfLike(v,v.name||key)) return {blob:v.file,name:v.name||key||'Doa Ziarah.pdf',type:v.type||v.mime||v.file.type||'application/pdf',created:v.created||v.lastModified||''};
-    if(v.data instanceof Blob && pdfLike(v,v.name||key)) return {blob:v.data,name:v.name||key||'Doa Ziarah.pdf',type:v.type||v.mime||v.data.type||'application/pdf',created:v.created||v.lastModified||''};
-    for(const k of Object.keys(v)){
-      const x=v[k];
-      if(x instanceof Blob && (pdfLike(x,v.name||k)||k.toLowerCase().includes('pdf'))) return {blob:x,name:v.name||k||'Doa Ziarah.pdf',type:v.type||v.mime||x.type||'application/pdf',created:v.created||v.lastModified||''};
-      if(x && typeof x==='object' && !(x instanceof ArrayBuffer)){const hit=walk(x,k);if(hit)return hit;}
-    }
-    return null;
-  }
-  return walk(record);
-}
-async function listDbNames(){
-  const names=new Set([TARGET_DB,'RC71_IMPORT_STORAGE','RC71_PDF_STORAGE','amp-media-db','amp-gallery-db']);
-  try{if(indexedDB.databases){for(const d of await indexedDB.databases())if(d?.name)names.add(d.name)}}catch(e){console.warn('[RC72] indexedDB.databases unavailable',e)}
-  return [...names];
-}
-function openDb(name){return new Promise((resolve,reject)=>{const r=indexedDB.open(name);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onupgradeneeded=()=>{try{r.transaction.abort()}catch{}}})}
-async function scanDb(name){
-  let db;try{db=await openDb(name)}catch{return []}
-  const stores=[...db.objectStoreNames]; const out=[];
-  for(const storeName of stores){
-    try{
-      const values=await new Promise((res,rej)=>{const q=db.transaction(storeName,'readonly').objectStore(storeName).getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error)});
-      for(const rec of values){const hit=findBlob(rec);if(hit)out.push({...hit,db:name,store:storeName});}
-    }catch(e){console.warn('[RC72] scan store failed',name,storeName,e)}
-  }
-  try{db.close()}catch{}
-  return out;
-}
-function score(x){
-  const n=(x.name||'').toLowerCase(); let s=0;
-  if(n.includes('ziarah'))s+=1000;if(n.includes('doa'))s+=500;if(n.includes('tahlil'))s+=250;if(n.includes('yasin'))s+=150;if(n.endsWith('.pdf'))s+=20;
-  s+=Math.min(100,Math.round((x.blob?.size||0)/100000));
-  const t=Date.parse(x.created||'');if(Number.isFinite(t))s+=Math.max(0,Math.round((t-1700000000000)/1e10));
-  return s;
-}
-async function saveToRc72(x){
-  try{
-    const db=await new Promise((resolve,reject)=>{const r=indexedDB.open(TARGET_DB,2);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(TARGET_STORE))d.createObjectStore(TARGET_STORE,{keyPath:'id'})};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
-    await new Promise((resolve,reject)=>{const q=db.transaction(TARGET_STORE,'readwrite').objectStore(TARGET_STORE).put({id:'rc72-bridge-'+Date.now(),name:x.name||'Doa Ziarah.pdf',type:x.type||'application/pdf',mime:x.type||'application/pdf',blob:x.blob,size:x.blob.size,created:new Date().toISOString(),position:0});q.onsuccess=resolve;q.onerror=()=>reject(q.error)});
-    db.close();
-  }catch(e){console.warn('[RC72] Could not cache bridged PDF',e)}
-}
-async function fetchPdfLinksFromRc71(){
-  const candidates=['../RC71/index.html','/RC71/index.html','https://branigak-mawgak.github.io/RC71/index.html'];
-  for(const u of candidates){
-    try{
-      const r=await fetch(u,{cache:'no-store'});if(!r.ok)continue;const html=await r.text();
-      const urls=[...html.matchAll(/(?:src|href|url|pdf(?:Url|Src)?)[^"'<>]{0,80}["'=:\s]+([^"'<>\s]+\.pdf(?:\?[^"'<>\s]*)?)/ig)].map(m=>m[1]);
-      for(const raw of urls){
-        const url=new URL(raw,u).href;const rr=await fetch(url,{cache:'no-store'});if(!rr.ok)continue;const b=await rr.blob();if(b.type.includes('pdf')||url.toLowerCase().includes('.pdf'))return {blob:b,name:decodeURIComponent(url.split('/').pop().split('?')[0])||'Doa Ziarah.pdf',type:b.type||'application/pdf'};
-      }
-    }catch(e){console.warn('[RC72] RC71 URL bridge failed',u,e)}
-  }
-  return null;
-}
-async function boot(){
-  for(let i=0;i<30;i++){if(typeof window.RC72VisualPDFTeleprompter?.open==='function')break;await sleep(200)}
-  if(window.__RC72_AUTO_PDF_OPENED)return;
-  try{
-    let candidates=[];
-    for(const name of await listDbNames())candidates.push(...await scanDb(name));
-    let chosen=candidates.sort((a,b)=>score(b)-score(a))[0]||null;
-    if(!chosen)chosen=await fetchPdfLinksFromRc71();
-    if(!chosen){
-      console.warn('[RC72] Tidak menemukan PDF dari RC71/IndexedDB.');
-      const st=document.getElementById('rc71VtpStatus');if(st)st.textContent='PDF belum ditemukan dari RC71';
-      return;
-    }
-    window.__RC72_AUTO_PDF_OPENED=true;
-    await saveToRc72(chosen);
-    await sleep(250);
-    await window.RC72VisualPDFTeleprompter.open(chosen);
-  }catch(e){console.error('[RC72] Auto-open RC71 PDF failed:',e)}
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,700),{once:true});else setTimeout(boot,700);
-})();
-</script>
 
 
 
 
-<style id="rc75-clean-ipad-layout">
-/* RC75 CLEAN CORE — single authoritative layout for numbered Surahs and Smart Counter. */
-#surat-yasin-ziarah .ayah,
-#surat-waqiah .ayah,
-#surat-mulk .ayah{
-  display:grid!important;
-  grid-template-columns:40px minmax(0,1fr)!important;
-  column-gap:8px!important;
-  align-items:start!important;
-  position:relative!important;
-  box-sizing:border-box!important;
-  width:100%!important;
-  max-width:none!important;
-  padding:8px 0!important;
-  margin:0 0 12px!important;
-  min-height:0!important;
-  text-indent:0!important;
-  overflow:visible!important;
-}
-#surat-yasin-ziarah .ayah-no,
-#surat-waqiah .ayah-no,
-#surat-mulk .ayah-no{
-  position:static!important;
-  grid-column:1!important;
-  grid-row:1!important;
-  justify-self:start!important;
-  align-self:start!important;
-  width:34px!important;
-  height:34px!important;
-  min-width:34px!important;
-  min-height:34px!important;
-  margin:2px 0 0!important;
-  transform:none!important;
-  z-index:1!important;
-}
-#surat-yasin-ziarah .ayah-content,
-#surat-waqiah .ayah-content,
-#surat-mulk .ayah-content{
-  display:block!important;
-  grid-column:2!important;
-  grid-row:1!important;
-  min-width:0!important;
-  width:auto!important;
-  max-width:none!important;
-  margin:0!important;
-  padding:0!important;
-  text-indent:0!important;
-  white-space:normal!important;
-  overflow-wrap:anywhere!important;
-  word-break:normal!important;
-}
-#surat-yasin-ziarah .ayah .repeat-badge,
-#surat-waqiah .ayah .repeat-badge,
-#surat-mulk .ayah .repeat-badge{max-width:max-content!important}
 
-/* iPad portrait: reader fills the actual device width. */
-@media (orientation:portrait) and (min-width:600px){
-  html,body,.app{width:100%!important;max-width:none!important;min-width:0!important}
-  .reader-wrap,#reader{
-    width:100%!important;max-width:none!important;min-width:0!important;
-    box-sizing:border-box!important;padding:10px 14px 96px!important;margin:0!important;
-  }
-  .book{
-    width:100%!important;max-width:none!important;min-width:0!important;
-    box-sizing:border-box!important;margin:0!important;padding:16px 18px 36px!important;
-  }
-  .chapter,.chapter-body,.para{width:100%!important;max-width:none!important;box-sizing:border-box!important}
-  #surat-yasin-ziarah .ayah,#surat-waqiah .ayah,#surat-mulk .ayah{
-    grid-template-columns:38px minmax(0,1fr)!important;column-gap:6px!important;
-  }
-}
 
-/* Landscape: keep one rigid number column at the true left edge of each ayah. */
-@media (orientation:landscape) and (min-width:700px){
-  #surat-yasin-ziarah .ayah,#surat-waqiah .ayah,#surat-mulk .ayah{
-    grid-template-columns:40px minmax(0,1fr)!important;
-    column-gap:8px!important;padding:7px 0!important;margin-bottom:10px!important;
-  }
-}
 
-/* Smart Counter: display ABOVE, compact controls DIRECTLY BELOW, never overlapping. */
-.counter-fab{
-  width:64px!important;height:64px!important;min-height:64px!important;
-  right:16px!important;bottom:132px!important;
-  padding:6px!important;border-radius:18px!important;
-  transform:none!important;z-index:128!important;
-}
-.counter-fab .counter-value{font-size:17px!important;line-height:1.05!important}
-.counter-fab .counter-label{font-size:8px!important;max-width:54px!important;margin-top:3px!important}
-.counter-fab .counter-hint{font-size:7px!important;margin-top:1px!important}
-.counter-mini-progress{width:46px!important;height:4px!important;margin-top:4px!important}
-.counter-undo{display:none!important}
-.smart-counter-controls{
-  right:16px!important;bottom:74px!important;
-  transform:none!important;z-index:130!important;
-  display:none!important;gap:4px!important;padding:4px!important;
-}
-.smart-counter-controls.show{display:flex!important}
-.smart-counter-controls button{
-  width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;
-  display:grid!important;font-size:13px!important;
-}
-/* Top button is an independent Tasbih Digital launcher. */
-#manualSmartCounterBtn{
-  position:fixed!important;top:calc(env(safe-area-inset-top) + 8px)!important;right:12px!important;bottom:auto!important;
-  width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;
-  z-index:150!important;transform:none!important;font-size:13px!important;
-}
-@media (orientation:landscape){
-  .counter-fab{right:calc(var(--rc17-nav) + 16px + env(safe-area-inset-right))!important;bottom:128px!important}
-  .smart-counter-controls{right:calc(var(--rc17-nav) + 16px + env(safe-area-inset-right))!important;bottom:72px!important}
-  #manualSmartCounterBtn{right:calc(var(--rc17-nav) + 10px + env(safe-area-inset-right))!important}
-}
+
+
+
+<style id="rc77-clean-ipad-layout">
+/* RC77 CLEAN AUTHORITATIVE CORE — removes late conflicting floating/auto-open patches. */
+#counterFab,#counterUndo,.counter-fab,.counter-undo,.smart-counter-controls{display:none!important}
+header #manualSmartCounterBtn{position:static!important;display:inline-grid!important;place-items:center!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;margin:0!important;padding:0!important;transform:none!important;z-index:auto!important;font-size:18px!important}
+.rc77-counter-dock{position:fixed;right:14px;bottom:max(78px,calc(env(safe-area-inset-bottom) + 68px));z-index:160;display:flex;align-items:stretch;gap:6px;padding:6px;border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line));border-radius:18px;background:color-mix(in srgb,var(--paper) 96%,transparent);box-shadow:0 12px 34px rgba(0,0,0,.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.rc77-counter-dock[hidden]{display:none!important}.rc77-count{min-width:88px;border:0;background:transparent;color:var(--ink);padding:4px 7px;text-align:center}.rc77-count strong{display:block;font-size:20px;line-height:1.05}.rc77-count span{display:block;margin-top:3px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:9px;color:var(--muted)}
+.rc77-counter-actions{display:flex;gap:4px}.rc77-counter-actions button{width:34px;height:34px;min-width:34px;min-height:34px;border:1px solid var(--line);border-radius:50%;background:var(--paper);color:var(--ink);font-weight:900;font-size:15px}.rc77-counter-actions button:active,.rc77-count:active{transform:scale(.93)}
+.tasbih-target-panel{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.38);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}.tasbih-target-panel.show{display:flex}.tasbih-target-card{width:min(360px,calc(100vw - 36px));border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line));border-radius:20px;padding:16px;background:var(--paper);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.28)}.tasbih-target-card b{display:block;font-size:18px;margin-bottom:4px}.tasbih-target-card>span{display:block;color:var(--muted);font-size:13px;margin-bottom:12px}.tasbih-target-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tasbih-target-options button,.tasbih-target-actions button{border:1px solid var(--line);border-radius:12px;min-height:42px;background:var(--bg);color:var(--ink);font-weight:850}.tasbih-target-card label{display:block;margin-top:12px;font-size:12px;color:var(--muted)}.tasbih-target-card input{width:100%;box-sizing:border-box;margin-top:6px;min-height:42px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:8px 10px;font:inherit}.tasbih-target-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.tasbih-target-actions #tasbihStartCustom{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* Numbered Surahs: a real left number column, never absolute, never overlapping. */
+#surat-yasin-ziarah .ayah,#surat-waqiah .ayah,#surat-mulk .ayah{display:grid!important;grid-template-columns:46px minmax(0,1fr)!important;column-gap:10px!important;align-items:start!important;width:100%!important;max-width:none!important;box-sizing:border-box!important;padding:9px 0!important;margin:0 0 12px!important;text-indent:0!important;overflow:visible!important}
+#surat-yasin-ziarah .ayah-no,#surat-waqiah .ayah-no,#surat-mulk .ayah-no{position:static!important;grid-column:1!important;grid-row:1!important;justify-self:start!important;align-self:start!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;margin:1px 0 0!important;transform:none!important;float:none!important;z-index:1!important}
+#surat-yasin-ziarah .ayah-content,#surat-waqiah .ayah-content,#surat-mulk .ayah-content{display:block!important;grid-column:2!important;grid-row:1!important;min-width:0!important;width:auto!important;max-width:none!important;margin:0!important;padding:0!important;text-indent:0!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
+#surat-yasin-ziarah .ayah .repeat-badge,#surat-waqiah .ayah .repeat-badge,#surat-mulk .ayah .repeat-badge{grid-column:2!important;max-width:max-content!important}
+@media (orientation:portrait) and (min-width:600px){html,body,.app{width:100%!important;max-width:none!important;min-width:0!important}.reader-wrap,#reader{width:100%!important;max-width:none!important;box-sizing:border-box!important;padding:10px 14px 96px!important;margin:0!important}.book{width:100%!important;max-width:none!important;box-sizing:border-box!important;margin:0!important;padding:16px 18px 36px!important}.chapter,.chapter-body,.para{max-width:none!important;box-sizing:border-box!important}}
+@media (orientation:landscape) and (min-width:700px){#surat-yasin-ziarah .ayah,#surat-waqiah .ayah,#surat-mulk .ayah{grid-template-columns:46px minmax(0,1fr)!important;column-gap:10px!important;padding:8px 0!important}.rc77-counter-dock{right:calc(var(--rc17-nav) + 12px + env(safe-area-inset-right));bottom:calc(env(safe-area-inset-bottom) + 10px)}}
 </style>
-
-<style id="rc76-smart-counter-auto-target-style">
-/* RC76 authoritative Smart Counter controls */
-.tasbih-target-panel{position:fixed;inset:0;z-index:190;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.38);backdrop-filter:blur(4px)}
-.tasbih-target-panel.show{display:flex}.tasbih-target-card{width:min(360px,calc(100vw - 36px));border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line));border-radius:20px;padding:16px;background:var(--paper);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.28)}
-.tasbih-target-card b{display:block;font-size:18px;margin-bottom:4px}.tasbih-target-card>span{display:block;color:var(--muted);font-size:13px;margin-bottom:12px}.tasbih-target-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tasbih-target-options button,.tasbih-target-actions button{border:1px solid var(--line);border-radius:12px;min-height:42px;background:var(--bg);color:var(--ink);font-weight:850}.tasbih-target-options button:active{background:var(--accent);color:#fff}.tasbih-target-card label{display:block;margin-top:12px;font-size:12px;color:var(--muted)}.tasbih-target-card input{width:100%;box-sizing:border-box;margin-top:6px;min-height:42px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:8px 10px;font:inherit}.tasbih-target-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.tasbih-target-actions #tasbihStartCustom{background:var(--accent);color:#fff;border-color:var(--accent)}
-/* Floating display remains separate from its two action buttons. */
-.smart-counter-controls{flex-direction:column!important;border-radius:16px!important;padding:4px!important;gap:5px!important}.smart-counter-controls button{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;border-radius:50%!important}.smart-counter-controls button.stop{font-size:17px!important}
-.counter-fab{pointer-events:auto!important}.counter-fab.paused .counter-hint::after{content:' • PAUSE';font-weight:900;color:var(--accent)}
-</style>
-<script id="rc76-smart-counter-auto-target">
-(()=>{
-'use strict';
-const TARGETS=[1,3,7,11,33,41,100];
-const ayahSelector='#surat-yasin-ziarah .ayah,#surat-waqiah .ayah,#surat-mulk .ayah';
-function normalizeAyah(ayah){const no=ayah.querySelector(':scope > .ayah-no');if(!no)return;let content=ayah.querySelector(':scope > .ayah-content');if(!content){content=document.createElement('span');content.className='ayah-content';[...ayah.childNodes].filter(n=>n!==no&&!(n.nodeType===1&&n.classList.contains('repeat-badge'))).forEach(n=>content.appendChild(n));no.insertAdjacentElement('afterend',content)}}
-document.querySelectorAll(ayahSelector).forEach(normalizeAyah);
-const manual=document.getElementById('manualSmartCounterBtn'),fab=document.getElementById('counterFab'),controls=document.getElementById('smartCounterControls'),pausePlay=document.getElementById('scPausePlay'),reset=document.getElementById('scReset'),panel=document.getElementById('tasbihTargetPanel'),custom=document.getElementById('tasbihCustomTarget');
-let proxy=document.getElementById('rc76TasbihProxy');if(!proxy){proxy=document.createElement('span');proxy.id='rc76TasbihProxy';proxy.style.display='none';document.body.appendChild(proxy)}
+<script id="rc77-smart-counter-clean">
+(()=>{'use strict';
+const TARGETS=new Set([1,3,7,11,33,41,100]);
+const q=s=>document.querySelector(s); const qa=s=>[...document.querySelectorAll(s)];
 const api=()=>window.SmartDzikirCounter;
-function syncPause(){const a=api();if(!pausePlay||!a)return;const paused=!!a.isPaused?.();pausePlay.textContent=paused?'▶':'⏸';pausePlay.title=paused?'Lanjutkan':'Jeda';pausePlay.setAttribute('aria-label',paused?'Play Smart Counter':'Pause Smart Counter')}
-function openPanel(){panel?.classList.add('show');panel?.setAttribute('aria-hidden','false');setTimeout(()=>custom?.focus(),80)}
-function closePanel(){panel?.classList.remove('show');panel?.setAttribute('aria-hidden','true')}
-function startManual(target){target=Math.max(1,Math.min(9999,Number(target)||33));proxy.dataset.repeat=String(target);proxy.dataset.repeatTitle='Tasbih Digital';const a=api();a?.activate?.(proxy,0);controls?.classList.add('show');fab?.classList.add('show');syncPause();closePanel()}
-function autoActivate(el,index){const raw=Number(el.dataset.repeat||0);if(!TARGETS.includes(raw))return;const a=api();if(!a)return;const snap=a.snapshot?.();if(snap?.element===el)return;a.activate?.(el,index);controls?.classList.add('show');syncPause()}
-function bind(el,fn){if(!el)return;el.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();fn(e)},{capture:true})}
-bind(manual,openPanel);bind(document.getElementById('smartCounterNavBtn'),openPanel);bind(fab,()=>{api()?.increment?.();controls?.classList.add('show');syncPause()});bind(pausePlay,()=>{api()?.togglePause?.();controls?.classList.add('show');syncPause()});bind(reset,()=>{api()?.reset?.();controls?.classList.add('show');syncPause()});
-document.querySelectorAll('.tasbih-target-options [data-target]').forEach(b=>bind(b,()=>startManual(b.dataset.target)));bind(document.getElementById('tasbihStartCustom'),()=>startManual(custom?.value));bind(document.getElementById('tasbihClose'),closePanel);panel?.addEventListener('click',e=>{if(e.target===panel)closePanel()});
-window.addEventListener('smartcounterpause',syncPause);window.addEventListener('smartcountercomplete',()=>{controls?.classList.add('show');syncPause()});window.addEventListener('smartcounterexit',()=>{controls?.classList.remove('show');syncPause()});
-// Automatic activation: any recognised repetition target opens Smart Counter when that reading becomes the active reading area.
-const repeatables=[...document.querySelectorAll('.para')].map((el,index)=>({el,index,target:Number(el.dataset.repeat||0)})).filter(x=>TARGETS.includes(x.target));
-const seen=new WeakMap();
-const observer=new IntersectionObserver(entries=>{entries.filter(e=>e.isIntersecting&&e.intersectionRatio>=.62).sort((a,b)=>b.intersectionRatio-a.intersectionRatio).forEach(e=>{const item=repeatables.find(x=>x.el===e.target);if(!item)return;const last=seen.get(item.el)||0;const now=Date.now();if(now-last<900)return;seen.set(item.el,now);autoActivate(item.el,item.index)})},{root:document.getElementById('reader')||null,threshold:[.62,.8]});repeatables.forEach(x=>observer.observe(x.el));
-// Also follow app's active paragraph state, including Auto Focus navigation.
-let lastActive=null;setInterval(()=>{const el=document.querySelector('.para.active');if(el&&el!==lastActive){lastActive=el;const item=repeatables.find(x=>x.el===el);if(item)autoActivate(item.el,item.index)}},250);
-syncPause();
+const dock=q('#smartCounterDock'), value=q('#rc77CounterValue'), label=q('#rc77CounterLabel'), pause=q('#rc77PausePlay');
+function sync(){const a=api();if(!a)return;const s=a.snapshot?.()||{};const active=!!s.target;dock.hidden=!active;if(!active)return;value.textContent=`${s.count||0} / ${s.target}`;label.textContent=s.title||'Tasbih Digital';pause.textContent=s.paused?'▶':'⏸';pause.title=s.paused?'Play':'Pause'}
+function openPanel(){q('#tasbihTargetPanel')?.classList.add('show');q('#tasbihTargetPanel')?.setAttribute('aria-hidden','false')}
+function closePanel(){q('#tasbihTargetPanel')?.classList.remove('show');q('#tasbihTargetPanel')?.setAttribute('aria-hidden','true')}
+function normalizeAyah(el){const no=el.querySelector(':scope > .ayah-no');if(!no)return;let c=el.querySelector(':scope > .ayah-content');if(!c){c=document.createElement('span');c.className='ayah-content';[...el.childNodes].filter(n=>n!==no&&!(n.nodeType===1&&n.classList.contains('repeat-badge'))).forEach(n=>c.appendChild(n));no.insertAdjacentElement('afterend',c)}}
+qa('#surat-yasin-ziarah .ayah,#surat-waqiah .ayah,#surat-mulk .ayah').forEach(normalizeAyah);
+const manual=q('#manualSmartCounterBtn'); q('header')?.appendChild(manual); q('#themeBtn')?.setAttribute('title','Ganti tema');
+manual?.addEventListener('click',openPanel);
+q('#smartCounterNavBtn')?.addEventListener('click',openPanel);
+q('#rc77CounterAdd')?.addEventListener('click',()=>{api()?.increment?.();sync()});
+pause?.addEventListener('click',()=>{api()?.togglePause?.();sync()});
+q('#rc77Reset')?.addEventListener('click',()=>{api()?.reset?.();sync()});
+q('#rc77Exit')?.addEventListener('click',()=>{api()?.resetAndClose?.();sync()});
+qa('.tasbih-target-options [data-target]').forEach(b=>b.addEventListener('click',()=>start(b.dataset.target)));
+q('#tasbihStartCustom')?.addEventListener('click',()=>start(q('#tasbihCustomTarget')?.value));q('#tasbihClose')?.addEventListener('click',closePanel);q('#tasbihTargetPanel')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closePanel()});
+let proxy=q('#rc77TasbihProxy');if(!proxy){proxy=document.createElement('span');proxy.id='rc77TasbihProxy';proxy.hidden=true;document.body.appendChild(proxy)}
+function start(n){n=Math.max(1,Math.min(9999,Number(n)||33));proxy.dataset.repeat=String(n);proxy.dataset.repeatTitle='Tasbih Digital';api()?.activate?.(proxy,0);closePanel();sync()}
+const repeatables=qa('.para').map((el,index)=>({el,index,target:Number(el.dataset.repeat||0)})).filter(x=>TARGETS.has(x.target));
+function autoActivate(item){const a=api();if(!a)return;const s=a.snapshot?.();if(s?.element===item.el)return;a.activate?.(item.el,item.index);sync()}
+const root=q('#reader')||null;if('IntersectionObserver' in window){const ob=new IntersectionObserver(es=>{es.filter(e=>e.isIntersecting&&e.intersectionRatio>.65).sort((a,b)=>b.intersectionRatio-a.intersectionRatio).forEach(e=>{const it=repeatables.find(x=>x.el===e.target);if(it)autoActivate(it)})},{root,threshold:[.65,.85]});repeatables.forEach(x=>ob.observe(x.el))}
+let last=null;setInterval(()=>{const el=q('.para.active');if(el&&el!==last){last=el;const it=repeatables.find(x=>x.el===el);if(it)autoActivate(it)}sync()},250);
+['smartcounterpause','smartcountercomplete','smartcounterexit','smartcounterfinishcontinue'].forEach(ev=>window.addEventListener(ev,sync));sync();
 })();
 </script>
+
 </body>
 </html>
