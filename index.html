@@ -4025,5 +4025,93 @@ window.addEventListener('load',()=>{restorePdfLibrary();},{once:true});
 if(document.readyState==='complete')restorePdfLibrary();
 })();
 </script>
+
+<!-- RC81: authoritative Auto Focus + Smart Counter runtime repair -->
+<style id="rc81-runtime-fix">
+/* Keep the native bottom button visible and authoritative. */
+#af76Controller,#af76Status,#autoFocusFab,#autoFocusStatus{display:none!important}
+.para.af81-active{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:12px;scroll-margin-block:18vh;padding-block:8px}
+</style>
+<script id="rc81-runtime-fix-script">
+(()=>{
+'use strict';
+/* ---------- AUTO FOCUS: single independent engine ---------- */
+const btn=document.getElementById('autoFocusBtn');
+const reader=document.getElementById('reader');
+const getParas=()=>Array.from(document.querySelectorAll('#reader > article.book > section.chapter:not(.no-auto-focus) .para'));
+let list=getParas(), idx=0, running=false, timer=0, waiting=false;
+const delayFor=p=>{
+  const words=Math.max(1,(p?.textContent||'').trim().split(/\s+/).filter(Boolean).length);
+  const mode=document.getElementById('focusMode')?.value||'phrase';
+  return mode==='paragraph' ? Math.max(2600,Math.min(9000,words*210)) : Math.max(1800,Math.min(7000,words*150));
+};
+function nearestIndex(){
+  if(!list.length)return 0;
+  const root=reader?.getBoundingClientRect(); const cy=root?root.top+root.height*.42:innerHeight*.42;
+  let best=0,dist=Infinity;
+  list.forEach((p,i)=>{const r=p.getBoundingClientRect();const d=Math.abs((r.top+r.height/2)-cy);if(d<dist){dist=d;best=i}});
+  return best;
+}
+function mark(i,scroll=true){
+  list=getParas(); idx=Math.max(0,Math.min(list.length-1,i));
+  list.forEach((p,n)=>{p.classList.toggle('active',n===idx);p.classList.toggle('af81-active',n===idx)});
+  const p=list[idx];
+  if(scroll&&p)p.scrollIntoView({behavior:'smooth',block:'center'});
+  return p;
+}
+function render(){
+  if(!btn)return;
+  btn.textContent=running?'⏸ Auto Fokus':'◎ Auto Fokus';
+  btn.classList.toggle('on',running);
+}
+function stop(clear=true){clearTimeout(timer);timer=0;running=false;waiting=false;if(clear)document.querySelectorAll('.af81-active').forEach(x=>x.classList.remove('af81-active'));render();}
+function isRepeat(p){const n=Number(p?.dataset?.repeatTarget||p?.dataset?.repeat||0);return [1,3,7,11,33,41,100].includes(n)}
+function step(){
+  if(!running||waiting)return;
+  const p=mark(idx,true);
+  if(isRepeat(p)){
+    const api=window.SmartDzikirCounter;
+    if(api?.activate){waiting=true;running=false;render();api.activate(p,idx);return;}
+  }
+  clearTimeout(timer);timer=setTimeout(()=>{idx=Math.min(list.length-1,idx+1);if(idx===list.length-1&&list[idx]===p){stop(false);return}step();},delayFor(p));
+}
+function start(){list=getParas();if(!list.length)return;idx=nearestIndex();running=true;waiting=false;if(!document.body.classList.contains('focus'))document.getElementById('focusBtn')?.click();render();step();}
+btn?.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();running?stop():start();},true);
+/* Override property handler installed by older builds. */
+if(btn)btn.onclick=()=>running?stop():start();
+window.addEventListener('smartcounterexit',()=>{if(!waiting)return;waiting=false;idx=Math.min(list.length-1,idx+1);running=true;render();step();});
+window.addEventListener('smartcounterfinishcontinue',()=>{if(!waiting)return;waiting=false;idx=Math.min(list.length-1,idx+1);running=true;render();step();});
+window.addEventListener('smartcountercomplete',()=>{if(waiting){running=false;render();}});
+
+/* ---------- SMART COUNTER: reliable center-zone activation ---------- */
+const allowed=new Set([1,3,7,11,33,41,100]);
+function repeatTarget(el){
+  const a=Number(el?.dataset?.repeatTarget||el?.dataset?.repeat||0);if(allowed.has(a))return a;
+  const t=(el?.textContent||'').replace(/\s+/g,' ');
+  const m=t.match(/(?:^|[\s(\[])(100|41|33|11|7|3|1)\s*(?:x|×)(?=$|[\s)\],.;:])/i);
+  return m?Number(m[1]):0;
+}
+let current=null, queued=false, manualHold=false;
+function prepare(){document.querySelectorAll('.para').forEach(p=>{const n=repeatTarget(p);if(n){p.dataset.repeat=String(n);p.dataset.repeatTarget=String(n);p.classList.add('repeatable');}})}
+prepare();
+function checkRepeat(){queued=false;const api=window.SmartDzikirCounter;if(!api)return;const root=reader?.getBoundingClientRect();const center=root?root.top+root.height*.45:innerHeight*.45;let best=null,dist=Infinity;
+  document.querySelectorAll('.para.repeatable').forEach(p=>{const r=p.getBoundingClientRect();if(r.bottom<(root?.top||0)||r.top>(root?.bottom||innerHeight))return;const d=Math.abs((r.top+r.height/2)-center);if(d<dist){dist=d;best=p;}});
+  if(!best){current=null;return;}
+  if(best===current)return;
+  current=best;
+  const n=repeatTarget(best);if(!n)return;
+  const snap=api.snapshot?.();
+  if(snap?.element===best&&Number(snap?.target)===n)return;
+  api.activate?.(best,Array.from(document.querySelectorAll('.para')).indexOf(best));
+}
+function schedule(){if(queued)return;queued=true;requestAnimationFrame(checkRepeat)}
+reader?.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule,{passive:true});document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
+setTimeout(schedule,350);
+/* Do NOT clear current on Exit: otherwise the same paragraph immediately reopens. */
+window.addEventListener('smartcounterexit',()=>setTimeout(schedule,250));
+console.info('RC81 runtime repair active');
+})();
+</script>
+
 </body>
 </html>
