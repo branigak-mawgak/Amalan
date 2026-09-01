@@ -2435,7 +2435,7 @@ function fillCategories(){const s=$('libraryCategory');if(!s)return;const v=s.va
 function renderLibrary(){const list=$('libraryList');if(!list)return;fillCategories();const q=($('librarySearch')?.value||'').toLowerCase().trim(),cat=$('libraryCategory')?.value||'';const rows=allLibrary().filter(x=>(!cat||x.category===cat)&&(!q||(x.title+' '+x.category+' '+preview(x)).toLowerCase().includes(q)));list.innerHTML=rows.map(x=>`<article class="lib-card rc35-lib-card" data-lib="${esc(x.id)}"><div class="rc35-lib-title"><h3>${esc(x.title)}</h3><span class="chip">${esc(x.category||'Lainnya')}</span></div><div class="compact-actions rc35-lib-actions"><button class="primary" type="button" data-open data-library-action="open">📖 Buka</button><button type="button" data-add data-library-action="add">＋ Ritual</button><button type="button" data-edit data-library-action="edit">${x.kind==='custom'?'Edit':'Edit salinan'}</button><button type="button" data-delete data-library-action="delete">${x.kind==='custom'?'Hapus':'Hapus salinan'}</button></div></article>`).join('');$('libraryEmpty').hidden=rows.length>0;list.querySelectorAll('[data-lib]').forEach(c=>{const id=c.dataset.lib;const edit=c.querySelector('[data-edit]');const del=c.querySelector('[data-delete]');if(edit)edit.onclick=async()=>{const x=getLib(id);if(!x)return;if(x.kind==='custom')return openLibraryModal(id);const copy={id:uid('lib'),title:x.title,category:x.category,arabic:'',latin:strip(x.content),translation:'',source:'Salinan bacaan',updatedAt:new Date().toISOString()};await dbPut(LIB_STORE,copy);customLibrary.push(copy);renderLibrary();notify('Salinan bacaan dibuat di Library dan siap diedit.')};if(del)del.onclick=async()=>{const x=getLib(id);if(!x)return;if(x.kind==='custom')return deleteLibrary(id);notify('Bacaan bawaan tidak dapat dihapus. Gunakan Hapus salinan jika diperlukan.')}})}
 function customHTML(x){return`${x.arabic?`<p class="para" dir="rtl" style="font-size:1.45em;text-align:right">${esc(x.arabic).replace(/\n/g,'<br>')}</p>`:''}${x.latin?`<p class="para latin">${esc(x.latin).replace(/\n/g,'<br>')}</p>`:''}${x.translation?`<p class="para">${esc(x.translation).replace(/\n/g,'<br>')}</p>`:''}`}
 function openLibraryItem(id){const x=getLib(id);if(!x)return;if(x.kind==='builtin'){if(typeof window.goTo==='function')return window.goTo(x.sectionId);return goTo(x.sectionId)}$('ritualReaderTitle').textContent=x.title;$('ritualReaderContent').innerHTML=`<div class="ritual-reader-block"><h3>${esc(x.title)}</h3>${customHTML(x)}</div>`;currentRitualId=null;if(typeof window.goTo==='function')window.goTo('ritual-reader');else goTo('ritual-reader')}
-window.__ampOpenLibraryItem=openLibraryItem;window.__ampGetLib=getLib;
+window.__ampOpenLibraryItem=openLibraryItem;window.__ampGetLib=getLib;window.__ampLibraryBridge={getItems:()=>customLibrary,put:async item=>{await dbPut(LIB_STORE,item);const i=customLibrary.findIndex(v=>v.id===item.id);i>=0?customLibrary[i]=item:customLibrary.push(item);renderLibrary();return item},render:renderLibrary};
 function openLibraryModal(id=null){editingLibraryId=id;const x=id?customLibrary.find(v=>v.id===id):null;$('libraryModalTitle').textContent=x?'Edit Bacaan':'Tambah Bacaan';$('libTitle').value=x?.title||'';$('libCategory').value=x?.category||'Doa';$('libArabic').value=x?.arabic||'';$('libLatin').value=x?.latin||'';$('libTranslation').value=x?.translation||'';$('libSource').value=x?.source||'';$('libraryModal').classList.add('open')}
 function closeLibraryModal(){$('libraryModal').classList.remove('open')}
 async function saveLibraryItem(){const title=$('libTitle').value.trim();if(!title)return notify('Nama bacaan belum diisi');const item={id:editingLibraryId||uid('lib'),title,category:$('libCategory').value,arabic:$('libArabic').value.trim(),latin:$('libLatin').value.trim(),translation:$('libTranslation').value.trim(),source:$('libSource').value.trim()||'Koleksi pribadi',updatedAt:new Date().toISOString()};await dbPut(LIB_STORE,item);const i=customLibrary.findIndex(x=>x.id===item.id);i>=0?customLibrary[i]=item:customLibrary.push(item);closeLibraryModal();renderLibrary();notify('Bacaan tersimpan di Library')}
@@ -3874,101 +3874,155 @@ q('#rc78CounterAdd')?.addEventListener('click',()=>api()?.increment?.());q('#rc7
 ['smartcounterpause','smartcountercomplete','smartcounterexit','smartcounterfinishcontinue'].forEach(ev=>window.addEventListener(ev,sync));
 if(!wrapApi())window.addEventListener('load',()=>{wrapApi();sync()},{once:true});sync();
 })();</script>
-<style id="rc79-smart-counter-library">
-/* RC79 — automatic repeat counter + PDF Library bridge; event driven, no polling. */
-#libraryList .rc79-pdf-card{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-.rc79-pdf-card .rc79-pdf-meta{font-size:11px;color:var(--muted);margin:2px 0 8px}
+<style id="rc80-smart-counter-pdf-library">
+/* RC80 — single event-driven repeat observer + native Library PDF integration. */
 </style>
-<script id="rc79-smart-counter-library-script">
+<script id="rc80-smart-counter-pdf-library-script">
 (()=>{
 'use strict';
-const ALLOWED=new Set([1,3,7,11,33,41,100]);
+const TARGETS=new Set([1,3,7,11,33,41,100]);
+const isPdf=f=>/\.pdf$/i.test(f?.name||'')||/pdf/i.test(f?.type||'');
 const counter=()=>window.SmartDzikirCounter;
-function repeatOf(el){
-  const direct=Number(el?.dataset?.repeatTarget||el?.dataset?.repeat||0);
-  if(ALLOWED.has(direct))return direct;
-  const text=(el?.textContent||'').replace(/\s+/g,' ');
-  const matches=[...text.matchAll(/(?:^|[\s(\[])(1|3|7|11|33|41|100)\s*[x×](?=$|[\s)\],.;:])/ig)];
-  return matches.length?Number(matches[matches.length-1][1]):0;
+
+/* ---------- SMART COUNTER AUTO ----------
+   Reuse the application's existing repeatable paragraphs. One observer only.
+   Important: when a NEW repeated bacaan enters the reading zone, activate that
+   bacaan even if another counter is currently active. No interval / polling. */
+function targetOf(el){
+  const vals=[el?.dataset?.repeatTarget,el?.dataset?.repeat];
+  for(const v of vals){const n=Number(v);if(TARGETS.has(n))return n}
+  const txt=(el?.textContent||'').replace(/\s+/g,' ');
+  const m=txt.match(/(?:^|[\s(\[])(100|41|33|11|7|3|1)\s*(?:x|×)(?=$|[\s)\],.;:])/i);
+  return m?Number(m[1]):0;
 }
-function ensureRepeatData(){
+function prepareRepeats(){
   document.querySelectorAll('.para').forEach(el=>{
-    const n=repeatOf(el);
-    if(!n)return;
-    el.dataset.repeat=String(n);el.dataset.repeatTarget=String(n);el.classList.add('repeatable');
+    const n=targetOf(el);
+    if(n){el.dataset.repeat=String(n);el.dataset.repeatTarget=String(n);el.classList.add('repeatable');}
   });
 }
-ensureRepeatData();
-
-/* One IntersectionObserver only: activates counter once when a repeated bacaan is actually reached.
-   It re-arms only after the paragraph leaves the reading zone; no timers or polling. */
-const armed=new WeakSet();
-const io='IntersectionObserver' in window?new IntersectionObserver(entries=>{
-  for(const entry of entries){
-    const el=entry.target;
-    if(!entry.isIntersecting){armed.delete(el);continue}
-    if(!armed.has(el))continue;
-    const n=repeatOf(el),api=counter();
-    if(!n||!api||api.isActive?.())continue;
-    const panel=document.getElementById('tasbihTargetPanel');
-    if(panel?.classList.contains('show'))continue;
-    armed.delete(el);
+prepareRepeats();
+let currentRepeatEl=null;
+const repeatObserver='IntersectionObserver' in window?new IntersectionObserver(entries=>{
+  const api=counter(); if(!api)return;
+  for(const e of entries){
+    if(!e.isIntersecting)continue;
+    const el=e.target,n=targetOf(el);
+    if(!n)continue;
+    const snap=api.snapshot?.();
+    if(currentRepeatEl===el && snap?.element===el && Number(snap.target)===n)continue;
+    currentRepeatEl=el;
     api.activate?.(el,Array.prototype.indexOf.call(document.querySelectorAll('.para'),el));
   }
-},{threshold:.62}):null;
-document.querySelectorAll('.para.repeatable').forEach(el=>{armed.add(el);io?.observe(el)});
+},{root:null,rootMargin:'-32% 0px -32% 0px',threshold:0.01}):null;
+document.querySelectorAll('.para.repeatable').forEach(el=>repeatObserver?.observe(el));
+window.addEventListener('smartcounterexit',()=>{currentRepeatEl=null});
 
-/* PDF cards in Library. The PDF blob stays in RC72 documents store; Library keeps only documentId. */
-async function getPdfDocument(id){
-  const d=await new Promise((resolve,reject)=>{
+/* ---------- PDF → NATIVE LIBRARY ----------
+   RC79 wrote directly to IndexedDB but did not update customLibrary, therefore
+   renderLibrary() could remove the imported PDF card. RC80 uses the same native
+   Library memory model and persistence path as normal Library items. */
+async function openImportDB(){
+  return await new Promise((resolve,reject)=>{
     const r=indexedDB.open('RC72_IMPORT_STORAGE',2);
     r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);
   });
+}
+async function allDocuments(){
+  const db=await openImportDB();
   try{return await new Promise((resolve,reject)=>{
-    const q=d.transaction('documents','readonly').objectStore('documents').get(Number(id));
+    const q=db.transaction('documents','readonly').objectStore('documents').getAll();
+    q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error);
+  })}finally{db.close?.()}
+}
+async function getDocument(id){
+  const db=await openImportDB();
+  try{return await new Promise((resolve,reject)=>{
+    const q=db.transaction('documents','readonly').objectStore('documents').get(Number(id));
     q.onsuccess=()=>resolve(q.result||null);q.onerror=()=>reject(q.error);
-  })}finally{d.close?.()}
+  })}finally{db.close?.()}
 }
-function openPdfFromLibrary(id){
-  getPdfDocument(id).then(doc=>{
-    if(!doc){alert('PDF tidak ditemukan di penyimpanan perangkat.');return}
-    if(typeof window.__rc72OpenVisualPdf==='function')return window.__rc72OpenVisualPdf(doc);
-    document.getElementById('mediaGalleryPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
-    document.dispatchEvent(new CustomEvent('rc71-documents-updated'));
-  }).catch(e=>{console.warn(e);alert('PDF gagal dibuka.')});
+async function savePdfNative(doc){
+  if(!doc?.id)return null;
+  const id='pdf:'+doc.id;
+  const bridge=window.__ampLibraryBridge;if(!bridge)throw Error('Library engine belum siap.');
+  const existing=(bridge.getItems?.()||[]).find(x=>x.id===id);
+  const item={
+    id,
+    title:(String(doc.name||'PDF').replace(/\.pdf$/i,'')||'PDF'),
+    category:'PDF',
+    arabic:'',latin:'',translation:'',
+    source:'PDF offline di perangkat',
+    documentId:doc.id,documentName:doc.name||'PDF',documentType:doc.type||'application/pdf',
+    updatedAt:new Date().toISOString()
+  };
+  if(existing)Object.assign(existing,item);
+  await bridge.put(item);
+  return item;
 }
-function addPdfCard(item){
-  const list=document.getElementById('libraryList');if(!list||list.querySelector(`[data-rc79-pdf="${CSS.escape(String(item.id))}"],[data-lib="${CSS.escape(String(item.id))}"]`))return;
-  const card=document.createElement('article');
-  card.className='lib-card rc35-lib-card rc79-pdf-card';
-  card.dataset.rc79Pdf=item.id;
-  card.innerHTML=`<div class="rc35-lib-title"><h3>📄 ${String(item.title||'PDF')}</h3><span class="chip">PDF</span></div><div class="rc79-pdf-meta">${String(item.documentName||item.title||'')}</div><div class="compact-actions"><button class="primary" type="button">📖 Buka PDF</button></div>`;
-  card.querySelector('button').addEventListener('click',()=>openPdfFromLibrary(item.documentId));
-  list.prepend(card);
-  const empty=document.getElementById('libraryEmpty');if(empty)empty.hidden=true;
+async function restorePdfLibrary(){
+  try{
+    const docs=(await allDocuments()).filter(d=>isPdf(d));
+    for(const d of docs)await savePdfNative(d);
+    if(docs.length)renderLibrary();
+  }catch(e){console.warn('RC80 PDF Library restore gagal',e)}
 }
-document.addEventListener('rc79-library-pdf-added',e=>addPdfCard(e.detail||{}));
-document.getElementById('libraryList')?.addEventListener('click',e=>{
+async function openPdfLibraryItem(id){
+  const x=(window.__ampLibraryBridge?.getItems?.()||[]).find(v=>v.id===id);
+  const docId=x?.documentId ?? Number(String(id).replace(/^pdf:/,''));
+  const doc=await getDocument(docId);
+  if(!doc)throw Error('File PDF tidak ditemukan di penyimpanan offline.');
+  if(typeof window.__rc72OpenVisualPdf==='function')return window.__rc72OpenVisualPdf(doc);
+  throw Error('PDF viewer belum siap.');
+}
+
+/* Capture Library open before generic handlers. */
+document.getElementById('libraryList')?.addEventListener('click',async e=>{
   const btn=e.target.closest('[data-open]');
-  if(!btn)return;
-  const card=btn.closest('[data-lib]');if(!card)return;
-  const id=card.dataset.lib;
-  if(!id?.startsWith('pdf:'))return;
+  const card=e.target.closest('[data-lib]');
+  if(!btn||!card||!String(card.dataset.lib||'').startsWith('pdf:'))return;
   e.preventDefault();e.stopImmediatePropagation();
-  // Resolve custom Library record and its documentId directly from IndexedDB.
-  new Promise((resolve,reject)=>{const r=indexedDB.open('amalan-muslim-personal-v1',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
-  .then(db=>new Promise((resolve,reject)=>{const q=db.transaction('library','readonly').objectStore('library').get(id);q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)}))
-  .then(item=>item&&openPdfFromLibrary(item.documentId));
+  try{await openPdfLibraryItem(card.dataset.lib)}catch(err){console.error(err);alert('PDF gagal dibuka: '+err.message)}
 },true);
 
-/* Restore existing PDF items into visible Library after startup without duplicating blobs. */
-setTimeout(async()=>{
-  try{
-    const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('amalan-muslim-personal-v1',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
-    const items=await new Promise((resolve,reject)=>{const q=db.transaction('library','readonly').objectStore('library').getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)});
-    db.close?.();items.filter(x=>x.category==='PDF'&&x.documentId!=null).forEach(addPdfCard);
-  }catch(e){console.warn('PDF Library restore gagal',e)}
-},700);
+/* Patch only the public import API. The original importer remains responsible
+   for storing the binary once; after that RC80 adds the same PDF to Library. */
+const originalImport=window.RC72ImportStorage?.importDocument;
+if(typeof originalImport==='function'&&!originalImport.__rc80){
+  const patched=async function(file){
+    await originalImport.call(this,file);
+    if(!isPdf(file))return;
+    const docs=await allDocuments();
+    const matches=docs.filter(d=>d.name===file.name&&isPdf(d));
+    const doc=(matches.length?matches:docs.filter(isPdf)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0];
+    if(!doc)throw Error('PDF tersimpan tetapi record tidak ditemukan.');
+    await savePdfNative(doc);
+    renderLibrary();
+    const toastFn=typeof notify==='function'?notify:(typeof window.showToast==='function'?window.showToast:null);
+    toastFn?.('PDF masuk ke Library Bacaan: '+(doc.name||file.name));
+  };
+  patched.__rc80=true;
+  window.RC72ImportStorage.importDocument=patched;
+}
+
+/* Ensure the visible Import button always targets PDF and uses the patched API.
+   This replaces only its stale onclick property, without adding mutation loops. */
+const importBtn=document.getElementById('importDocumentBtn');
+const importInput=document.getElementById('importDocumentFile');
+if(importBtn&&importInput){
+  importInput.accept='application/pdf,.pdf';
+  importBtn.onclick=()=>importInput.click();
+  importInput.onchange=async()=>{
+    const file=importInput.files?.[0];
+    try{if(file)await window.RC72ImportStorage.importDocument(file)}
+    catch(err){console.error(err);alert('Impor PDF gagal: '+err.message)}
+    finally{importInput.value=''};
+  };
+}
+
+/* Restore after the native Library engine has completed its own startup load. */
+window.addEventListener('load',()=>{restorePdfLibrary();},{once:true});
+if(document.readyState==='complete')restorePdfLibrary();
 })();
 </script>
 </body>
