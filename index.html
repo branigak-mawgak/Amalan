@@ -3075,12 +3075,40 @@ async function metaPut(v){const db=await openDB();return new Promise((res,rej)=>
 function toast2(s){try{window.toast?.(s)}catch{}}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
+async function requestPersistentStorage(){
+ try{
+  if(navigator.storage?.persisted && await navigator.storage.persisted()) return true;
+  if(navigator.storage?.persist) return await navigator.storage.persist();
+ }catch(e){console.warn('Persistent storage tidak tersedia',e)}
+ return false;
+}
+
+async function migrateLegacyImportedMedia(){
+ const key='rc85-import-media-migrated';
+ if(localStorage.getItem(key)==='1')return;
+ try{
+  const d=await new Promise((resolve,reject)=>{const r=indexedDB.open('RC71_IMPORT_STORAGE');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+  if(!d.objectStoreNames.contains('media')){localStorage.setItem(key,'1');return;}
+  const legacy=await new Promise((resolve,reject)=>{const q=d.transaction('media','readonly').objectStore('media').getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)});
+  for(const m of legacy){
+   const mime=m.type||m.mime||'';
+   const kind=m.kind||(/video/i.test(mime)?'video':/audio/i.test(mime)?'audio':'');
+   if(!kind)continue;
+   const blob=m.blob instanceof Blob?m.blob:new Blob([m.blob],{type:mime||`${kind}/*`});
+   const id='legacy-'+(m.id??crypto.randomUUID?.()??Date.now());
+   await put({id,type:kind,title:m.name||m.title||'Media',mime:blob.type||mime,blob,builtin:false,created:m.createdAt?new Date(m.createdAt).toISOString():new Date().toISOString(),position:Number(m.position||0)});
+  }
+  localStorage.setItem(key,'1');
+ }catch(e){console.warn('Migrasi media lama dilewati',e)}
+}
+
 async function seedBuiltins(){
  if(await metaGet('seed-v1'))return;
  let ok=0;
  for(const s of SEEDS){
   try{
-   const resp=await fetch(s.src); if(!resp.ok)throw new Error('HTTP '+resp.status);
+   const resp=await fetch(s.src,{cache:'reload'}); if(!resp.ok)throw new Error('HTTP '+resp.status);
+   try{const c=await caches.open('amalan-rc80-media-rc85');await c.put(s.src,resp.clone())}catch(e){}
    const blob=await resp.blob();
    await put({id:s.id,type:s.type,title:s.title,mime:s.mime,blob,builtin:true,created:new Date().toISOString(),position:0});
    ok++;
@@ -4071,7 +4099,14 @@ window.RC71VisualPDFTeleprompter={open,close,start,stop};
   function setVH(){document.documentElement.style.setProperty('--rc80-vh',(window.innerHeight*.01)+'px')}
   setVH(); window.addEventListener('resize',setVH,{passive:true}); window.addEventListener('orientationchange',function(){setTimeout(setVH,250)},{passive:true});
   document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});
-  if('serviceWorker' in navigator && location.protocol !== 'file:'){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){})})}
+  if('serviceWorker' in navigator && location.protocol !== 'file:'){window.addEventListener('load',async function(){
+   try{await navigator.serviceWorker.register('./sw.js'); await navigator.serviceWorker.ready;}catch(e){}
+   // Warm PDF.js + worker while online so the reader remains available offline afterwards.
+   if(navigator.onLine){
+     const urls=['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'];
+     urls.forEach(u=>fetch(u,{mode:'cors',cache:'reload'}).catch(()=>{}));
+   }
+ })}
 })();
 </script>
 
