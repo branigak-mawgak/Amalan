@@ -10,7 +10,7 @@ Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 -->
 <!-- AMALAN RC80 iPad Optimized: canonical build -->
 <!DOCTYPE html>
-<!-- AMALAN RC80 iPadOS EDITION — PORTRAIT CANVAS + SMART COUNTER + SURAH NUMBERING FIX — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
+<!-- AMALAN RC80 iPadOS EDITION RC82 — PORTRAIT CANVAS + SMART COUNTER + SURAH NUMBERING FIX — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
 <!-- RC46 -->
 <html lang="id" data-build="AMALAN-RC80-iPadOS">
 <head>
@@ -608,14 +608,17 @@ html,body{min-height:100%;}
 body.app-fullscreen{overflow:hidden!important;}
 body.app-fullscreen .app{width:100vw!important;height:100dvh!important;min-height:100dvh!important;display:grid!important;grid-template-rows:1fr!important;grid-template-columns:1fr!important;}
 body.app-fullscreen header,body.app-fullscreen>.app>footer.bottom{display:none!important;}
-body.app-fullscreen .reader-wrap{width:100vw!important;height:100dvh!important;max-width:none!important;min-height:0!important;padding:env(safe-area-inset-top) max(10px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(10px,env(safe-area-inset-left))!important;overflow:auto!important;}
-body.app-fullscreen .book{width:min(8cm,calc(100vw - 20px))!important;max-width:8cm!important;min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;margin:0 auto!important;}
+body.app-fullscreen .reader-wrap{width:100vw!important;height:100dvh!important;max-width:none!important;min-height:0!important;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)!important;overflow:auto!important;}
+body.app-fullscreen .chapter{width:100%!important;max-width:none!important;padding-left:18px!important;padding-right:18px!important;}
+/* iPad portrait fullscreen: canvas must use the real screen width, not the 8 cm reading-book width. */
+body.app-fullscreen .book{width:100%!important;max-width:none!important;min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;margin:0!important;border-radius:0!important;box-shadow:none!important;}
 body.app-fullscreen .progress{z-index:200!important;}
 body.app-fullscreen .drawer,body.app-fullscreen .modal,body.app-fullscreen .overlay,body.app-fullscreen .slideshow-overlay{z-index:250!important;}
 html:fullscreen body,html:-webkit-full-screen body{width:100vw!important;height:100dvh!important;overflow:hidden!important;}
 html:fullscreen .app,html:-webkit-full-screen .app{width:100vw!important;height:100dvh!important;grid-template-rows:1fr!important;grid-template-columns:1fr!important;}
 html:fullscreen header,html:-webkit-full-screen header,html:fullscreen>.app>footer.bottom,html:-webkit-full-screen>.app>footer.bottom{display:none!important;}
-html:fullscreen .reader-wrap,html:-webkit-full-screen .reader-wrap{width:100vw!important;height:100dvh!important;max-width:none!important;overflow:auto!important;}
+html:fullscreen .reader-wrap,html:-webkit-full-screen .reader-wrap{width:100vw!important;height:100dvh!important;max-width:none!important;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)!important;overflow:auto!important;}
+html:fullscreen .book,html:-webkit-full-screen .book{width:100%!important;max-width:none!important;margin:0!important;border-radius:0!important;box-shadow:none!important;}
 @media (orientation:landscape){
  body.app-fullscreen .reader-wrap{width:100vw!important;height:100dvh!important;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)!important;}
  body.app-fullscreen .book{width:100%!important;max-width:none!important;min-height:100%!important;margin:0!important;border-radius:0!important;}
@@ -1090,16 +1093,12 @@ document.addEventListener('DOMContentLoaded',()=>{
 .counter-fab{bottom:118px!important}
 .counter-undo{bottom:124px!important}
 .smart-counter-controls{bottom:242px!important}
-#counterResetExit{position:fixed;right:max(14px,calc((100vw - 8cm)/2 + 10px));bottom:68px;z-index:101;display:none;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 13px;border-radius:999px;border:1px solid color-mix(in srgb,#d32f2f 45%,var(--line));background:color-mix(in srgb,var(--paper) 96%,transparent);color:#b71c1c;font-size:12px;font-weight:850;box-shadow:0 8px 22px rgba(0,0,0,.18);touch-action:manipulation}
-#counterResetExit.show{display:flex}
-#counterResetExit:active{transform:scale(.96)}
-@media (orientation:landscape){#counterResetExit{right:calc(var(--rc17-nav) + 8px + env(safe-area-inset-right));bottom:70px;transform:scale(.72);transform-origin:center center}.counter-fab{bottom:112px!important}.smart-counter-controls{bottom:222px!important}}
 </style>
 </head>
 <body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC71-V6.2.3-GALERI-MEDIA">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
-<button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><button aria-label="Reset hitungan ke 0 dan keluar Smart Counter" id="counterResetExit" title="Reset 0 & Exit" type="button">↺ Reset 0 & Exit</button>
+<button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
 <nav aria-label="Kontrol Smart Counter" class="smart-counter-controls" id="smartCounterControls">
 <button aria-label="Jeda Smart Counter" class="stop" id="scStop" title="Stop / Jeda" type="button">Ⅱ</button>
 <button aria-label="Tambah hitungan" id="scNext" title="+1 hitungan" type="button">＋1</button>
@@ -1164,7 +1163,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 </div>
 </section><section class="chapter" id="doa-1"><h2>DOA SETELAH SHOLAT</h2><p class="para latin" data-chapter="doa-1" data-word-index="1">A’uudZu BillaaHi MinaSy SyaiThoonir Rojiim, BismillaaHir Rohmanir Rohiim, Al hamdu LillaHil LadZi Lam YatTakHiu Waladau Wa Lam Yakul LaHuu SyaRiiku Fil Mulk, Wa Lam Yakul Lahuu WaLii Yum MinadZ dZulli WakabBirhu Takbiro.</p><p class="para latin" data-chapter="doa-1" data-word-index="2">AllooHumMa anta robbi Laa ilaaHa illaa Anta. KholaqtaNii Wa ANaa 'Abduka, Wa ANaa 'ALaa Ahdika Wawa'dika MastaTho'tu, A'uudzubika Min SyarRi Maa Shona'tu, Abuu'u Laka Bini'matika 'Alaiya, Wa Abuu'u Bidzam Bii FaGhfir Lii, Fa innaHuu Laa YaGhfirudz DzuNuuba illaa Anta</p><p class="para latin" data-chapter="doa-1" data-word-index="3">AllooHumMa Yaa AllooHu Yaa ‘ALiiyu Yaa ‘AZhiimu, Yaa haLiimu Yaa ‘ALiim. Anta RobBii, Wa ’ilmuka hasBii, Faniq’mar RobBu-RobBii, Waniq’mal hasBu-hasBii, TanShuru Man-TaSya'u, Wa Antal ‘aZiizur Rohiim.</p><p class="para latin" data-chapter="doa-1" data-word-index="4">Wa illaa hukum illaaHu Waahidul Laa ilaaHa illaa Huwar RohMaanur Rohiim. AllooHu Laa ilaaHa illaa Huwal haiyul Qoiyuum.</p><p class="para latin" data-chapter="doa-1" data-word-index="5">AllooHumMa inNi As 'Aluka Bi Anni ASyhadu Annaka AntallooHu, Laa illaaHa illaa Anta, antal AhaduSh Shomad. AlladZi Lam Yalid Wa Lam Yulad, Wa Lam Yakul Lahu Kufuwan Ahad.</p><p class="para latin" data-chapter="doa-1" data-word-index="6">AllooHumMa Sholli Wasallim ‘ALaa SaiyidiNaa MuhamMad Wa ‘ALaa Aalihi SaiyidiNaa MuhamMadin ShoLaatan TunjiiNaa BiHaa Min JaMiiq’il AhWaali Wal Aafaat.</p><p class="para latin" data-chapter="doa-1" data-word-index="7">Wa TaqDhii LaNaa BiHaa JaMiiq’al HaaJaat. Wa TuTho hiruNaa BiHaa Min JaMiiq’is Saiyiq’Aat. Wa Tar Faq’uNaa BiHaa ‘iindaka ‘AqLaad-DaroJaat.</p><p class="para latin" data-chapter="doa-1" data-word-index="8">Wa TuballiGhuNaa BiHaa AqShol GhooYaati Min JaMiiq’il hoiRootifil haYaati Wa Baq’dal MaMaat. inNaHu SaMiiq’un QoRiibu MuJiibud-Daq’aWaat, Wa Yaa QooDhiyal HaaJaat.</p><p class="para latin" data-chapter="doa-1" data-word-index="9">Wa ‘ALaa AaliHi WaShobiHi Wabarik Wasalim Tasliman KaThiro, Birohmatika Yaa Arhamar RohiiMiin.</p><p class="para latin" data-chapter="doa-1" data-word-index="10">AllooHumMaGh-Fir LaNaa dZuNuu BaNaa Wali WaalidiNaa, Warham-Hum KaMaa RobBaGhNaa ShiGhooro. Wali MaSYaayiKh-iNaa, wali mu'allimiNaa, Wali aSaaTiidZiNaa, Wa dZawil huquuqi 'Alaina, Wali Man AjRoo HaadZal Khoiro Fii HaadZiHis Saaq'ah,</p><p class="para latin" data-chapter="doa-1" data-word-index="11">Wa'an JaMii'in MusliMiiNaa Wal MusliMaat, Wal MukminiNaa Wal Muq'miNaat, Al AhYaaq'i Minhum Wal AmWaat, inNaka Mujiibud Da'aWaat, Wa QooDhiyal HaaJaat, Wa GhoofirudZ-dZunuubi Wal KhooThii'at. BirohMatika Yaa Arhamar RohiiMiin.</p><p class="para latin" data-chapter="doa-1" data-word-index="12">AllooHumMa inNaa Nas’aluka RiDhooka Wal JanNah, Wa Naq ’UudZubika Miin SaKhotika Wan-Naar.</p><p class="para latin" data-chapter="doa-1" data-word-index="13">AllooHumMa inNaka AFuuwun KaRiim, TuhibBul Afwa Faq'fu AnNaa WaGh Fir LaNaa, Wa’an JaMiiq’il MusliMiiNaa Wal MusliMaat, Wal MukmiNiiNaa Wal MukmiNaat, Birohmatika Yaa Arhamar RohiiMiin.</p><p class="para latin" data-chapter="doa-1" data-word-index="14">AllooHumMa inNaa NasAluka SaLaamatTan Fid Diini Wad Dun-Yaa Wal Aahiroh, Wa Aafiyatan Fil Jasadi, Wa Shihhatan Fil Badani, Wa ZiYaa Datan Fil ‘ilmi, Wa Barokatan Fir-Rizqi, Wa Taubatan Qoblal Mauut, Wa Rohmatan ‘iindal Mauut, Wa MaGh-Firotaan Bakdal Mauut.</p><p class="para latin" data-chapter="doa-1" data-word-index="15">AllooHumMa HawWin AlaiNaa Fii SakaRootil Mauut, Wan-NaJaata MinNaan-Naari, Wal ‘Aqfwa 'indal Hisaab</p><p class="para latin" data-chapter="doa-1" data-word-index="16">AllooHumMaj’al DiinNaNaa DiinNan NaBiiyi MuhamMadin SholallooHu AlaiHi Wasallam. Wa islamaNaa islamal MusliMiin, Wa imanaNaa imaNaal MukmiNiin, Wa SholataNaa Sholataal KhooSyiq’iin, Wa ’akMaaLaNaa 'akMaaLaaSh SholiHiin, Wa NiiYaataNaa NiiYaatal MuhliSiin.</p><p class="para latin repeatable" data-chapter="doa-1" data-repeat="3" data-repeat-target="3" data-repeat-title="Wa dZuNuu BaNaa Yaa AllooH dZunubal mustaGhfiRiin (3X)" data-word-index="17">Wa dZuNuu BaNaa Yaa AllooH dZunubal mustaGhfiRiin (3X)</p><p class="para latin" data-chapter="doa-1" data-word-index="18">Wa hayataNaa hayatal UulaMaaq, Wa MautaNaa Bimauti SyuhaDaaq, Wa aD-hilNaal JanNata Maq’al AmbiYaaq, AlaiHi MuSh-Sholatu WasSaLaam.</p><p class="para latin" data-chapter="doa-1" data-word-index="19">AllooHumMa NawWir QulubBaNaa Binuri hidayatik Kamanau Wartal ArDho BiNuuri Syamsika Abadan Abadan Biroh-Matika Yaa Arhamar RohiiMiin.</p><p class="para latin" data-chapter="doa-1" data-word-index="20">AllooHumMa AriNaal haqQo haqQou warzuqNaat tiBaa’ah, Wa AriNaal Baatila Baatilau War Zuq-Naat TiNaabah.</p><p class="para latin" data-chapter="doa-1" data-word-index="21">AllooHumMa inNaa Nas Alukal huDaa, Wat-TuQoo Wal ‘AqFaafa Wal GhiNaa.</p><p class="para latin" data-chapter="doa-1" data-word-index="22">AllooHumMa inNaa Naq `UudZu Bika Minal hamMi Wal Hazan, Wa Naq ‘UudZu Bika Minal ‘Ajzi Wal Kasal, Wa Naq ‘UudZu Bika Minal Jubni Wal Buhli, Wa Naq ‘UudZu Bika Min GholabatidZ-dZayini Wa kohri RiJaal.</p><p class="para latin" data-chapter="doa-1" data-word-index="23">RobBaNaa Laa tuZiGh Quluu BaNaa Baq’ Da’idZ HadaitaNaa, Wa HabLaNaa Milladunka Rohmatan inNaka Antaal Wahaab.</p><p class="para latin" data-chapter="doa-1" data-word-index="24">RobBaNaa Laa Tuq ‘AahidZ-Naa inNa SiiNaa Au’ah-ThoKhNaa, RobBaNaa Wa Laa Tahmil ‘AlaiNaa iShrong KaMaa hamal Tahuu 'Aqlal LadZiina Ming QoBliNaa</p><p class="para latin" data-chapter="doa-1" data-word-index="25">RobBaNaa Wa Laa TuhaamMilna Maa Laa Thooqota LaNaa Bihi, Waafuq ‘AnNaa WaGh-FirlaNaa War hamNaa, Aanta MauLaa Naa Faang SurNaa ‘Aqlal Qoumil KaafiRiin.</p><p class="para latin" data-chapter="doa-1" data-word-index="26">RobBaNaa DholamNaa, An Fus-SaNaa, Wa illam TaGhfir laNaa, Wa TarhamNaa, LaNaa Kuun NanNaa Minal KhoosiRiin.</p><p class="para latin" data-chapter="doa-1" data-word-index="27">RobBaNaa HabLaNaa Min AzWaajiNaa Wa dZur-RiYaatiNaa QurRota Aq’yuun, Waj’alNaa Lil Mut TaQiina iMaama.</p><p class="para latin" data-chapter="doa-1" data-word-index="28">Robbi Zidni ‘ilma Warzuqni Fahmah.</p><p class="para latin" data-chapter="doa-1" data-word-index="29">RobBaj’alNaa MuQiimaSh ShoLaati Wa Min dZurRiiyaTiiNaa Wa TaqobBal Du’aa. Wa Ad-hinal JanNata Maq’al AbRoor, Yaa Aziiz Yaa Ghoffar, Yaa RobBal ’Aalamin.</p><p class="para latin" data-chapter="doa-1" data-word-index="30">RobBaNaa Atmim LaNaa Nuur-RoNaa WaGhfir LaNaa inNaka 'ALaa Kulli Syai’ing QoDiir .</p><p class="para latin" data-chapter="doa-1" data-word-index="31">RobBaNaa Laa taj-’aalNaa fitnatal LilladZiina KafaRuu WaGh-fir LaNaa RobBaNaa, RobBaNaa inNaka antal aZiizul haKiim.</p><p class="para latin" data-chapter="doa-1" data-word-index="32">RobBaNaaGh Fir LaNaa dZuNuu baNaa Wa ’isro FaNaa Fii AmriNaa, Wa tSabBit AqDaa maNaa Waan ShurNaa ‘Aqlal Qoumil KaafiRiin.</p><p class="para latin" data-chapter="doa-1" data-word-index="33">RobBaNaaGh Fir LaNaa Wali iKh-WaaniNaal LadZiina Saba-quuNaa Bil ‘iiMaan, Wa Laa Taj‘Aal Fii Quluu BiNaa Ghillaal LilladZiina AmaNuu RobBaNaa inNaka Ro’Uufur Rohiim.</p><p class="para latin" data-chapter="doa-1" data-word-index="34">RobBaNaa FaaGh Fir LaNaa dZuNuu BaNaa, Wa Kaffir ‘AnNaa Saiyiq ‘AatiNaa Wa Tawaf-FaNaa Maq’al AbRoor</p><p class="para latin" data-chapter="doa-1" data-word-index="35">RobBana Wa AatiNaa Maa Wa ’AdTa-Naa ‘AqLaa Rosulika Wa Laa TuKh-ZiNaa Yaumal QiYaamaH.</p><p class="para latin repeatable" data-chapter="doa-1" data-repeat="3" data-repeat-target="3" data-repeat-title="RobBaNaa Aatina Milladunka Rohmatau Wahaiyik LaNaa Min AmriNaa RoSyaDaa (3X)" data-word-index="36">RobBaNaa Aatina Milladunka Rohmatau Wahaiyik LaNaa Min AmriNaa RoSyaDaa (3X)</p><p class="para latin" data-chapter="doa-1" data-word-index="37">RobBaNaa RobBaNaa RobBaNaa AatiNaa Fid-DunYaa hasanah, Wa Fil AaKhiroti hasanatau WaqiNaa AdZaaban Naar, WaqiNaa AdZaaban Naar, WaqiNaa AdZaaban Naar</p><p class="para latin" data-chapter="doa-1" data-word-index="38">Wa ShollallooHu 'ALaa Khoiri KholqiHi Wa Nuuri ArSyiHi SaiyidiNaa Wa NabiyiNaa Wa SyaFii'Naa MuhamMadiN SAW Wa 'ALaa AaliHi Wa Ash-haabiHi Ajma'iin, Al FaatihaH</p></section><section class="chapter" id="doa-2"><h2>DOA HAJAT</h2><p class="para latin" data-chapter="doa-2" data-word-index="1">A’uudZu BillaaHi MinaSy SyaiThoonir Rojiim, BismillaaHir Rohmanir Rohiim, Al hamdu LillaaHir RobBil ‘AalaMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="2">AllooHumMa Yaa Ahad ShoLLi 'ALaa Ahmad. AllooHumMa Yaa Ahad ShoLLi 'ALaa MuhamMad. AllooHumMa Yaa Ahad ShoLLi 'ALaa MahDii. KhoLiiFatika Yaa AllooH Yaa Ahad</p><p class="para latin" data-chapter="doa-2" data-word-index="3">AllooHumMa Sholli 'ALaa Saiyidina Wa Habibina Wa Syafi'ina Wa Maulana MuhamMadiN fil AwWaLiina Wal AaKhiriin, Wa Baarik Wa Sallimu RoDhiallooHu TabarokallooHu Wata'ala, An Kulli Shohabati RasullillaHi Ajma'in. AaMiin, AaMiin, AaMiin, Yaa Roobbal ‘AalaMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="4">hamdaSy SYaakiRiin, hamdan Naaq’iMiin, hamdai yuWaaFii Niq’amaHuu Wa YuKaa Fii’u MaziidaH. Yaa RobBaNaa Lakal hamdu KaMaa Yan baGhiili JaLaali Waj-hika KaRiimi ‘AZhiimi SulThoonik.</p><p class="para latin" data-chapter="doa-2" data-word-index="5">AllooHumMa RobBa JibRiil, Wa MiiKaa’iil, Wa isRooFiil, Wa MuhamMadinin NaBiiyi ShollallooHu ’AlaiHi Wa Sallam A’uudZubika Minan Naar.</p><p class="para latin" data-chapter="doa-2" data-word-index="6">Yaa haiyu, Yaa Qoiyum, Yaa Badiq ’as-SaMaaWaati Wal ArDhi, Ya dZul JaLaali Wal iKhrom, NawWir BinNuuri Maq'rifatika Ya AllooH.</p><p class="para latin" data-chapter="doa-2" data-word-index="7">AllooHumMa RobBaNaa TaqobBal MinNaa Du'aanNa, Wa ShoLaataNaa, Wa ShiYaamaNaa, Wa QiYaamaNaa, Wa Rukuuq’aNaa, Wa SujuudaNaa, Wa Qu’uudaNaa, Wa TahoSy-Syuq‘aNaa, Wa TaDhor-Ruq’aNaa, Wa Taq‘AbBudaNaa, Wa TaMim taq-ShiiroNaa Yaa AllooH Yaa ArhamMar RohiiMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="8">AllooHumMa Sholli 'ALaa SaiyidiNaa MuhamMadin ShoLaatar RiDhoo WarDhoq’an Ashoobihi RiDhoo Ar-RiDhoo.</p><p class="para latin" data-chapter="doa-2" data-word-index="9">AllooHumMa Anta MaqSuudaNaa, Wa RiDhoka UtlubaNaa, ‘iqtina MahabBataka Biroh-Matika Yaa Arhamar RohiiMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="10">AllooHumMa inNi As ‘Aluka Taubat, Wa istiqoomah 'ALaa Syari’atil GhorRoo’i, Wa Thoriqotil Wa BaiDhoq’i Biroh-Matika Yaa Arhamar RohiiMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="11">AllooHumMa ‘AafiNaa Min Kulli BaLaaq‘id-DunYaa Wa ‘Azaabil Aahiroh, Wa SyarRid-DunYaa, Wa SyarRil Aahiroh, Ghofarol-laaHu LaNaa Wa Lahum. Birohmatika Yaa Arhamar RohiiMiin</p><p class="para latin repeatable" data-chapter="doa-2" data-repeat="3" data-repeat-target="3" data-repeat-title="AllooHumMaGh Fir LaNaa Yaa Ghofar 3X" data-word-index="12">AllooHumMaGh Fir LaNaa Yaa Ghofar 3X</p><p class="para latin" data-chapter="doa-2" data-word-index="13">AllooHum-Maftah LaNaa AbWaabal hoir, Wa AbWaabaSh ShihaH, Wa AbWaabal QuwWaH, Wa AbWaabas SaLaamaH,</p><p class="para latin" data-chapter="doa-2" data-word-index="14">Wa AbWaaban Niq’maH, Wa AbWaabar RohmaH, Wa AbWaabal BarokaH, Wa AbWaabal MawadDaH,</p><p class="para latin" data-chapter="doa-2" data-word-index="15">Wa AbWaabal ilmi, Wa AbWaabar Rizqi, Wa AbWaabal MaGhfiroTh, Wa AbWaabal JanNaH.</p><p class="para latin repeatable" data-chapter="doa-2" data-repeat="3" data-repeat-target="3" data-repeat-title="AllooHumMa Gh Fir LaNaa Yaa Ghofar 3X" data-word-index="16">AllooHumMa Gh Fir LaNaa Yaa Ghofar 3X</p><p class="para latin" data-chapter="doa-2" data-word-index="17">AllooHumMaj'al Fii QolBii Nuuro, WaFii LisaaNii Nuuro, WaFii Sam'ii Nuuro, WaFii BaShoRii Nuuro.</p><p class="para latin" data-chapter="doa-2" data-word-index="18">Wamin FauQii Nuuro, Wamin TahTii Nuuro, Wa 'An YaMiiNii Nuuro, Wa 'An ShiMaaLii Nuuro, Wamin 'AMaaMii Nuuro, Wamin KholFii Nuuro.</p><p class="para latin" data-chapter="doa-2" data-word-index="19">Waj'al Fii NafSii Nuuro, Wa 'AqDhim-Lii Nuuro, Wa 'aDhDHim-Lii Nuuro, Waj'al Lii Nuuro, Waj'al Nii Nuuro.</p><p class="para latin" data-chapter="doa-2" data-word-index="20">AllooHumMa 'AqtiNii Nuuro. Waj'al Fii 'AShoBii Nuuro, WaFii LahMii Nuuro, WaFii DaMii Nuuro, WaFii Syaq'Rii Nuuro, WaFii BaSyaRii Nuuro.</p><p class="para latin" data-chapter="doa-2" data-word-index="21">AllooHumMaj'al Lii Nuuron Fii QobRii, Wa Nuuron Fii 'iDhooMii, Wa ZidNii Nuuro, Wa ZidNii Nuuro, Wa ZidNii Nuuro. Wa HabLii Nuuron 'ALaa Nuur.</p><p class="para latin" data-chapter="doa-2" data-word-index="22">AllooHumMa Sholli 'ALaa Saiyidina MuhamMadin Sholatan Tuwassi'u BiHaa 'Alainal Arzaaqo, Watuhas Sinu BiHaa Lanal AKhLaaqo Wa 'ALaa 'AaliHi WaShohbi Wasallim</p><p class="para latin" data-chapter="doa-2" data-word-index="23">AllooHumMa inNii As’aluka Rizqon Thoiyiban, Wa ‘ilman NaaFi‘an, Wa ‘Amalan Mutaqob-balan, Wa Qolban KhooShi‘an, Wa Lisaanan dZaakiron, Wa Badanan ‘Alal-BaLaa’i Shoobiron.</p><p class="para latin" data-chapter="doa-2" data-word-index="24">Alloohumma in Kaana rizqoNaa fis-saMaa'i fa-anzilhu, Wa in Kaana fil-ardhi fa-akhrijhu, Wa in Kaana mu'assaron fa-yassirhu, Wa in Kaana ba'idan fa-qorribhu, Wa in Kaana haRooman fa-thohhirhu, Wa in Kaana qoliilan fa-kats-tsirhu, Wa in Kaana KatSiiron Fa Baarik-LaNaa Fiih,</p><p class="para latin" data-chapter="doa-2" data-word-index="25">Wa in Kaana ma'duuman fa-awjidhu, Wa in Kaana mauQuufan fa-ajrihi, Wa in Kaana dzanban faghfirhu, Wa in Kaana sayyiatan famhuhaa, Wa in Kaana khothiatan fataJaawaz 'anhaa, Wa in Kaana 'usrotan fa-aqilhaa, Wa Baarik laNaa fi jaMii'i dzaalik.</p><p class="para latin" data-chapter="doa-2" data-word-index="26">Innaka maliikun muqtadir, Wa Maa tasYaa'-uhu min amrin yakuun, Yaa man idzaa aRooda syai'an innaMaa yaquulu lahu kun fayakuun. Birohmatika Yaa Arhamar-RoohiMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="27">AllooHumMa Sholli ‘ALaa SaiyidiNaa Muhammad, Wa 'ALaa AaliHii Wa ShohBiiHii Wabarik Wasallim 'Adada Kholqihi Wa RiDho Nafsihi Wazinata 'ArSyihi Wa Midada Kalimatihi</p><p class="para latin" data-chapter="doa-2" data-word-index="28">AllooHumMa yassir LaNaa Kulla Shoq‘Bin, Wahlul Kulla ‘uqdatin, Wa Naj-JiNaa Min Kulli hamMin Wa Ghom-Min, Wa Karbin.</p><p class="para latin" data-chapter="doa-2" data-word-index="29">AllooHumMa Laa sahla illaa Maaj‘altahuu sahla, Wa Anta Taj'Alul hazNaa idza Syiq’ta sahla</p><p class="para latin" data-chapter="doa-2" data-word-index="30">AllooHumMa iqDhi hawaajiNaa, Wa Naffis KuRoobaNaa, WakfiNaa Maa aham-maNaa, Wa Maa aGhom-maNaa</p><p class="para latin" data-chapter="doa-2" data-word-index="31">AllooHumMa Sahil Lii MaThlabi, Wa Yassir Lii MaqShiDii, WarzuqNii BitasKhiirin Minka, Waj‘al KhuThuWaaTii MuBaarokah, Waftah Lii Abwaaba FaDhlik, Wa Baarik Lii Fii RizQii Wa ‘umRii, Waj‘alNii Mina AsSaa‘i-Diina Al Muflihiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="32">AllooHumMa in Kaana Maa Ad‘Uu Bihi MusTahiilan Fa Anta al Qoodiru suBhaanaka, Laa Yuq‘Jizuka Syai'un Fil ArDhi, Wa Laa Fis SaMaa-i.</p><p class="para latin" data-chapter="doa-2" data-word-index="33">Wa in Kaana SyarRon, Faj‘alhu Khoiron, WarzuqNii Bihi Yaa AllooHu, Yaa Mudab-Biral Layli Wan-NaHaar.</p><p class="para latin" data-chapter="doa-2" data-word-index="34">Baddil DhiQii farojan, Wa ‘Aj-Zii QuWWatan, Wa AhLaaMii WAAQi‘an. Wa AKhrij-Nii Min hawLii iLaa hawLik, Wa Min Dhoq‘Fii iLaa QuuWatika.</p><p class="para latin" data-chapter="doa-2" data-word-index="35">Wa Kulla Maa Ataman-Naahu Min AmRii AiyaKuuna, Fa inNaHu Laa Faa‘ila LiMaa TuRiiduhu siWaak. Wa Laa Yuq‘jizuka Syai'un, Wa Laa YaSh ‘Ubu 'Alaik.</p><p class="para latin" data-chapter="doa-2" data-word-index="36">AllooHumMa al KhoFiiiyi ANaa Muhtaajun DzaLiilun, Wa Anta Al-Qowiiyul GhoNiiy.</p><p class="para latin" data-chapter="doa-2" data-word-index="37">AllooHumMa Yaa Sarii‘al-hiSaab, Yaa Syadiidal ‘iQoob, Yaa GhoFuur, Yaa Rohiim, Wa Yaa Khooliqo Kulli Syai’, Yaa FaaThiros SaMaawaati Wal-arDh, Yaa Faaliqol Wan-Nawaa, Yaa Faaliqol iShBaah.</p><p class="para latin" data-chapter="doa-2" data-word-index="38">Yaa Waliiyal hasaNaat, Yaa Daafi‘as Sayi’aat, Yaa Ghoofirol KhoThii’aat, Yaa Saatirol-awRoot, Yaa Maani‘al BaLiiYaah. Yaa MuQiilal ‘AtSaRoot, Yaa Muhyiyal AmWaat, Yaa MunawWiral ArDhi Was-SaMaaWaati.</p><p class="para latin" data-chapter="doa-2" data-word-index="39">iqDhii haajaTii Fii Haadzihis-Saa‘Aat.</p><p class="para latin" data-chapter="doa-2" data-word-index="40">Yaa ilaaHal AwWaLiina Wal-AaKhiRiin, Yaa Badi‘as-SaMaaWaati Wal ArDh, Yaa dZal-JaLaali wal-iKhRoom. Wa ShollallooHu ‘ALaa SaiyidiNaa MuhamMadin Wa ‘ALaa Aalihi Wa Shohbihi Ajma’iin, Wal hamdu LillaaHir Robbil ‘AalaMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="41">AllooHumMa Taj'aLLaa Lii Bi-iRoodaTika Yaa AllooH, Wa Qudrotika, Wa haulika, Wa QuwWatika, Wa QohHarika, Wa JabBaarika, inNama AmruHu idZa aRooda Syaian AiyaQuula Lahu Kun Fayakun.</p><p class="para latin" data-chapter="doa-2" data-word-index="42">Wa Taj'aLLaa ‘Alaiya Bi Anwaari rohmatika, Wa AsRoori qudrotika, Waftah Lii AbWaaba FaDhlika, Wa Ahyi QolBii Binuuri ma‘rifatika, Waj‘alNii Minal MuKhliShiina Fii Mahab-Batika, WarzuqNii Bi QoDhoika, Birohmatika Yaa Arhamar RoohiMiin.</p><p class="para latin repeatable" data-chapter="doa-2" data-repeat="3" data-repeat-target="3" data-repeat-title="AllooHumMa RobBaNaa Anzil 'Alaina Maa' idatam Minas SaMaa'i Takuunu LaNaa 'iidal Lil-Awali" data-word-index="43">AllooHumMa RobBaNaa Anzil 'Alaina Maa' idatam Minas SaMaa'i Takuunu LaNaa 'iidal Lil-AwaliNaa Wal AaKhiriNaa Wa ayatam minka warzuqNaa Wa 'anta Khoirur Rooziqin 3X</p><p class="para latin" data-chapter="doa-2" data-word-index="44">inNaHu Min Sulaimana Wa inNaHu Bismillahir Rohmanir Rohiim 'AlLaa Taq'luu 'Alaiya Wa' Tuu'Nii MusliMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="45">AllooHumMa Ya han-Nan, Ya Man-Nan, Ya FatTah, Ya RozZaq, Ya GhoNii, Ya MuGhNii, AGhnini Billa Sababin Fa inNaka Alla Kuli Syai'in Qodir. RobBi inNii LiMaa Anzalta ilaiya Min Khooirin FaQiir</p><p class="para latin" data-chapter="doa-2" data-word-index="46">Wamai YattaQillaaHa Yaj'al Lahu MaKhroJaa. Wa YarZuQHu min haitSu Laa YahTasiB, Wamai YatawakKal AlallooHi FaHuwa hasbuH, innallooHa Baaligu AmriH, Qod Ja'AlallooHu LikuLi Syaiin QodRoo</p><p class="para latin" data-chapter="doa-2" data-word-index="47">RobBi inNi MaGhluubun FaantaShir, Wajbur QolBiiyal Munkasir, Wajma' SyamLiiyal MuntaSyir, inNaka Antar Rohmanul Muqtadir,</p><p class="para latin" data-chapter="doa-2" data-word-index="48">ikfiNii Yaa KaaFii, Wa 'ANaal 'Abdu Al-muftaQiir, Wa KaFaa BillaaHi WaLiiYaau, Wa KaFaa BillaaHi NaShiiRoo,</p><p class="para latin" data-chapter="doa-2" data-word-index="49">inNaSy-Syirka LaDhulmun ADhiim, WamaL-LooHu YuRiidu Dhulman lil 'iBaad, FaquThi'a Daa Birul Qoumil LadZiina DholaMuu, Wal hamdu LillaHi RobBil 'AalaMiin</p><p class="para latin repeatable" data-chapter="doa-2" data-repeat="3" data-repeat-target="3" data-repeat-title="AllooHumMa AkfiNii BihaLaaL-ika ‘An HaRoomika, Wa AGhniNii Bi FaDhlika AmMan SiWaaka (3X)" data-word-index="50">AllooHumMa AkfiNii BihaLaaL-ika ‘An HaRoomika, Wa AGhniNii Bi FaDhlika AmMan SiWaaka (3X)</p><p class="para latin" data-chapter="doa-2" data-word-index="51">AllooHumMa Yaa haiyu, Yaa Qoiyuum, Yaa FarDhu, Yaa Watru, Yaa Shomadu, Yaa Sanadu, Man illaiHi Mustanadu, Yaa Man Lam Yalid Wa Lam Yuulad, Wa Lam Yakullahuu KuFuuwan Ahad, As Aluka KadZa Wa KadZa</p><p class="para latin" data-chapter="doa-2" data-word-index="52">AllooHumMa Yaa DaiYaanu WaYaa QowiiYal ArDh, Wa Yaa KaRiimu Antah faDhoona Man Anzalna Bil haqQ, Yaa Rohman Yaa Rohiim, Yaa han-Naan Yaa Man-Naan.</p><p class="para latin" data-chapter="doa-2" data-word-index="53">Yaa AllooHu Kabulkanlah Permohonan hambamu, Yaa AllooHu berikanlah Keselamatan Dunia AKHIRAT. Yaa AllooHu berikanlah Petunjuk &amp; Hidayahmu. Yaa AllooHu Mudahkanlah &amp; Limpahkan Rizki Kami. Yaa AllooHu Yaa RobBal ’AalaMiin.</p><p class="para latin" data-chapter="doa-2" data-word-index="54">AllooHumMa Sholli Sholatan Kaamilatan Wa Sallim SaLaaman TaamMan. 'ALaa Saiyidina MuhamMadin-NilladZi Tan Hallu Bihil ‘Uqodu, Wa Tan Fariju Bihil Kurobu, Wa tuq'Dho Bihil hoWaaiju, Wa Tun Hallu Bihir-RoGhooibu, Wa husnul KhoWaatimi Wayus-Tasqol GhoMaamu Biwaj'Hil Karim, Wa ‘Ala 'AaliHi Wa ShohBiiHi Fii Kulli LamHatin Wa Nafasim Biq’Adadi Kulli Maq’lumin Lak</p><p class="para latin" data-chapter="doa-2" data-word-index="55">AllooHumMa RobBaNaa Taqobal MinNaa inNaka Antas SaMii’ul ‘ALiim, Watub ‘AlaiNaa inNaka Antat TauWaabur Rohiim. Wa SholallooHu 'ALaa Saiyidina MuhamMad, Wa 'ALaa AaliHii Wa ShohBiiHii Wabarik Wasallim.</p><p class="para latin" data-chapter="doa-2" data-word-index="56">SuBhaana RobBika RobBil ‘izZati ‘AmMaa YaSyiFuun, Wa SaLaamun ‘Aqlal MursaLiina, Walhamdu LillaaHir RobBil ‘AalaMiin... Al FaatihaH</p><p class="para latin repeatable" data-chapter="doa-2" data-repeat="3" data-repeat-target="3" data-repeat-title="Ya RobBibil MusThofa BaliGh Maqo Sidana WaGh-Fir LaNaa MamaDho Ya WaSyi’al Karomi ... 3X" data-word-index="57">Ya RobBibil MusThofa BaliGh Maqo Sidana WaGh-Fir LaNaa MamaDho Ya WaSyi’al Karomi ... 3X</p><p class="para latin" data-chapter="doa-2" data-word-index="58">TaqobBalallooHu MinNa Wa Minkum, MinNa Wa Minkum TaqobBal Yaa Karim, Walhamdu LillaaHir RobBil 'AalaMiin AstaGh FirRulloh Hal 'AZhiim inNallooHa GhofurRur Rohiim</p><p class="para latin" data-chapter="doa-2" data-word-index="59">Alhamdulillahil Ladzi hadana Lihadza, Wama Kunna Linah Tadya, LauLa Anhada NaullooH</p></section><section class="chapter" id="library-bacaan"><h2>Library Bacaan</h2>
 <div class="build-note" style="margin:8px 0 14px"><b>📚 Pusat Koleksi Bacaan Pribadi</b><br>Gunakan Library Bacaan untuk menyimpan bacaan pribadi, mengimpor DOCX/TXT/JSON, membuat salinan bacaan bawaan untuk diedit tanpa mengubah sumber asli, lalu menyusun beberapa bacaan menjadi ritual/playlist pribadi. Semua koleksi tersimpan lokal di perangkat.</div>
-<div class="library-toolbar"><div class="library-filter"><input class="searchbox" id="librarySearch" placeholder="Cari bacaan..."/><select id="libraryCategory"><option value="">Semua kategori</option></select></div><div class="row"><button class="action primary" id="addLibraryBtn" type="button">＋ Tambah Bacaan</button><button class="action" id="refreshLibraryBtn" type="button">↻ Perbarui Indeks</button><button class="action" id="exportLibraryBtn" type="button">⇩ Backup Koleksi</button><button class="action" id="importLibraryBtn" type="button">⇧ Pulihkan Koleksi</button><button class="action" id="importDocumentBtn" type="button">📄 Impor PDF/DOCX</button><input accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden id="importDocumentFile" type="file"/><input accept=".docx,.txt,.json,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/json" hidden="" id="importLibraryFile" type="file"/></div></div>
+<div class="library-toolbar"><div class="library-filter"><input class="searchbox" id="librarySearch" placeholder="Cari bacaan..."/><select id="libraryCategory"><option value="">Semua kategori</option></select></div><div class="row"><button class="action primary" id="addLibraryBtn" type="button">＋ Tambah Bacaan</button><button class="action" id="refreshLibraryBtn" type="button">↻ Perbarui Indeks</button><button class="action" id="exportLibraryBtn" type="button">⇩ Backup Koleksi</button><button class="action" id="importLibraryBtn" type="button">⇧ Pulihkan Koleksi</button><button class="action" id="importDocumentBtn" type="button">📄 Impor PDF</button><input accept="application/pdf,.pdf" hidden id="importDocumentFile" type="file"/><input accept=".docx,.txt,.json,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/json" hidden="" id="importLibraryFile" type="file"/></div></div>
 <div class="lib-grid" id="libraryList"></div><div class="library-empty" hidden="" id="libraryEmpty">Belum ada bacaan yang cocok.</div></section>
 <section class="chapter" id="galeri-foto"><h2>Galeri Media</h2>
 <div class="personal-toolbar">
@@ -2939,9 +2938,17 @@ async function importDocument(file){
  const name=(file?.name||'').trim(), type=(file?.type||'').toLowerCase();
  if(!file || !name) throw Error('File tidak ditemukan');
  if(!(/\.pdf$/i.test(name)||type==='application/pdf')) throw Error('Pilih file PDF (.pdf)');
- // Simpan Blob asli: iOS/Safari menangani Blob lebih stabil dan menghindari salinan ArrayBuffer besar di memori.
- const blob=file instanceof Blob ? file.slice(0,file.size,'application/pdf') : new Blob([file],{type:'application/pdf'});
- await put('documents',{name,type:'application/pdf',size:blob.size,blob,createdAt:Date.now()});
+ // iPad/Safari: simpan Blob/File asli langsung agar tidak membuat salinan ArrayBuffer besar di RAM.
+ let blob;
+ try{ blob=file instanceof Blob ? file : new Blob([file],{type:'application/pdf'}); }
+ catch(e){ throw Error('PDF tidak dapat dibaca dari perangkat: '+(e.message||e)); }
+ if(!blob.size) throw Error('File PDF kosong atau tidak dapat diakses');
+ try{
+   await put('documents',{name,type:'application/pdf',size:blob.size,blob,createdAt:Date.now(),updatedAt:Date.now()});
+ }catch(e){
+   if(e?.name==='QuotaExceededError') throw Error('Penyimpanan iPad penuh. Hapus PDF/media lama lalu coba lagi.');
+   throw e;
+ }
  document.dispatchEvent(new CustomEvent('rc71-documents-updated'));
  notify('PDF tersimpan: '+name);
 }
@@ -2965,7 +2972,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 <script id="rc71-document-import-ui">
-(()=>{function b(){const x=document.getElementById('importDocumentBtn'),i=document.getElementById('importDocumentFile');if(x&&i&&!x.dataset.b){x.dataset.b=1;x.onclick=()=>i.click()}if(i&&!i.dataset.b){i.dataset.b=1;i.onchange=async()=>{const f=i.files?.[0];if(f)try{await window.RC71ImportStorage.importDocument(f)}catch(e){console.error(e);alert('Impor dokumen gagal: '+e.message)}i.value=''}}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',b,{once:true});else b();new MutationObserver(b).observe(document.documentElement,{childList:true,subtree:true})})();</script>
+(()=>{function b(){const x=document.getElementById('importDocumentBtn'),i=document.getElementById('importDocumentFile');if(x&&i&&!x.dataset.b){x.dataset.b=1;x.onclick=()=>i.click()}if(i&&!i.dataset.b){i.dataset.b=1;i.onchange=async()=>{const f=i.files?.[0];if(f)try{await window.RC71ImportStorage.importDocument(f);alert('PDF berhasil diimpor: '+f.name)}catch(e){console.error(e);alert('Impor PDF gagal: '+(e.message||e))}finally{i.value=''}}}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',b,{once:true});else b();})();</script>
 
 
 
@@ -3089,13 +3096,13 @@ function updateTpSpeed(){tpSpeedLabel.textContent=tpSpeed.toFixed(1)+'×';localS
 function updateTpFont(){tpText.style.fontSize=tpFont+'px';localStorage.setItem('rc71-pdf-tp-font',String(tpFont))}
 function tpTick(){if(!tpRunning)return;tpOffset-=0.35*tpSpeed;tpText.style.transform=`translateY(${tpOffset}px)`;tpRaf=requestAnimationFrame(tpTick)}
 function startTp(){if(!pdfText.trim())return;tpRunning=true;tpPause.textContent='Ⅱ Jeda';if(tpOffset===0)tpOffset=Math.min(0,innerHeight*.28);tpTick()}
-function openPdfReader(d){
+async function openPdfReader(d){
  stopTp();
  pdfCurrent=d;
- // Android/WebView iframe viewers may show an opaque “Open” page for blob/content:// URLs.
- // Use the same PDF.js canvas renderer as the visual teleprompter instead.
+ // Preferred renderer: PDF.js canvas. If the library/network fails, fall back to Safari's native PDF viewer.
  if(window.RC71VisualPDFTeleprompter?.open){
-   return window.RC71VisualPDFTeleprompter.open(d,{mode:'reader'});
+   try{ await window.RC71VisualPDFTeleprompter.open(d,{mode:'reader'}); return; }
+   catch(err){ console.warn('PDF.js reader gagal, memakai viewer Safari',err); toast2('PDF.js gagal — membuka viewer PDF Safari'); }
  }
  if(pdfURL)URL.revokeObjectURL(pdfURL);
  pdfURL=URL.createObjectURL(blobOfDoc(d));
@@ -3135,11 +3142,14 @@ async function closePdfReader(){
 }
 // Public close hook used by the Visual PDF Teleprompter.
 window.RC71PdfReaderClose=closePdfReader;
-async function ensurePdfJs(){if(window.pdfjsLib)return window.pdfjsLib;if(window.__rc71PdfJsPromise)return window.__rc71PdfJsPromise;window.__rc71PdfJsPromise=new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';sc.async=true;sc.onload=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';resolve(window.pdfjsLib)}catch(e){reject(e)}};sc.onerror=()=>reject(new Error('PDF.js tidak dapat dimuat. Teleprompter memerlukan koneksi internet saat pertama kali digunakan.'));document.head.appendChild(sc)});return window.__rc71PdfJsPromise}
+async function ensurePdfJs(){if(window.pdfjsLib)return window.pdfjsLib;if(window.__rc71PdfJsPromise)return window.__rc71PdfJsPromise;window.__rc71PdfJsPromise=new Promise((resolve,reject)=>{const sources=[
+ ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'],
+ ['https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js','https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js']
+ ];let i=0;const load=()=>{const [src,worker]=sources[i++],sc=document.createElement('script');sc.src=src;sc.async=true;sc.onload=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc=worker;resolve(window.pdfjsLib)}catch(e){i<sources.length?load():reject(e)}};sc.onerror=()=>i<sources.length?load():reject(new Error('PDF.js tidak dapat dimuat. Periksa koneksi internet lalu coba lagi.'));document.head.appendChild(sc)};load()});return window.__rc71PdfJsPromise}
 async function extractPdfText(d){const lib=await ensurePdfJs();const data=d.blob instanceof ArrayBuffer?d.blob:await blobOfDoc(d).arrayBuffer();const pdf=await lib.getDocument({data}).promise;const parts=[];for(let n=1;n<=pdf.numPages;n++){const page=await pdf.getPage(n),tc=await page.getTextContent();const lines=[];let lastY=null,line='';for(const it of tc.items){const str=(it.str||'').trim();if(!str)continue;const y=it.transform?.[5]??null;if(lastY!==null&&y!==null&&Math.abs(y-lastY)>4){if(line.trim())lines.push(line.trim());line=''}line+=(line?' ':'')+str;lastY=y}if(line.trim())lines.push(line.trim());parts.push(`[Halaman ${n}]\n`+lines.join('\n'))}return parts.join('\n\n').replace(/\n{3,}/g,'\n\n').trim()}
 async function openPdfTeleprompter(d){stopTp();pdfCurrent=d;document.body.classList.add('rc71-pdf-reader-open');tpTitle.textContent=(d.name||'PDF')+' • Teleprompter';tpText.textContent='Mengekstrak teks PDF…';tpText.style.transform='translateY(28vh)';tpOffset=0;tpOverlay.classList.add('open');tpOverlay.setAttribute('aria-hidden','false');tpStatus.textContent='Memproses…';updateTpSpeed();updateTpFont();try{pdfText=await extractPdfText(d);if(!pdfText)throw Error('PDF tidak mengandung teks yang dapat diekstrak.');tpText.textContent=pdfText;tpOffset=0;tpText.style.transform='translateY(28vh)';tpStatus.textContent=pdfText.length.toLocaleString('id-ID')+' karakter'}catch(e){pdfText='';tpText.textContent='Teleprompter tidak dapat membaca teks PDF ini. Jika PDF berupa scan/gambar, diperlukan OCR.';tpStatus.textContent=e.message||'Gagal membaca PDF'}}
 function closeTp(){stopTp();tpOverlay.classList.remove('open');tpOverlay.setAttribute('aria-hidden','true');document.body.classList.remove('rc71-pdf-reader-open');pdfCurrent=null;pdfText='';tpOffset=0}
-function renderPdfList(){if(!pdfList||!pdfEmpty)return;pdfList.innerHTML='';const arr=pdfItems.filter(isPdfDoc);const total=arr.reduce((n,d)=>n+Number(d.size||d.blob?.size||0),0);if(pdfStorageSummary){pdfStorageSummary.hidden=false;const mb=(total/1048576).toFixed(total>=10485760?0:1);pdfStorageSummary.textContent='🧠 Smart PDF Memory Manager • '+arr.length+' PDF • '+mb+' MB tersimpan • hanya 1 PDF aktif di RAM • cache maksimum 40 halaman';}pdfEmpty.hidden=arr.length>0;arr.forEach(d=>{const c=document.createElement('div');c.className='media-card';c.innerHTML=`<div class="media-card-head"><span class="media-card-icon">📄</span><div class="media-card-title">${esc(d.name||'Dokumen PDF')}</div><small>PDF • ${Math.max(1,Math.round((d.size||0)/1024))} KB</small></div><div class="media-card-actions"><button class="action primary" data-open>📖 Buka PDF</button><button class="action" data-tp>▶ Teleprompter</button><button class="action" data-del>Hapus</button></div>`;c.querySelector('[data-open]').onclick=()=>openPdfReader(d);c.querySelector('[data-tp]').onclick=()=>openPdfTeleprompter(d);c.querySelector('[data-del]').onclick=async()=>{if(confirm('Hapus PDF ini dari penyimpanan perangkat?')){await deleteDocument(d.id);await reloadPdfs();toast2('PDF dihapus')}};pdfList.appendChild(c)})}
+function renderPdfList(){if(!pdfList||!pdfEmpty)return;pdfList.innerHTML='';const arr=pdfItems.filter(isPdfDoc);const total=arr.reduce((n,d)=>n+Number(d.size||d.blob?.size||0),0);if(pdfStorageSummary){pdfStorageSummary.hidden=false;const mb=(total/1048576).toFixed(total>=10485760?0:1);pdfStorageSummary.textContent='🧠 Smart PDF Memory Manager • '+arr.length+' PDF • '+mb+' MB tersimpan • hanya 1 PDF aktif di RAM • tampilan awal 20 halaman • cache maksimum 20 halaman';}pdfEmpty.hidden=arr.length>0;arr.forEach(d=>{const c=document.createElement('div');c.className='media-card';c.innerHTML=`<div class="media-card-head"><span class="media-card-icon">📄</span><div class="media-card-title">${esc(d.name||'Dokumen PDF')}</div><small>PDF • ${Math.max(1,Math.round((d.size||0)/1024))} KB</small></div><div class="media-card-actions"><button class="action primary" data-open>📖 Buka PDF</button><button class="action" data-tp>▶ Teleprompter</button><button class="action" data-del>Hapus</button></div>`;c.querySelector('[data-open]').onclick=()=>openPdfReader(d);c.querySelector('[data-tp]').onclick=()=>openPdfTeleprompter(d);c.querySelector('[data-del]').onclick=async()=>{if(confirm('Hapus PDF ini dari penyimpanan perangkat?')){await deleteDocument(d.id);await reloadPdfs();toast2('PDF dihapus')}};pdfList.appendChild(c)})}
 async function reloadPdfs(){try{pdfItems=await getDocuments();renderPdfList()}catch(e){console.warn('PDF list gagal',e);pdfItems=[];renderPdfList()}}
 panel.querySelectorAll('[data-media-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.mediaTab;render();renderPdfList()});
 
@@ -3808,7 +3818,7 @@ const $=id=>document.getElementById(id);
 const ov=$('rc71PdfVisualTpOverlay'), vp=$('rc71VtpViewport'), pages=$('rc71VtpPages');
 const title=$('rc71VtpTitle'), pause=$('rc71VtpPause'), speedLabel=$('rc71VtpSpeedLabel'), status=$('rc71VtpStatus');
 if(!ov||!vp||!pages)return;
-let running=false, raf=0, last=0, speed=+(localStorage.getItem('rc71-vtp-speed')||40), current=null, pdfUrl=null, readerMode=false, controlsHideTimer=0, backgroundAbort=0, activePdfDoc=null, renderQueue=[], renderBusy=0, maxCachedPages=18, pageCache=new Set();
+let running=false, raf=0, last=0, speed=+(localStorage.getItem('rc71-vtp-speed')||40), current=null, pdfUrl=null, readerMode=false, controlsHideTimer=0, backgroundAbort=0, activePdfDoc=null, renderQueue=[], renderBusy=0, maxCachedPages=20, pageCache=new Set();
 let zoom=+(localStorage.getItem('rc71-vtp-zoom')||100);
 const zoomLevels=[75,85,100,115,130,150,175];
 function applyZoom(){
@@ -3865,10 +3875,15 @@ async function ensurePdfJs(){
  if(window.pdfjsLib)return window.pdfjsLib;
  if(window.__rc71PdfJsPromise)return window.__rc71PdfJsPromise;
  window.__rc71PdfJsPromise=new Promise((resolve,reject)=>{
-  const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';sc.async=true;
-  sc.onload=()=>{try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';resolve(pdfjsLib)}catch(e){reject(e)}};
-  sc.onerror=()=>reject(new Error('PDF.js tidak dapat dimuat. Sambungan internet diperlukan saat pertama kali memakai mode ini.'));
-  document.head.appendChild(sc);
+  const sources=[
+   ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'],
+   ['https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js','https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js']
+  ]; let i=0;
+  const load=()=>{const [src,worker]=sources[i++],sc=document.createElement('script');sc.src=src;sc.async=true;
+    sc.onload=()=>{try{pdfjsLib.GlobalWorkerOptions.workerSrc=worker;resolve(pdfjsLib)}catch(e){i<sources.length?load():reject(e)}};
+    sc.onerror=()=>i<sources.length?load():reject(new Error('PDF.js tidak dapat dimuat. Periksa koneksi internet lalu coba lagi.'));
+    document.head.appendChild(sc);
+  }; load();
  });
  return window.__rc71PdfJsPromise;
 }
@@ -3947,17 +3962,21 @@ async function renderPdf(d){
       }
     }
     function smartPrefetch(center){
-      // Keep memory bounded: previous 12 + current + next 27 pages = max 40 canvas pages.
-      const start=Math.max(1,center-5), end=Math.min(pdf.numPages,center+11);
+      // Keep exactly a 20-page working window around the reading position.
+      let start=Math.max(1,center-9), end=Math.min(pdf.numPages,start+19);
+      if(end-start<19)start=Math.max(1,end-19);
       for(let n=center;n<=end;n++)queuePage(n);
       for(let n=center-1;n>=start;n--)queuePage(n);
       evict(center); pump();
       status.textContent=`PDF asli • ${pdf.numPages} halaman • cache ${pageCache.size}/${maxCachedPages} • halaman ${center}`;
     }
-    // Initial rendering: exactly 20 pages. For resumed documents, center a 20-page window on last position.
+    // Initial view: exactly 20 pages whenever the document has >=20 pages.
+    // New PDF = pages 1–20. Resumed PDF = a 20-page window centered as closely as possible on the last reading position.
+    const windowSize=Math.min(20,pdf.numPages);
     let initialStart=lastPage>1?Math.max(1,lastPage-9):1;
-    let initialEnd=Math.min(pdf.numPages,initialStart+9); initialStart=Math.max(1,initialEnd-9);
-    status.textContent=`Menyiapkan halaman ${initialStart}–${initialEnd} dari ${pdf.numPages}…`;
+    let initialEnd=initialStart+windowSize-1;
+    if(initialEnd>pdf.numPages){initialEnd=pdf.numPages;initialStart=Math.max(1,initialEnd-windowSize+1);}
+    status.textContent=`Menyiapkan ${initialEnd-initialStart+1} halaman: ${initialStart}–${initialEnd} dari ${pdf.numPages}…`;
     for(let n=initialStart;n<=initialEnd;n++) await draw(n);
     if(token!==backgroundAbort)return;
     if(lastPage>1){const h=holders.get(lastPage); if(h)vp.scrollTop=Math.max(0,h.offsetTop-24)}
@@ -3972,7 +3991,7 @@ async function renderPdf(d){
     };
     // Background work is progressive and memory-safe: preload around reading position, then discard distant canvases.
     // This avoids retaining hundreds of rendered pages for a 100-PDF / 200-MB library.
-  }catch(e){console.error(e);pages.innerHTML='<div class="rc71-vtp-error">Gagal menampilkan PDF asli.<br><small>'+String(e.message||e)+'</small></div>';status.textContent='Gagal memuat PDF'}
+  }catch(e){console.error(e);pages.innerHTML='<div class="rc71-vtp-error">Gagal menampilkan PDF asli.<br><small>'+String(e.message||e)+'</small></div>';status.textContent='Gagal memuat PDF';throw e}
 }
 async function open(d,opts={}){
  if(!d)return;
@@ -4023,27 +4042,7 @@ window.RC71VisualPDFTeleprompter={open,close,start,stop};
 </script>
 
 
-<script id="force-galeri-media-v624">
-(function(){
-  function fix(root){
-    if(!root) return;
-    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-    const nodes=[]; let n;
-    while(n=walker.nextNode()) nodes.push(n);
-    nodes.forEach(function(t){
-      if(/Galeri Foto/i.test(t.nodeValue)) t.nodeValue=t.nodeValue.replace(/Galeri Foto/gi,'Galeri Media');
-    });
-    root.querySelectorAll && root.querySelectorAll('[title],[aria-label],[data-title]').forEach(function(el){
-      ['title','aria-label','data-title'].forEach(function(a){
-        if(el.hasAttribute(a) && /Galeri Foto/i.test(el.getAttribute(a))) el.setAttribute(a,el.getAttribute(a).replace(/Galeri Foto/gi,'Galeri Media'));
-      });
-    });
-  }
-  function run(){ fix(document.body); }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true}); else run();
-  new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(function(n){ if(n.nodeType===1) fix(n); else if(n.nodeType===3 && /Galeri Foto/i.test(n.nodeValue)) n.nodeValue=n.nodeValue.replace(/Galeri Foto/gi,'Galeri Media'); }); }); }).observe(document.documentElement,{childList:true,subtree:true});
-})();
-</script>
+
 
 <script id="rc80-ipados-runtime">
 (function(){
@@ -4056,37 +4055,37 @@ window.RC71VisualPDFTeleprompter={open,close,start,stop};
 </script>
 
 
-<script id="rc80-final-counter-controls">
+<script id="rc82-counter-controls">
 document.addEventListener('DOMContentLoaded',()=>{
- const reset=document.getElementById('counterResetExit'), fab=document.getElementById('counterFab'), controls=document.getElementById('smartCounterControls');
- const sync=()=>{const on=fab?.classList.contains('show');reset?.classList.toggle('show',!!on);controls?.classList.toggle('show',!!on)};
- new MutationObserver(sync).observe(fab,{attributes:true,attributeFilter:['class']}); sync();
- reset?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.resetAndClose?.();sync();});
+ const reset=document.getElementById('counterResetZero'), exit=document.getElementById('counterExit'), fab=document.getElementById('counterFab'), actions=document.getElementById('counterFloatActions');
+ const sync=()=>actions?.classList.toggle('show',!!fab?.classList.contains('show'));
+ // Observe only the counter's class attribute; no whole-DOM observer and no perpetual animation loop.
+ if(fab)new MutationObserver(sync).observe(fab,{attributes:true,attributeFilter:['class']}); sync();
+ reset?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.reset?.();sync();});
+ exit?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.exit?.();sync();});
  document.getElementById('scNext')?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.increment?.()});
  document.getElementById('scStop')?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.togglePause?.()});
- document.getElementById('scExit')?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.resetAndClose?.();sync()});
+ document.getElementById('scExit')?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.exit?.();sync()});
  document.getElementById('manualSmartCounterBtn')?.addEventListener('click',e=>{
    e.stopPropagation();
-   if(fab?.classList.contains('show')){window.SmartDzikirCounter?.close?.();sync();return}
+   if(fab?.classList.contains('show')){window.SmartDzikirCounter?.exit?.();sync();return}
    const activeEl=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable');
-   let target=Number(activeEl?.dataset.repeat||activeEl?.dataset.repeatTarget||0);
-   let el=activeEl;
-   if(!target){
-     const nearby=[...document.querySelectorAll('#reader .para')].find(x=>Number(x.dataset.repeat||x.dataset.repeatTarget||0)>0);
-     if(nearby){el=nearby;target=Number(nearby.dataset.repeat||nearby.dataset.repeatTarget)}
-   }
-   if(!target){
-     const t=prompt('Smart Counter manual: masukkan jumlah pengulangan', '33');
-     target=Math.max(1,Math.min(9999,Number(t)||0));
-     if(!target)return;
-     el=document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';
-   }
+   let target=Number(activeEl?.dataset.repeat||activeEl?.dataset.repeatTarget||0), el=activeEl;
+   if(!target){const nearby=[...document.querySelectorAll('#reader .para')].find(x=>Number(x.dataset.repeat||x.dataset.repeatTarget||0)>0);if(nearby){el=nearby;target=Number(nearby.dataset.repeat||nearby.dataset.repeatTarget)}}
+   if(!target){const t=prompt('Smart Counter manual: masukkan jumlah pengulangan','33');target=Math.max(1,Math.min(9999,Number(t)||0));if(!target)return;el=document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';}
    window.SmartDzikirCounter?.activate?.(el,0);sync();
  });
 });
 </script>
+<script id="rc82-memory-hygiene">document.addEventListener('visibilitychange',()=>{if(document.hidden){try{window.RC71VisualPDFTeleprompter?.stop?.()}catch(e){}}});</script>
 
-// RC80 memory hygiene: release transient PDF resources when the app is backgrounded.
-document.addEventListener('visibilitychange',()=>{if(document.hidden){try{window.RC71VisualPDFTeleprompter?.stop?.()}catch(e){}}});
+<style id="rc82-counter-float-actions">
+#counterFloatActions{position:fixed;right:max(14px,calc((100vw - 8cm)/2 + 10px));bottom:14px;z-index:58;display:none;flex-direction:column;gap:8px;align-items:stretch}
+#counterFloatActions.show{display:flex}
+#counterFloatActions button{width:52px;height:42px;border-radius:14px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--paper) 96%,transparent);color:var(--ink);font-size:22px;font-weight:850;box-shadow:0 8px 22px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);touch-action:manipulation}
+#counterFloatActions #counterResetZero{font-size:25px}
+#counterFloatActions #counterExit{font-size:20px;color:#d85b5b}
+@media(max-width:600px){#counterFloatActions{right:10px}}
+</style>
 </body>
 </html>
