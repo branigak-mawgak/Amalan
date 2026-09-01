@@ -10,7 +10,7 @@ Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 -->
 <!-- RC54 STABLE CANONICAL: legacy patch cleanup; canonical gallery + editor retained. -->
 <!DOCTYPE html>
-<!-- AMALAN RC80 iPadOS EDITION — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
+<!-- AMALAN RC80 iPadOS EDITION — PORTRAIT CANVAS + SMART COUNTER + SURAH NUMBERING FIX — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
 <!-- RC46 -->
 <html lang="id" data-build="AMALAN-RC80-iPadOS">
 <head>
@@ -1057,6 +1057,29 @@ header{padding-top:max(10px,calc(10px + var(--rc80-safe-top)))}
 @media (hover:none) and (pointer:coarse){button,.icon,.action{min-height:44px}.home-card{min-height:120px}}
 </style>
 
+
+<!-- RC80 iPad Portrait + Smart Counter + Surah numbering repair -->
+<style id="rc80-ipad-reading-fix">
+@media (orientation:portrait) and (min-width:600px){
+  .reader-wrap{padding-left:0;padding-right:0}
+  .book{width:calc(100vw - 32px)!important;max-width:none!important;min-height:calc(100dvh - 150px);padding:24px 28px 44px;border-radius:20px}
+}
+@media (orientation:portrait) and (min-width:900px){.book{width:calc(100vw - 48px)!important;padding-left:40px;padding-right:40px}.para{font-size:clamp(21px,2.35vw,28px);line-height:1.78}}
+.ayah-no{font-variant-numeric:tabular-nums}
+</style>
+<script id="rc80-numbering-smartcounter-fix">
+document.addEventListener('DOMContentLoaded',()=>{
+ ['surat-yasin-ziarah','surat-waqiah','surat-mulk'].forEach(id=>{
+   const sec=document.getElementById(id); if(!sec)return;
+   const ayahs=[...sec.querySelectorAll('.para.ayah')];
+   ayahs.forEach((p,i)=>{const n=i+1;p.dataset.ayah=n;let badge=p.querySelector('.ayah-no');if(!badge){badge=document.createElement('span');badge.className='ayah-no';p.prepend(badge)}badge.textContent=n;});
+ });
+ // Ensure every explicit repeat marker has an immediately usable Smart Counter activation path.
+ document.querySelectorAll('.repeatable,[data-repeat],[data-repeat-target]').forEach(el=>{
+   el.addEventListener('click',()=>{setTimeout(()=>{const fab=document.getElementById('counterFab'); if(fab && !fab.classList.contains('show')) document.getElementById('manualSmartCounterBtn')?.click();},80);});
+ });
+});
+</script>
 </head>
 <body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC71-V6.2.3-GALERI-MEDIA">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
