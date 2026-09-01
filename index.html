@@ -8,7 +8,7 @@ Reference: user-provided screenshot
 Status: VERIFIED
 Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 -->
-<!-- RC54 STABLE CANONICAL: legacy patch cleanup; canonical gallery + editor retained. -->
+<!-- AMALAN RC80 iPad Optimized: canonical build -->
 <!DOCTYPE html>
 <!-- AMALAN RC80 iPadOS EDITION — PORTRAIT CANVAS + SMART COUNTER + SURAH NUMBERING FIX — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
 <!-- RC46 -->
@@ -1081,55 +1081,30 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 </script>
 
-<!-- RC80.1 iPad reading + counter controls repair -->
-<style id="rc80-1-repair">
-/* Keep ayah number in its own gutter; reading text moves slightly right. */
-.para.ayah{position:relative!important;padding-left:52px!important;}
-.para.ayah .ayah-no{position:absolute!important;left:8px!important;top:.18em!important;width:34px!important;height:34px!important;display:grid!important;place-items:center!important;line-height:1!important;z-index:2!important;}
-@media (orientation:portrait) and (min-width:600px){.para.ayah{padding-left:60px!important}.para.ayah .ayah-no{left:10px!important}}
-#counterActionButtons{position:fixed;right:max(14px,calc((100vw - 8cm)/2 + 10px));bottom:8px;z-index:58;display:none;flex-direction:column;gap:7px;align-items:stretch;}
-#counterActionButtons.show{display:flex}
-#counterActionButtons button{min-width:112px;height:38px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 96%,transparent);color:var(--ink);font-weight:850;box-shadow:0 8px 20px rgba(0,0,0,.16);display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;touch-action:manipulation}
-#counterActionButtons button:first-child{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-#scExitFloat{background:color-mix(in srgb,#d32f2f 10%,var(--paper))!important;color:#b71c1c!important}
-#counterActionButtons button:active{transform:scale(.96)}
-@media (orientation:landscape){#counterActionButtons{right:calc(var(--rc17-nav) + 8px + env(safe-area-inset-right));bottom:8px;transform:scale(.72);transform-origin:bottom right}}
+<style id="rc80-final-fixes">
+/* RC80 iPad: ayah number lane and text clearance */
+.ayah{padding-left:52px!important}
+.ayah-no{left:10px!important;top:10px!important;width:30px!important;height:30px!important;z-index:2}
+.ayah .ayah-no + *{}
+/* Smart Counter display lifted to create a dedicated reset/exit button below it */
+.counter-fab{bottom:118px!important}
+.counter-undo{bottom:124px!important}
+.smart-counter-controls{bottom:242px!important}
+#counterResetExit{position:fixed;right:max(14px,calc((100vw - 8cm)/2 + 10px));bottom:68px;z-index:101;display:none;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 13px;border-radius:999px;border:1px solid color-mix(in srgb,#d32f2f 45%,var(--line));background:color-mix(in srgb,var(--paper) 96%,transparent);color:#b71c1c;font-size:12px;font-weight:850;box-shadow:0 8px 22px rgba(0,0,0,.18);touch-action:manipulation}
+#counterResetExit.show{display:flex}
+#counterResetExit:active{transform:scale(.96)}
+@media (orientation:landscape){#counterResetExit{right:calc(var(--rc17-nav) + 8px + env(safe-area-inset-right));bottom:70px;transform:scale(.72);transform-origin:center center}.counter-fab{bottom:112px!important}.smart-counter-controls{bottom:222px!important}}
 </style>
-<script id="rc80-1-counter-repair">
-document.addEventListener('DOMContentLoaded',()=>{
- const manual=document.getElementById('manualSmartCounterBtn');
- const fab=document.getElementById('counterFab');
- const controls=document.getElementById('smartCounterControls');
- const actions=document.getElementById('counterActionButtons');
- const sync=()=>{const active=!!window.SmartDzikirCounter?.isActive?.(); if(controls)controls.classList.toggle('show',active); if(actions)actions.classList.toggle('show',active);};
- manual?.addEventListener('click',()=>{
-   const sc=window.SmartDzikirCounter;
-   if(sc?.isActive?.()){ sync(); return; }
-   const candidates=[...document.querySelectorAll('.repeatable,[data-repeat],[data-repeat-target]')];
-   if(candidates.length){ candidates[0].click(); setTimeout(sync,80); }
-   else { document.getElementById('counterToast').textContent='Pilih bacaan dengan tanda pengulangan'; document.getElementById('counterToast').classList.add('show'); setTimeout(()=>document.getElementById('counterToast')?.classList.remove('show'),1600); }
- });
- document.getElementById('scNext')?.addEventListener('click',()=>{window.SmartDzikirCounter?.increment?.();sync()});
- document.getElementById('scStop')?.addEventListener('click',()=>{window.SmartDzikirCounter?.togglePause?.(); const b=document.getElementById('scStop'); if(b)b.textContent=window.SmartDzikirCounter?.isPaused?.()?'▶':'Ⅱ';sync()});
- document.getElementById('scResetFloat')?.addEventListener('click',()=>{window.SmartDzikirCounter?.reset?.();sync()});
- document.getElementById('scExitFloat')?.addEventListener('click',()=>{window.SmartDzikirCounter?.exit?.();sync()});
- const observer=new MutationObserver(sync); if(fab)observer.observe(fab,{attributes:true,attributeFilter:['class']});
- sync();
-});
-</script>
 </head>
 <body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC71-V6.2.3-GALERI-MEDIA">
-<button aria-label="Aktifkan Smart Counter manual" id="manualSmartCounterBtn" title="Aktifkan Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
+<button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
-<button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button>
+<button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><button aria-label="Reset hitungan ke 0 dan keluar Smart Counter" id="counterResetExit" title="Reset 0 & Exit" type="button">↺ Reset 0 & Exit</button>
 <nav aria-label="Kontrol Smart Counter" class="smart-counter-controls" id="smartCounterControls">
-<button aria-label="Jeda atau lanjutkan Smart Counter" class="stop" id="scStop" title="Jeda / Lanjut" type="button">Ⅱ</button>
+<button aria-label="Jeda Smart Counter" class="stop" id="scStop" title="Stop / Jeda" type="button">Ⅱ</button>
 <button aria-label="Tambah hitungan" id="scNext" title="+1 hitungan" type="button">＋1</button>
+<button aria-label="Reset 0 dan keluar Smart Counter" class="exit" id="scExit" title="Reset 0 &amp; Exit" type="button">↺</button>
 </nav>
-<div id="counterActionButtons" aria-label="Aksi Smart Counter">
-<button id="scResetFloat" type="button" title="Reset hitungan ke 0">↺<span>Reset 0</span></button>
-<button id="scExitFloat" type="button" title="Keluar dari Smart Counter">✕<span>Exit</span></button>
-</div>
 <div aria-live="polite" class="counter-toast" id="counterToast">Selesai</div>
 <div class="progress"><i id="bar"></i></div><div class="app"><header><button aria-label="Buka menu" class="icon" id="menuBtn">☰</button><h1>Amalan Muslim</h1><button aria-label="Bookmark" class="icon" id="bookmarkBtn">🔖</button><button aria-label="Layar penuh" class="icon" id="appFullscreenBtn" title="Layar penuh">⛶</button><button aria-label="Ganti tema" class="icon" id="themeBtn">◐</button></header><main class="reader-wrap" id="reader"><article class="book"><section class="chapter" id="tawasulan" data-title="TAWASULAN">
 <div class="chapter-head"><h2>TAWASULAN</h2></div>
@@ -2961,12 +2936,14 @@ async function importLibraryFile(file){
  notify('Berhasil impor bacaan: '+title);
 }
 async function importDocument(file){
- const name=file?.name||'', type=file?.type||'';
- if(!/\.(pdf|docx)$/i.test(name) && !/application\/(pdf|vnd.openxmlformats-officedocument.wordprocessingml.document)/i.test(type)) throw Error('Format dokumen tidak didukung');
- const buf=await file.arrayBuffer();
- await put('documents',{name,type:type||'application/octet-stream',size:file.size,blob:buf,createdAt:Date.now()});
+ const name=(file?.name||'').trim(), type=(file?.type||'').toLowerCase();
+ if(!file || !name) throw Error('File tidak ditemukan');
+ if(!(/\.pdf$/i.test(name)||type==='application/pdf')) throw Error('Pilih file PDF (.pdf)');
+ // Simpan Blob asli: iOS/Safari menangani Blob lebih stabil dan menghindari salinan ArrayBuffer besar di memori.
+ const blob=file instanceof Blob ? file.slice(0,file.size,'application/pdf') : new Blob([file],{type:'application/pdf'});
+ await put('documents',{name,type:'application/pdf',size:blob.size,blob,createdAt:Date.now()});
  document.dispatchEvent(new CustomEvent('rc71-documents-updated'));
- notify('Dokumen tersimpan: '+file.name);
+ notify('PDF tersimpan: '+name);
 }
 async function importMedia(files){
  let count=0;
@@ -2984,7 +2961,7 @@ async function bind(){
 }
 window.RC71ImportStorage={openDB,importLibraryFile,importDocument,importMedia};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
-new MutationObserver(bind).observe(document.documentElement,{childList:true,subtree:true});
+
 })();
 </script>
 <script id="rc71-document-import-ui">
@@ -3423,7 +3400,7 @@ $('mediaExportAllBtn')?.addEventListener('click',exportAllMedia);
  console.info('MEDIA_STORAGE mirror',r);
 })();
 $('mediaImportPdfBtn')?.addEventListener('click',()=>$('mediaImportPdfInput')?.click());
-$('mediaImportPdfInput')?.addEventListener('change',async e=>{for(const f of e.target.files||[]){try{await window.RC71ImportStorage.importDocument(f)}catch(err){console.warn(err);toast2('Impor PDF gagal: '+err.message)}}e.target.value=''});
+$('mediaImportPdfInput')?.addEventListener('change',async e=>{const files=[...(e.target.files||[])];try{for(const f of files){await window.RC71ImportStorage.importDocument(f);toast2('PDF berhasil diimpor: '+f.name)}}catch(err){console.error(err);toast2('Impor PDF gagal: '+(err.message||'File tidak dapat disimpan'))}finally{e.target.value=''}});
 $('rc71PdfClose')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();closePdfReader()});$('rc71PdfTpBtn')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(pdfCurrent)openPdfTeleprompter(pdfCurrent)});$('rc71TpClose')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();closeTp()});tpPause?.addEventListener('click',()=>{if(tpRunning)stopTp();else startTp()});$('rc71TpSlow')?.addEventListener('click',()=>{tpSpeed=Math.max(.2,+(tpSpeed-.1).toFixed(1));updateTpSpeed()});$('rc71TpFast')?.addEventListener('click',()=>{tpSpeed=Math.min(3,+(tpSpeed+.1).toFixed(1));updateTpSpeed()});$('rc71TpFontDown')?.addEventListener('click',()=>{tpFont=Math.max(18,tpFont-2);updateTpFont()});$('rc71TpFontUp')?.addEventListener('click',()=>{tpFont=Math.min(64,tpFont+2);updateTpFont()});$('rc71TpRestart')?.addEventListener('click',()=>{stopTp();tpOffset=0;tpText.style.transform='translateY(28vh)'});$('rc71PdfFullBtn')?.addEventListener('click',async e=>{e.preventDefault();e.stopPropagation();try{if(document.fullscreenElement===pdfOverlay)await document.exitFullscreen();else if(document.fullscreenElement)await document.exitFullscreen();else if(pdfOverlay.requestFullscreen)await pdfOverlay.requestFullscreen({navigationUI:'hide'});else if(pdfOverlay.webkitRequestFullscreen)pdfOverlay.webkitRequestFullscreen()}catch(err){console.warn('PDF fullscreen gagal',err)}});document.addEventListener('rc71-documents-updated',reloadPdfs);document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(tpOverlay.classList.contains('open'))closeTp();else if(pdfOverlay.classList.contains('open'))closePdfReader()}});
 (async()=>{await seedBuiltins();await reload();await reloadPdfs()})();
 })();
@@ -3831,7 +3808,7 @@ const $=id=>document.getElementById(id);
 const ov=$('rc71PdfVisualTpOverlay'), vp=$('rc71VtpViewport'), pages=$('rc71VtpPages');
 const title=$('rc71VtpTitle'), pause=$('rc71VtpPause'), speedLabel=$('rc71VtpSpeedLabel'), status=$('rc71VtpStatus');
 if(!ov||!vp||!pages)return;
-let running=false, raf=0, last=0, speed=+(localStorage.getItem('rc71-vtp-speed')||40), current=null, pdfUrl=null, readerMode=false, controlsHideTimer=0, backgroundAbort=0, activePdfDoc=null, renderQueue=[], renderBusy=0, maxCachedPages=40, pageCache=new Set();
+let running=false, raf=0, last=0, speed=+(localStorage.getItem('rc71-vtp-speed')||40), current=null, pdfUrl=null, readerMode=false, controlsHideTimer=0, backgroundAbort=0, activePdfDoc=null, renderQueue=[], renderBusy=0, maxCachedPages=18, pageCache=new Set();
 let zoom=+(localStorage.getItem('rc71-vtp-zoom')||100);
 const zoomLevels=[75,85,100,115,130,150,175];
 function applyZoom(){
@@ -3960,7 +3937,7 @@ async function renderPdf(d){
     }
     function evict(keepCenter){
       if(pageCache.size<=maxCachedPages)return;
-      const keepMin=Math.max(1,keepCenter-14), keepMax=Math.min(pdf.numPages,keepCenter+25);
+      const keepMin=Math.max(1,keepCenter-6), keepMax=Math.min(pdf.numPages,keepCenter+10);
       const candidates=[...pageCache].filter(n=>n<keepMin||n>keepMax).sort((a,b)=>Math.abs(b-keepCenter)-Math.abs(a-keepCenter));
       while(pageCache.size>maxCachedPages&&candidates.length){
         const n=candidates.shift(), h=holders.get(n); if(!h)continue;
@@ -3971,7 +3948,7 @@ async function renderPdf(d){
     }
     function smartPrefetch(center){
       // Keep memory bounded: previous 12 + current + next 27 pages = max 40 canvas pages.
-      const start=Math.max(1,center-12), end=Math.min(pdf.numPages,center+27);
+      const start=Math.max(1,center-5), end=Math.min(pdf.numPages,center+11);
       for(let n=center;n<=end;n++)queuePage(n);
       for(let n=center-1;n>=start;n--)queuePage(n);
       evict(center); pump();
@@ -3979,7 +3956,7 @@ async function renderPdf(d){
     }
     // Initial rendering: exactly 20 pages. For resumed documents, center a 20-page window on last position.
     let initialStart=lastPage>1?Math.max(1,lastPage-9):1;
-    let initialEnd=Math.min(pdf.numPages,initialStart+19); initialStart=Math.max(1,initialEnd-19);
+    let initialEnd=Math.min(pdf.numPages,initialStart+9); initialStart=Math.max(1,initialEnd-9);
     status.textContent=`Menyiapkan halaman ${initialStart}–${initialEnd} dari ${pdf.numPages}…`;
     for(let n=initialStart;n<=initialEnd;n++) await draw(n);
     if(token!==backgroundAbort)return;
@@ -4078,5 +4055,38 @@ window.RC71VisualPDFTeleprompter={open,close,start,stop};
 })();
 </script>
 
+
+<script id="rc80-final-counter-controls">
+document.addEventListener('DOMContentLoaded',()=>{
+ const reset=document.getElementById('counterResetExit'), fab=document.getElementById('counterFab'), controls=document.getElementById('smartCounterControls');
+ const sync=()=>{const on=fab?.classList.contains('show');reset?.classList.toggle('show',!!on);controls?.classList.toggle('show',!!on)};
+ new MutationObserver(sync).observe(fab,{attributes:true,attributeFilter:['class']}); sync();
+ reset?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.resetAndClose?.();sync();});
+ document.getElementById('scNext')?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.increment?.()});
+ document.getElementById('scStop')?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.togglePause?.()});
+ document.getElementById('scExit')?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.resetAndClose?.();sync()});
+ document.getElementById('manualSmartCounterBtn')?.addEventListener('click',e=>{
+   e.stopPropagation();
+   if(fab?.classList.contains('show')){window.SmartDzikirCounter?.close?.();sync();return}
+   const activeEl=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable');
+   let target=Number(activeEl?.dataset.repeat||activeEl?.dataset.repeatTarget||0);
+   let el=activeEl;
+   if(!target){
+     const nearby=[...document.querySelectorAll('#reader .para')].find(x=>Number(x.dataset.repeat||x.dataset.repeatTarget||0)>0);
+     if(nearby){el=nearby;target=Number(nearby.dataset.repeat||nearby.dataset.repeatTarget)}
+   }
+   if(!target){
+     const t=prompt('Smart Counter manual: masukkan jumlah pengulangan', '33');
+     target=Math.max(1,Math.min(9999,Number(t)||0));
+     if(!target)return;
+     el=document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';
+   }
+   window.SmartDzikirCounter?.activate?.(el,0);sync();
+ });
+});
+</script>
+
+// RC80 memory hygiene: release transient PDF resources when the app is backgrounded.
+document.addEventListener('visibilitychange',()=>{if(document.hidden){try{window.RC71VisualPDFTeleprompter?.stop?.()}catch(e){}}});
 </body>
 </html>
