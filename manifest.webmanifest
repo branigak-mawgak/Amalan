@@ -1,20 +1,21 @@
 {
-  "name": "Amalan Muslim RC73 — iPad Edition",
-  "short_name": "RC73",
-  "start_url": "./",
-  "scope": "./",
+  "name": "Amalan Muslim RC80",
+  "short_name": "Amalan RC80",
+  "description": "Amalan Muslim Personal Edition optimized for iPadOS.",
+  "id": "./Amalan_RC80.html",
+  "start_url": "./Amalan_RC80.html",
   "display": "standalone",
-  "background_color": "#f7f7f2",
+  "background_color": "#edf4ef",
   "theme_color": "#0c6b4f",
   "orientation": "any",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
