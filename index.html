@@ -1080,16 +1080,56 @@ document.addEventListener('DOMContentLoaded',()=>{
  });
 });
 </script>
+
+<!-- RC80.1 iPad reading + counter controls repair -->
+<style id="rc80-1-repair">
+/* Keep ayah number in its own gutter; reading text moves slightly right. */
+.para.ayah{position:relative!important;padding-left:52px!important;}
+.para.ayah .ayah-no{position:absolute!important;left:8px!important;top:.18em!important;width:34px!important;height:34px!important;display:grid!important;place-items:center!important;line-height:1!important;z-index:2!important;}
+@media (orientation:portrait) and (min-width:600px){.para.ayah{padding-left:60px!important}.para.ayah .ayah-no{left:10px!important}}
+#counterActionButtons{position:fixed;right:max(14px,calc((100vw - 8cm)/2 + 10px));bottom:8px;z-index:58;display:none;flex-direction:column;gap:7px;align-items:stretch;}
+#counterActionButtons.show{display:flex}
+#counterActionButtons button{min-width:112px;height:38px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 96%,transparent);color:var(--ink);font-weight:850;box-shadow:0 8px 20px rgba(0,0,0,.16);display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;touch-action:manipulation}
+#counterActionButtons button:first-child{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+#scExitFloat{background:color-mix(in srgb,#d32f2f 10%,var(--paper))!important;color:#b71c1c!important}
+#counterActionButtons button:active{transform:scale(.96)}
+@media (orientation:landscape){#counterActionButtons{right:calc(var(--rc17-nav) + 8px + env(safe-area-inset-right));bottom:8px;transform:scale(.72);transform-origin:bottom right}}
+</style>
+<script id="rc80-1-counter-repair">
+document.addEventListener('DOMContentLoaded',()=>{
+ const manual=document.getElementById('manualSmartCounterBtn');
+ const fab=document.getElementById('counterFab');
+ const controls=document.getElementById('smartCounterControls');
+ const actions=document.getElementById('counterActionButtons');
+ const sync=()=>{const active=!!window.SmartDzikirCounter?.isActive?.(); if(controls)controls.classList.toggle('show',active); if(actions)actions.classList.toggle('show',active);};
+ manual?.addEventListener('click',()=>{
+   const sc=window.SmartDzikirCounter;
+   if(sc?.isActive?.()){ sync(); return; }
+   const candidates=[...document.querySelectorAll('.repeatable,[data-repeat],[data-repeat-target]')];
+   if(candidates.length){ candidates[0].click(); setTimeout(sync,80); }
+   else { document.getElementById('counterToast').textContent='Pilih bacaan dengan tanda pengulangan'; document.getElementById('counterToast').classList.add('show'); setTimeout(()=>document.getElementById('counterToast')?.classList.remove('show'),1600); }
+ });
+ document.getElementById('scNext')?.addEventListener('click',()=>{window.SmartDzikirCounter?.increment?.();sync()});
+ document.getElementById('scStop')?.addEventListener('click',()=>{window.SmartDzikirCounter?.togglePause?.(); const b=document.getElementById('scStop'); if(b)b.textContent=window.SmartDzikirCounter?.isPaused?.()?'▶':'Ⅱ';sync()});
+ document.getElementById('scResetFloat')?.addEventListener('click',()=>{window.SmartDzikirCounter?.reset?.();sync()});
+ document.getElementById('scExitFloat')?.addEventListener('click',()=>{window.SmartDzikirCounter?.exit?.();sync()});
+ const observer=new MutationObserver(sync); if(fab)observer.observe(fab,{attributes:true,attributeFilter:['class']});
+ sync();
+});
+</script>
 </head>
 <body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC71-V6.2.3-GALERI-MEDIA">
-<button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
+<button aria-label="Aktifkan Smart Counter manual" id="manualSmartCounterBtn" title="Aktifkan Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button>
 <nav aria-label="Kontrol Smart Counter" class="smart-counter-controls" id="smartCounterControls">
-<button aria-label="Jeda Smart Counter" class="stop" id="scStop" title="Stop / Jeda" type="button">Ⅱ</button>
+<button aria-label="Jeda atau lanjutkan Smart Counter" class="stop" id="scStop" title="Jeda / Lanjut" type="button">Ⅱ</button>
 <button aria-label="Tambah hitungan" id="scNext" title="+1 hitungan" type="button">＋1</button>
-<button aria-label="Reset 0 dan keluar Smart Counter" class="exit" id="scExit" title="Reset 0 &amp; Exit" type="button">↺</button>
 </nav>
+<div id="counterActionButtons" aria-label="Aksi Smart Counter">
+<button id="scResetFloat" type="button" title="Reset hitungan ke 0">↺<span>Reset 0</span></button>
+<button id="scExitFloat" type="button" title="Keluar dari Smart Counter">✕<span>Exit</span></button>
+</div>
 <div aria-live="polite" class="counter-toast" id="counterToast">Selesai</div>
 <div class="progress"><i id="bar"></i></div><div class="app"><header><button aria-label="Buka menu" class="icon" id="menuBtn">☰</button><h1>Amalan Muslim</h1><button aria-label="Bookmark" class="icon" id="bookmarkBtn">🔖</button><button aria-label="Layar penuh" class="icon" id="appFullscreenBtn" title="Layar penuh">⛶</button><button aria-label="Ganti tema" class="icon" id="themeBtn">◐</button></header><main class="reader-wrap" id="reader"><article class="book"><section class="chapter" id="tawasulan" data-title="TAWASULAN">
 <div class="chapter-head"><h2>TAWASULAN</h2></div>
