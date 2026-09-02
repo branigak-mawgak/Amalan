@@ -4139,7 +4139,7 @@ window.RC71VisualPDFTeleprompter={open,close,start,stop};
   setVH(); window.addEventListener('resize',setVH,{passive:true}); window.addEventListener('orientationchange',function(){setTimeout(setVH,250)},{passive:true});
   document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});
   if('serviceWorker' in navigator && location.protocol !== 'file:'){window.addEventListener('load',async function(){
-   try{await navigator.serviceWorker.register('./sw.js'); await navigator.serviceWorker.ready;}catch(e){}
+   try{await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}); await navigator.serviceWorker.ready; if(navigator.storage&&navigator.storage.persist) try{await navigator.storage.persist()}catch(e){} }catch(e){console.warn('SW registration failed',e)}
    // Warm PDF.js + worker while online so the reader remains available offline afterwards.
    if(navigator.onLine){
      const urls=['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'];

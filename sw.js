@@ -1,50 +1,39 @@
-/* Amalan RC80 iPad RC87 - offline app + media/PDF dependency cache */
-const CACHE='amalan-rc80-rc87-v1';
-const MEDIA_CACHE='amalan-rc80-media-rc87';
+/* Amalan RC91 - iPad offline-first service worker */
+const VERSION='amalan-rc91-offline-v1';
+const SHELL=[
+ './','./index.html','./Amalan_RC80.html','./manifest.webmanifest',
+ './icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'
+];
 const PDFJS=[
  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'
 ];
-const ASSETS=['./','./index.html','./Amalan_RC80.html','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'];
-self.addEventListener('install',event=>{
- event.waitUntil((async()=>{
-  const c=await caches.open(CACHE); await c.addAll(ASSETS);
-  // Best-effort warmup: never fail installation if a CDN is temporarily unavailable.
-  const ext=await caches.open(MEDIA_CACHE);
-  await Promise.all(PDFJS.map(async u=>{try{const r=await fetch(u,{mode:'cors'});if(r.ok)await ext.put(u,r.clone())}catch(e){}}));
-  await self.skipWaiting();
- })());
-});
-self.addEventListener('activate',event=>event.waitUntil((async()=>{
+self.addEventListener('install',e=>e.waitUntil((async()=>{
+ const c=await caches.open(VERSION);
+ for(const u of SHELL){try{await c.add(u)}catch(err){console.warn('shell cache failed',u,err)}}
+ // Optional dependencies: do not block installation.
+ await Promise.all(PDFJS.map(async u=>{try{const r=await fetch(u,{cache:'reload'});if(r.ok)await c.put(u,r.clone())}catch(_){}}));
+ await self.skipWaiting();
+})()));
+self.addEventListener('activate',e=>e.waitUntil((async()=>{
  const keys=await caches.keys();
- await Promise.all(keys.filter(k=>k.startsWith('amalan-rc80-')&&k!==CACHE&&k!==MEDIA_CACHE).map(k=>caches.delete(k)));
+ await Promise.all(keys.filter(k=>k.startsWith('amalan-')&&k!==VERSION).map(k=>caches.delete(k)));
  await self.clients.claim();
 })()));
-self.addEventListener('fetch',event=>{
- const req=event.request;if(req.method!=='GET')return;
- const url=new URL(req.url);
- if(req.mode==='navigate'){
-  event.respondWith(fetch(req).then(r=>{if(r?.ok){const cp=r.clone();caches.open(CACHE).then(c=>c.put(req,cp))}return r}).catch(()=>caches.match('./index.html')));return;
+async function shell(){const c=await caches.open(VERSION);return (await c.match('./index.html'))||(await c.match('/index.html'));}
+self.addEventListener('fetch',e=>{
+ const r=e.request;if(r.method!=='GET')return;
+ const u=new URL(r.url);
+ if(r.mode==='navigate'){
+  e.respondWith((async()=>{const c=await caches.open(VERSION);const hit=await c.match(r);if(hit)return hit;try{const net=await fetch(r);if(net.ok)c.put(r,net.clone());return net}catch(_){return await shell()}})());return;
  }
- // PDF.js CDN: cache-first after the first online warmup/use.
- if(PDFJS.includes(url.href)){
-  event.respondWith(caches.open(MEDIA_CACHE).then(async c=>{
-   const hit=await c.match(req)||await c.match(url.href); if(hit)return hit;
-   const r=await fetch(req); if(r?.ok)await c.put(req,r.clone()); return r;
-  }));return;
- }
- // Built-in media paths: cache first and retain successful online responses.
- if(url.origin===location.origin && url.pathname.includes('/media/')){
-  event.respondWith(caches.open(MEDIA_CACHE).then(async c=>{
-   const hit=await c.match(req); if(hit)return hit;
-   const r=await fetch(req); if(r?.ok)await c.put(req,r.clone()); return r;
-  }));return;
- }
- if(url.origin!==location.origin)return;
- event.respondWith(caches.match(req).then(async hit=>{
-  if(hit)return hit;
-  const r=await fetch(req);if(r?.ok){const c=await caches.open(CACHE);await c.put(req,r.clone())}return r;
- }).catch(()=>caches.match('./index.html')));
+ e.respondWith((async()=>{
+  const c=await caches.open(VERSION);const hit=await c.match(r)||await c.match(u.href);if(hit)return hit;
+  try{const net=await fetch(r);if(net&&net.ok)c.put(r,net.clone());return net}catch(err){
+   if(u.origin===location.origin)return new Response('',{status:503,statusText:'Offline'});
+   throw err;
+  }
+ })());
 });
