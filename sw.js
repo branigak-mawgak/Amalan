@@ -1,6 +1,6 @@
-/* Amalan RC80 iPad RC86 - offline app + media/PDF dependency cache */
-const CACHE='amalan-rc80-rc86-v1';
-const MEDIA_CACHE='amalan-rc80-media-rc86';
+/* Amalan RC80 iPad RC87 - offline app + media/PDF dependency cache */
+const CACHE='amalan-rc80-rc87-v1';
+const MEDIA_CACHE='amalan-rc80-media-rc87';
 const PDFJS=[
  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
