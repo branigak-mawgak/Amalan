@@ -3896,8 +3896,37 @@ function clearAutoHide(){clearTimeout(controlsHideTimer);controlsHideTimer=0;ov.
 function armAutoHide(){clearTimeout(controlsHideTimer);if(!running||readerMode)return;controlsHideTimer=setTimeout(()=>{if(running)ov.classList.add('rc71-vtp-controls-hidden')},90000)}
 function showControls(){clearAutoHide();if(running)armAutoHide()}
 function stop(){running=false;cancelAnimationFrame(raf);raf=0;last=0;clearTimeout(controlsHideTimer);ov.classList.remove('rc71-vtp-controls-hidden');pause.textContent='▶ Auto Scroll'}
-function tick(t){if(!running)return;if(!last)last=t;const dt=Math.min(80,t-last);last=t;vp.scrollTop+=speed*dt/1000; if(vp.scrollTop+vp.clientHeight>=vp.scrollHeight-2){stop();status.textContent='Selesai • semua halaman telah dibaca';return}raf=requestAnimationFrame(tick)}
-function start(){if(vp.scrollHeight<=vp.clientHeight+2)return;running=true;pause.textContent='Ⅱ Jeda';last=0;armAutoHide();raf=requestAnimationFrame(tick)}
+let startRetries=0;
+function getMaxScroll(){return Math.max(0,Math.ceil(vp.scrollHeight-vp.clientHeight));}
+function tick(t){
+  if(!running)return;
+  if(!last)last=t;
+  const dt=Math.min(100,t-last);last=t;
+  const max=getMaxScroll();
+  const before=vp.scrollTop;
+  const step=Math.max(.75,speed*dt/1000);
+  const next=Math.min(max,before+step);
+  vp.scrollTo({top:next,left:0,behavior:'auto'});
+  if(next>=max-1){
+    // PDF reader loads more pages dynamically. Only stop when all pages are rendered.
+    const allReady=activePdfDoc && pageCache.size>=activePdfDoc.numPages;
+    if(allReady){stop();status.textContent='Selesai • semua halaman telah dibaca';return}
+    status.textContent='Memuat halaman berikutnya…';
+    raf=requestAnimationFrame(tick);return;
+  }
+  raf=requestAnimationFrame(tick);
+}
+function start(){
+  if(running)return;
+  const max=getMaxScroll();
+  if(max<=2){
+    startRetries++;
+    status.textContent='Menunggu halaman PDF siap untuk Auto Scroll…';
+    if(startRetries<80){setTimeout(start,250);return}
+    status.textContent='Belum ada area scroll. Gulir sedikit atau tunggu PDF selesai dimuat.';startRetries=0;return;
+  }
+  startRetries=0;running=true;pause.textContent='Ⅱ Jeda';last=0;armAutoHide();raf=requestAnimationFrame(tick);
+}
 function toggle(){running?stop():start()}
 async function close(){
   // X = EXIT: leave native fullscreen first, then close this Visual Teleprompter.
@@ -4046,7 +4075,7 @@ async function renderPdf(d){
 async function open(d,opts={}){
  if(!d)return;
  readerMode=opts.mode==='reader';
- ov.classList.toggle('rc71-vtp-reader-mode',readerMode);
+ ov.classList.remove('rc71-vtp-reader-mode');
  stop();ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.body.classList.add('rc71-vtp-active');document.body.classList.add('rc71-pdf-reader-open');clampSpeed();await renderPdf(d);
 }
 function findPdfFromTarget(target){
@@ -4073,7 +4102,7 @@ document.addEventListener('click',async e=>{
   else {const name=$('rc71PdfTitle')?.textContent?.trim();const docs=await getDocs();const d=docs.find(x=>(x.name||'')===name);if(d)await open(d)}
  }catch(err){console.error(err);alert('Teleprompter PDF gagal dibuka: '+err.message)}
 },true);
-pause.onclick=toggle;
+pause.onclick=(e)=>{e.preventDefault();e.stopPropagation();toggle()};
 $('rc71VtpSlow').onclick=()=>{speed-=10;clampSpeed()};
 $('rc71VtpFast').onclick=()=>{speed+=10;clampSpeed()};
 $('rc71VtpRestart').onclick=()=>{stop();vp.scrollTo({top:0,behavior:'auto'});status.textContent='Awal PDF'};
