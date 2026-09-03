@@ -1129,8 +1129,127 @@ body.focus .para.active,body.focus .para.af76-active{scroll-margin-top:30vh!impo
 /* Keep the active paragraph near the 30% visual anchor without scroll hunting. */
 body.focus .para.active,body.focus .para.af76-active{scroll-margin-top:30vh!important;scroll-margin-bottom:30vh!important}
 </style>
+<style id="rc95-final-ui">
+/* RC95: final Smart Counter + numbering polish */
+.ayah-no{
+  width:22px!important;height:22px!important;min-width:22px!important;
+  left:8px!important;top:8px!important;
+  font-size:9px!important;font-weight:850!important;
+  line-height:22px!important;text-align:center!important;
+  padding:0!important;overflow:visible!important;
+  font-variant-numeric:tabular-nums!important;
+}
+.ayah{padding-left:34px!important}
+.para{line-height:1.58!important;margin:0!important;padding-top:0!important;padding-bottom:0!important}
+.para + .para{margin-top:0!important}
+
+/* Stable focus position: do not let repeated focus calls cause vertical hunting. */
+body.focus .para.active,body.focus .para.af76-active{
+  scroll-margin-top:30vh!important;scroll-margin-bottom:55vh!important;
+}
+
+/* Comfortable, informative and colored Smart Counter display */
+.counter-fab{
+  width:96px!important;height:86px!important;min-height:86px!important;
+  border-radius:20px!important;
+  right:max(12px,calc((100vw - 8cm)/2 + 10px))!important;
+  bottom:92px!important;
+  padding:8px!important;
+  border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line))!important;
+  background:linear-gradient(145deg,
+    color-mix(in srgb,var(--accent) 14%,var(--paper)),
+    color-mix(in srgb,var(--accent2) 10%,var(--paper)))!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.18)!important;
+}
+.counter-fab .counter-value{
+  font-size:20px!important;font-weight:950!important;line-height:1.05!important;
+  color:var(--accent)!important;
+  font-variant-numeric:tabular-nums!important;
+}
+.counter-fab .counter-label{
+  font-size:10px!important;font-weight:800!important;
+  color:var(--ink)!important;margin-top:3px!important;
+  max-width:82px!important;
+}
+.counter-fab .counter-hint{
+  font-size:8px!important;color:var(--accent2)!important;
+  margin-top:2px!important;font-weight:750!important;
+}
+.counter-fab .counter-mini-progress{
+  width:72px!important;height:5px!important;margin-top:5px!important;
+  background:color-mix(in srgb,var(--accent) 16%,var(--line))!important;
+}
+.counter-fab .counter-mini-progress i{
+  background:linear-gradient(90deg,var(--accent),var(--accent2))!important;
+}
+.counter-fab.done{
+  border-color:var(--accent2)!important;
+  background:linear-gradient(145deg,
+    color-mix(in srgb,var(--accent2) 22%,var(--paper)),
+    color-mix(in srgb,var(--accent) 12%,var(--paper)))!important;
+}
+
+/* Small floating buttons directly below the display */
+#counterFloatActions{
+  position:fixed!important;
+  right:max(12px,calc((100vw - 8cm)/2 + 10px))!important;
+  bottom:42px!important;
+  z-index:58!important;
+  display:none;gap:5px!important;
+}
+#counterFloatActions.show{display:flex!important}
+#counterFloatActions button{
+  width:38px!important;height:30px!important;min-height:30px!important;
+  padding:0!important;border-radius:10px!important;
+  border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))!important;
+  background:color-mix(in srgb,var(--paper) 96%,transparent)!important;
+  color:var(--ink)!important;font-size:16px!important;font-weight:900!important;
+  box-shadow:0 7px 18px rgba(0,0,0,.14)!important;
+}
+#counterFloatActions button:active{transform:scale(.92)}
+
+/* Manual Smart Counter control remains the backup control in the top row. */
+.smart-counter-controls{
+  top:calc(env(safe-area-inset-top) + 6px)!important;
+  bottom:auto!important;
+  right:max(10px,calc((100vw - 8cm)/2 + 10px))!important;
+}
+.smart-counter-controls button{touch-action:manipulation}
+
+@media(max-width:520px){
+  .counter-fab{right:10px!important;width:94px!important;height:84px!important;min-height:84px!important}
+  #counterFloatActions{right:10px!important;bottom:40px!important}
+  .ayah{padding-left:32px!important}
+  .ayah-no{width:21px!important;height:21px!important;min-width:21px!important;line-height:21px!important;font-size:8.5px!important}
+}
+</style>
+
+<style id="rc101-autofocus-reliable-css">
+/* RC101: keep paragraph spacing tight and make the active phrase unmistakable. */
+#reader .para,
+#reader .para + .para{
+  margin-top:0!important;
+  margin-bottom:0!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  line-height:1.58!important;
+}
+body.focus .para.active .semantic{opacity:.58!important}
+body.focus .para.active .semantic.focus-word{
+  opacity:1!important;
+  background:linear-gradient(90deg,rgba(255,221,92,.34),rgba(102,214,166,.28))!important;
+  background-repeat:no-repeat!important;
+  background-position:left center!important;
+  background-size:100% 100%!important;
+  box-shadow:0 0 0 2px rgba(255,221,92,.12)!important;
+  border-radius:6px!important;
+  transition:none!important;
+}
+body.focus .para.active{scroll-margin-top:30vh!important;scroll-margin-bottom:55vh!important}
+</style>
+
 </head>
-<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC98-SMARTCOUNTER-AF-FLOW">
+<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC101-AUTOFOCUS-RELIABLE">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -4321,107 +4440,90 @@ document.addEventListener('DOMContentLoaded',()=>{
 #reader .para + .para{margin-top:0!important}
 </style>
 
-// RC100 safety boot: after all semanticization/navigation hooks are ready,
-// make Auto Fokus actually runnable on the current reading screen. This does
-// not auto-start on initial app load; it guarantees the Start command is live.
-window.addEventListener('load',()=>{
-  try{
-    if(typeof render==='function') render();
-  }catch(e){}
-});
+
+<script id="rc101-autofocus-reliable">
+(function(){
+  'use strict';
+
+  function afButton(){
+    return document.getElementById('autoFocusBtn');
+  }
+
+  function kickAutoFocus(reason){
+    try{
+      var btn=afButton();
+      if(!btn) return;
+      /* Do not toggle an already-running Auto Fokus off. */
+      if(btn.classList.contains('on')) return;
+      /* Only kick when a real reading paragraph is available. */
+      var active=document.querySelector('#reader .para.active') ||
+                 document.querySelector('#reader .para.af76-active');
+      if(!active) return;
+
+      /* The RC98/RC99 engine owns the real state machine. */
+      if(typeof window.__RC101_AF_START==='function'){
+        window.__RC101_AF_START();
+        return;
+      }
+
+      /* Final fallback: invoke the real UI command. */
+      btn.click();
+    }catch(_){}
+  }
+
+  /*
+   * Every chapter navigation gets a second, deterministic kick after the
+   * navigation/layout settles. This fixes iPad/Safari cases where the first
+   * requestAnimationFrame is lost during a large DOM reflow.
+   */
+  var originalGoTo=window.goTo;
+  if(typeof originalGoTo==='function'){
+    window.goTo=function(id){
+      var result;
+      try{ result=originalGoTo.apply(this,arguments); }catch(e){ throw e; }
+      if(id && id!=='beranda'){
+        setTimeout(function(){kickAutoFocus('goto-1')},220);
+        setTimeout(function(){kickAutoFocus('goto-2')},650);
+        setTimeout(function(){kickAutoFocus('goto-3')},1100);
+      }
+      return result;
+    };
+  }
+
+  /*
+   * If the app is restored from the Home Screen, Safari can restore the DOM
+   * without replaying the original click. Re-arm Auto Fokus only when a
+   * reading paragraph is already active.
+   */
+  function restoreKick(){
+    setTimeout(function(){kickAutoFocus('restore-1')},450);
+    setTimeout(function(){kickAutoFocus('restore-2')},1000);
+  }
+  window.addEventListener('pageshow',restoreKick,{passive:true});
+  window.addEventListener('load',restoreKick,{passive:true});
+
+  /*
+   * Short watchdog: if Auto Fokus is ON but a focus-word disappeared because
+   * Safari rebuilt inline spans, restart the current phrase engine. It never
+   * scrolls by itself, so it cannot create vertical hunting.
+   */
+  var lastRepair=0;
+  setInterval(function(){
+    try{
+      var btn=afButton();
+      if(!btn || !btn.classList.contains('on')) return;
+      var active=document.querySelector('#reader .para.active') ||
+                  document.querySelector('#reader .para.af76-active');
+      if(!active) return;
+      if(active.querySelector('.focus-word')) return;
+      var now=Date.now();
+      if(now-lastRepair<1200) return;
+      lastRepair=now;
+      if(typeof window.__RC101_AF_START==='function') window.__RC101_AF_START();
+    }catch(_){}
+  },1200);
+})();
+</script>
+
 </body>
 </html>
-<style id="rc95-final-ui">
-/* RC95: final Smart Counter + numbering polish */
-.ayah-no{
-  width:22px!important;height:22px!important;min-width:22px!important;
-  left:8px!important;top:8px!important;
-  font-size:9px!important;font-weight:850!important;
-  line-height:22px!important;text-align:center!important;
-  padding:0!important;overflow:visible!important;
-  font-variant-numeric:tabular-nums!important;
-}
-.ayah{padding-left:34px!important}
-.para{line-height:1.58!important;margin:0!important;padding-top:0!important;padding-bottom:0!important}
-.para + .para{margin-top:0!important}
-
-/* Stable focus position: do not let repeated focus calls cause vertical hunting. */
-body.focus .para.active,body.focus .para.af76-active{
-  scroll-margin-top:30vh!important;scroll-margin-bottom:55vh!important;
-}
-
-/* Comfortable, informative and colored Smart Counter display */
-.counter-fab{
-  width:96px!important;height:86px!important;min-height:86px!important;
-  border-radius:20px!important;
-  right:max(12px,calc((100vw - 8cm)/2 + 10px))!important;
-  bottom:92px!important;
-  padding:8px!important;
-  border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line))!important;
-  background:linear-gradient(145deg,
-    color-mix(in srgb,var(--accent) 14%,var(--paper)),
-    color-mix(in srgb,var(--accent2) 10%,var(--paper)))!important;
-  box-shadow:0 10px 28px rgba(0,0,0,.18)!important;
-}
-.counter-fab .counter-value{
-  font-size:20px!important;font-weight:950!important;line-height:1.05!important;
-  color:var(--accent)!important;
-  font-variant-numeric:tabular-nums!important;
-}
-.counter-fab .counter-label{
-  font-size:10px!important;font-weight:800!important;
-  color:var(--ink)!important;margin-top:3px!important;
-  max-width:82px!important;
-}
-.counter-fab .counter-hint{
-  font-size:8px!important;color:var(--accent2)!important;
-  margin-top:2px!important;font-weight:750!important;
-}
-.counter-fab .counter-mini-progress{
-  width:72px!important;height:5px!important;margin-top:5px!important;
-  background:color-mix(in srgb,var(--accent) 16%,var(--line))!important;
-}
-.counter-fab .counter-mini-progress i{
-  background:linear-gradient(90deg,var(--accent),var(--accent2))!important;
-}
-.counter-fab.done{
-  border-color:var(--accent2)!important;
-  background:linear-gradient(145deg,
-    color-mix(in srgb,var(--accent2) 22%,var(--paper)),
-    color-mix(in srgb,var(--accent) 12%,var(--paper)))!important;
-}
-
-/* Small floating buttons directly below the display */
-#counterFloatActions{
-  position:fixed!important;
-  right:max(12px,calc((100vw - 8cm)/2 + 10px))!important;
-  bottom:42px!important;
-  z-index:58!important;
-  display:none;gap:5px!important;
-}
-#counterFloatActions.show{display:flex!important}
-#counterFloatActions button{
-  width:38px!important;height:30px!important;min-height:30px!important;
-  padding:0!important;border-radius:10px!important;
-  border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))!important;
-  background:color-mix(in srgb,var(--paper) 96%,transparent)!important;
-  color:var(--ink)!important;font-size:16px!important;font-weight:900!important;
-  box-shadow:0 7px 18px rgba(0,0,0,.14)!important;
-}
-#counterFloatActions button:active{transform:scale(.92)}
-
-/* Manual Smart Counter control remains the backup control in the top row. */
-.smart-counter-controls{
-  top:calc(env(safe-area-inset-top) + 6px)!important;
-  bottom:auto!important;
-  right:max(10px,calc((100vw - 8cm)/2 + 10px))!important;
-}
-.smart-counter-controls button{touch-action:manipulation}
-
-@media(max-width:520px){
-  .counter-fab{right:10px!important;width:94px!important;height:84px!important;min-height:84px!important}
-  #counterFloatActions{right:10px!important;bottom:40px!important}
-  .ayah{padding-left:32px!important}
-  .ayah-no{width:21px!important;height:21px!important;min-width:21px!important;line-height:21px!important;font-size:8.5px!important}
-}
-</style>
