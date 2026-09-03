@@ -1631,6 +1631,7 @@ function phraseDuration(){
   return Math.max(800,words*900*focusTempo);
 }
 function startPhraseFocus(){
+  if(window.__RC103_STANDALONE)return;
   clearTimeout(phraseTimer);
   if(!autoFocus || !running || waitingCounter)return;
   const p=paras[active];
@@ -2028,6 +2029,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     return true;
   }
   function start(resetPhrase=false){
+    if(window.__RC103_STANDALONE)return;
     if(waitingCounter)return;
     if(resetPhrase)phraseIndex=0;
     clearClocks();
@@ -2279,15 +2281,6 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
   window.addEventListener('focus',()=>setTimeout(offerBackgroundResume,180));
   document.addEventListener('keydown',e=>{if(!(running||paused))return;if(e.code==='Space'){e.preventDefault();running?pause():start(false)}if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1);if(e.key==='Escape')stopAll(false)});
   reader.addEventListener('click',e=>{if(waitingCounter||e.target.closest('button,a,input,textarea,select,.modal,.drawer'))return;if(running||paused){ctl.classList.add('show');status.classList.add('show');}}, {passive:true});
-  /* RC102: expose the actual Build76 Auto Fokus starter.
-     * This is intentionally inside the engine closure so it can call the
-     * real start() function instead of simulating a button click. */
-  window.__RC102_AF_START=function(resetPhrase){
-    try{
-      start(resetPhrase!==false);
-      return true;
-    }catch(_){ return false; }
-  };
   stopAll(false);
 })();
 </script>
@@ -4359,11 +4352,6 @@ window.RC71VisualPDFTeleprompter={open,close,start,stop};
   document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});
   if('serviceWorker' in navigator && location.protocol !== 'file:'){window.addEventListener('load',async function(){
    try{await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}); await navigator.serviceWorker.ready; if(navigator.storage&&navigator.storage.persist) try{await navigator.storage.persist()}catch(e){} }catch(e){console.warn('SW registration failed',e)}
-   // Warm PDF.js + worker while online so the reader remains available offline afterwards.
-   if(navigator.onLine){
-     const urls=['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'];
-     urls.forEach(u=>fetch(u,{mode:'cors',cache:'reload'}).catch(()=>{}));
-   }
  })}
 })();
 </script>
@@ -4450,79 +4438,327 @@ document.addEventListener('DOMContentLoaded',()=>{
 </style>
 
 
-<script id="rc102-autofocus-reliable">
+
+<style id="rc103-standalone-autofocus-style">
+/* RC103: one authoritative Auto Fokus engine. */
+#reader .para{margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;line-height:1.58!important}
+#reader .para.rc103-active{scroll-margin-top:30vh!important}
+body.focus .para.rc103-active .semantic{opacity:.58!important}
+body.focus .para.rc103-active .semantic.rc103-focus-word{
+  opacity:1!important;
+  display:inline!important;
+  white-space:normal!important;
+  background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent2) 34%,transparent))!important;
+  background-repeat:no-repeat!important;
+  background-position:left center!important;
+  background-size:100% 100%!important;
+  border-radius:6px!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 10%,transparent)!important;
+}
+#rc103AfStatus{
+  position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));
+  transform:translateX(-50%);z-index:180;display:none;
+  padding:6px 12px;border-radius:999px;background:#111d;color:#fff;
+  font-size:11px;font-weight:700;white-space:nowrap;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+#rc103AfStatus.show{display:block}
+</style>
+<div id="rc103AfStatus" aria-live="polite">Auto Fokus</div>
+<script id="rc103-standalone-autofocus">
 (function(){
   'use strict';
+  window.__RC103_STANDALONE=true;
 
-  function startRealAF(){
+  var reader=document.getElementById('reader');
+  var afBtn=document.getElementById('autoFocusBtn');
+  var status=document.getElementById('rc103AfStatus');
+  var running=false, paused=false, waiting=false;
+  var paraIndex=-1, phraseIndex=0, timer=0, scrollTimer=0, startedAt=0;
+
+  function paras(){
+    return Array.from(document.querySelectorAll('#reader > article.book > section.chapter .para'));
+  }
+  function current(){
+    var ps=paras();
+    if(paraIndex>=0 && ps[paraIndex]) return ps[paraIndex];
+    return document.querySelector('#reader .para.rc103-active') ||
+           document.querySelector('#reader .para.active') || null;
+  }
+  function clearHighlight(){
+    document.querySelectorAll('.rc103-focus-word').forEach(function(x){
+      x.classList.remove('rc103-focus-word');
+      x.style.removeProperty('--karaoke-duration');
+    });
+  }
+  function clearTimer(){clearTimeout(timer);clearTimeout(scrollTimer);}
+  function setStatus(t){
+    if(status) status.textContent=t;
+  }
+  function render(){
+    if(!afBtn)return;
+    afBtn.textContent=running?'⏸ Auto Fokus':(paused?'▶ Lanjut Fokus':'◎ Auto Fokus');
+    afBtn.classList.toggle('on',running);
+    if(status){
+      status.classList.toggle('show',running||paused||waiting);
+      setStatus(waiting?'Smart Counter • '+(current()?.dataset.repeatTitle||'Pengulangan'):
+        (running?'Auto Fokus • Phrase '+(phraseIndex+1):
+        (paused?'Auto Fokus dijeda':'Auto Fokus')));
+    }
+  }
+  function ensureFocusMode(){
+    if(!document.body.classList.contains('focus')){
+      document.body.classList.add('focus');
+      document.getElementById('focusBtn')?.classList.add('on');
+    }
+  }
+  function activePara(el){
+    var ps=paras();
+    paraIndex=ps.indexOf(el);
+    ps.forEach(function(p){p.classList.remove('rc103-active');});
+    document.querySelectorAll('#reader .para.active').forEach(function(p){p.classList.remove('active');});
+    if(el){
+      el.classList.add('rc103-active','active');
+    }
+    return el;
+  }
+  function stableScroll(el,force){
+    if(!el||!reader)return;
+    var rr=reader.getBoundingClientRect(), tr=el.getBoundingClientRect();
+    var vh=reader.clientHeight;
+    var top=tr.top-rr.top, bottom=tr.bottom-rr.top;
+    var target=vh*.30;
+    /* Only reposition when the paragraph is outside a broad dead-band.
+       Phrase changes within the same paragraph do not cause hunting. */
+    if(!force && top>=vh*.18 && bottom<=vh*.72)return;
+    var delta=(top+(tr.height*.18))-target;
+    if(Math.abs(delta)<22 && !force)return;
+    var max=Math.max(0,reader.scrollHeight-reader.clientHeight);
+    var next=Math.max(0,Math.min(max,reader.scrollTop+delta));
+    clearTimeout(scrollTimer);
+    scrollTimer=setTimeout(function(){
+      try{reader.scrollTo({top:next,behavior:'smooth'});}catch(_){reader.scrollTop=next;}
+    },40);
+  }
+  function phraseNodes(el){
+    return el?Array.from(el.querySelectorAll('.semantic')):[];
+  }
+  function durationFor(el,node){
+    var words=(node?.textContent||'').trim().split(/\s+/).filter(Boolean).length||2;
+    var tempo=0.75;
     try{
-      if(typeof window.__RC102_AF_START!=='function') return false;
-      var p=document.querySelector('#reader .para.af76-active') ||
-            document.querySelector('#reader .para.active');
-      if(!p) return false;
-      return window.__RC102_AF_START(true);
-    }catch(_){ return false; }
+      var v=Number(localStorage.getItem('tqv3b3-focusTempo'));
+      if(Number.isFinite(v)&&v>0)tempo=Math.max(.45,Math.min(2.5,v));
+    }catch(_){}
+    return Math.max(750,Math.min(5000,words*520*tempo));
+  }
+  function repeatTarget(el){
+    if(!el)return 0;
+    var d=Number(el.dataset.repeatTarget||el.dataset.repeat||0);
+    if(d>0)return d;
+    var t=(el.textContent||'').replace(/\s+/g,' ');
+    var m=t.match(/(?:^|[\s(\[])(\d{1,4})\s*[x×](?=$|[\s)\],.;:])/i);
+    if(m){
+      d=Number(m[1]||0);
+      if(d>0){
+        el.dataset.repeatTarget=String(d);
+        el.dataset.repeat=String(d);
+        el.classList.add('repeatable');
+      }
+    }
+    return d;
+  }
+  function openCounter(el){
+    var target=repeatTarget(el);
+    if(!target||waiting)return false;
+    clearTimer(); clearHighlight();
+    waiting=true; running=false; paused=true;
+    render();
+    try{
+      window.SmartDzikirCounter?.activate?.(el,paraIndex);
+    }catch(_){}
+    return true;
+  }
+  function focusPhrase(){
+    if(!running||waiting)return;
+    var el=current(), ps=phraseNodes(el);
+    if(!el||!ps.length){nextParagraph();return;}
+    phraseIndex=Math.max(0,Math.min(phraseIndex,ps.length-1));
+    clearHighlight();
+    var node=ps[phraseIndex];
+    node.classList.add('rc103-focus-word');
+    node.style.setProperty('--karaoke-duration',durationFor(el,node)+'ms');
+    /* Scroll only at paragraph boundaries or when the paragraph leaves the
+       dead-band; never recenter every phrase. */
+    stableScroll(el,phraseIndex===0);
+    render();
+    timer=setTimeout(function(){
+      if(!running||waiting)return;
+      phraseIndex++;
+      if(phraseIndex<phraseNodes(el).length){
+        focusPhrase();
+      }else{
+        var target=repeatTarget(el);
+        if(target && openCounter(el))return;
+        nextParagraph();
+      }
+    },durationFor(el,node));
+  }
+  function nextParagraph(){
+    clearTimer();clearHighlight();
+    var ps=paras();
+    if(paraIndex<0){
+      var a=document.querySelector('#reader .para.active')||ps[0];
+      paraIndex=Math.max(0,ps.indexOf(a));
+    }
+    if(paraIndex>=ps.length-1){
+      running=false;paused=false;waiting=false;render();
+      try{toast('Auto Fokus selesai')}catch(_){}
+      return;
+    }
+    paraIndex++;
+    phraseIndex=0;
+    activePara(ps[paraIndex]);
+    running=true;paused=false;waiting=false;
+    ensureFocusMode();render();
+    setTimeout(focusPhrase,80);
+  }
+  function start(reset){
+    if(waiting)return;
+    var ps=paras();
+    if(!ps.length)return;
+    if(reset){
+      var a=document.querySelector('#reader .para.active')||ps[0];
+      paraIndex=Math.max(0,ps.indexOf(a));
+      phraseIndex=0;
+    }else if(paraIndex<0){
+      var b=document.querySelector('#reader .para.active')||ps[0];
+      paraIndex=Math.max(0,ps.indexOf(b));
+      phraseIndex=0;
+    }
+    clearTimer();clearHighlight();
+    ensureFocusMode();
+    activePara(ps[paraIndex]);
+    running=true;paused=false;
+    render();
+    setTimeout(focusPhrase,80);
+  }
+  function pause(){
+    if(!running)return;
+    clearTimer();clearHighlight();running=false;paused=true;render();
+  }
+  function stop(){
+    clearTimer();clearHighlight();running=false;paused=false;waiting=false;
+    document.querySelectorAll('.rc103-active').forEach(function(x){x.classList.remove('rc103-active');});
+    render();
   }
 
-  /*
-   * Navigation is the primary automatic-start trigger.
-   * We deliberately use several delayed attempts because iPad Safari can
-   * finish scroll/layout asynchronously after a click.
-   */
-  var previousGoTo=window.goTo;
-  if(typeof previousGoTo==='function'){
-    window.goTo=function(id){
-      var result=previousGoTo.apply(this,arguments);
-      if(id && id!=='beranda'){
-        [250,700,1200,1800].forEach(function(ms){
-          setTimeout(function(){
-            try{
-              var btn=document.getElementById('autoFocusBtn');
-              if(btn && btn.classList.contains('on')) return;
-              startRealAF();
-            }catch(_){}
-          },ms);
-        });
-      }
-      return result;
+  /* One and only one handler for the visible Auto Fokus button. */
+  if(afBtn){
+    afBtn.onclick=function(e){
+      e.preventDefault();e.stopPropagation();
+      if(running)pause(); else if(paused)start(false); else start(true);
     };
   }
+  document.getElementById('af76PlayPause')?.addEventListener('click',function(e){
+    e.preventDefault();e.stopPropagation();
+    if(running)pause();else start(false);
+  });
+  document.getElementById('af76Stop')?.addEventListener('click',function(e){
+    e.preventDefault();e.stopPropagation();stop();
+  });
 
-  /*
-   * Home Screen / Safari restore. Only start when a chapter is actually open;
-   * never start on the Home page.
-   */
-  function restore(){
+  /* Navigation: the user gesture opens a chapter, then Auto Fokus starts. */
+  var baseGoTo=window.goTo;
+  window.goTo=function(id){
+    var result;
+    try{result=baseGoTo?baseGoTo.apply(this,arguments):undefined;}catch(e){result=undefined;}
+    if(id && id!=='beranda'){
+      [120,450,900].forEach(function(ms){
+        setTimeout(function(){
+          var sec=document.getElementById(id);
+          if(!sec)return;
+          var p=sec.querySelector('.para');
+          if(!p)return;
+          activePara(p);
+          start(true);
+        },ms);
+      });
+    }
+    return result;
+  };
+
+  /* Cover/TOC buttons that use data-nav-target may bypass inline onclick. */
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-nav-target]');
+    if(!b)return;
+    var id=b.getAttribute('data-nav-target');
+    if(!id||id==='beranda')return;
     setTimeout(function(){
-      if(document.body.classList.contains('cover-mode')) return;
-      if(document.body.classList.contains('reader-open') ||
-         document.querySelector('#reader .para.af76-active')){
-        var btn=document.getElementById('autoFocusBtn');
-        if(!btn || !btn.classList.contains('on')) startRealAF();
-      }
-    },600);
-  }
-  window.addEventListener('pageshow',restore,{passive:true});
-  window.addEventListener('load',restore,{passive:true});
+      var sec=document.getElementById(id),p=sec?.querySelector('.para');
+      if(p)start(true);
+    },500);
+  },true);
 
-  /*
-   * If Safari loses the inline highlight after a DOM/layout rebuild, restart
-   * the real engine once. No scroll command is issued by this watchdog.
-   */
-  var last=0;
-  setInterval(function(){
-    try{
-      var btn=document.getElementById('autoFocusBtn');
-      if(!btn || !btn.classList.contains('on')) return;
-      var p=document.querySelector('#reader .para.af76-active') ||
-            document.querySelector('#reader .para.active');
-      if(!p || p.querySelector('.focus-word')) return;
-      if(Date.now()-last<1400) return;
-      last=Date.now();
-      startRealAF();
-    }catch(_){}
-  },1000);
+  /* If a chapter is already open after Home Screen restore, resume/start. */
+  window.addEventListener('pageshow',function(){
+    setTimeout(function(){
+      if(document.body.classList.contains('cover-mode'))return;
+      var p=document.querySelector('#reader .para.active')||
+            document.querySelector('#reader .para.rc103-active');
+      if(p && !running && !paused && !waiting)start(false);
+    },700);
+  },{passive:true});
+
+  /* Counter completion: exactly one RC103 continuation path. */
+  window.addEventListener('smartcountercomplete',function(){
+    if(!waiting)return;
+    waiting=false;paused=false;running=true;
+    var ps=paras();
+    if(paraIndex<ps.length-1){
+      paraIndex++;
+      phraseIndex=0;
+      activePara(ps[paraIndex]);
+      ensureFocusMode();render();
+      setTimeout(focusPhrase,180);
+    }else{
+      running=false;render();
+    }
+  });
+  window.addEventListener('smartcounterexit',function(){
+    if(!waiting)return;
+    waiting=false;paused=false;running=true;
+    ensureFocusMode();render();
+    setTimeout(focusPhrase,120);
+  });
+
+  render();
 })();
 </script>
+
+
+<style id="rc104-offline-ui">
+#rc104OfflineBadge{
+ position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));
+ z-index:210;display:none;padding:5px 9px;border-radius:999px;
+ background:rgba(18,18,18,.82);color:#fff;font-size:10px;font-weight:700;
+ -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+#rc104OfflineBadge.show{display:block}
+</style>
+<div id="rc104OfflineBadge" aria-live="polite">OFFLINE • siap digunakan</div>
+<script id="rc104-offline-status">
+(function(){
+ function sync(){
+  var b=document.getElementById('rc104OfflineBadge'); if(!b)return;
+  b.textContent=navigator.onLine?'ONLINE • Offline tersedia':'OFFLINE • siap digunakan';
+  b.classList.toggle('show',!navigator.onLine);
+ }
+ window.addEventListener('online',sync,{passive:true});
+ window.addEventListener('offline',sync,{passive:true});
+ window.addEventListener('load',sync,{passive:true});
+})();
+</script>
+
 </body>
 </html>

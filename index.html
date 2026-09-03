@@ -4352,11 +4352,6 @@ window.RC71VisualPDFTeleprompter={open,close,start,stop};
   document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});
   if('serviceWorker' in navigator && location.protocol !== 'file:'){window.addEventListener('load',async function(){
    try{await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}); await navigator.serviceWorker.ready; if(navigator.storage&&navigator.storage.persist) try{await navigator.storage.persist()}catch(e){} }catch(e){console.warn('SW registration failed',e)}
-   // Warm PDF.js + worker while online so the reader remains available offline afterwards.
-   if(navigator.onLine){
-     const urls=['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'];
-     urls.forEach(u=>fetch(u,{mode:'cors',cache:'reload'}).catch(()=>{}));
-   }
  })}
 })();
 </script>
@@ -4738,6 +4733,30 @@ body.focus .para.rc103-active .semantic.rc103-focus-word{
   });
 
   render();
+})();
+</script>
+
+
+<style id="rc104-offline-ui">
+#rc104OfflineBadge{
+ position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));
+ z-index:210;display:none;padding:5px 9px;border-radius:999px;
+ background:rgba(18,18,18,.82);color:#fff;font-size:10px;font-weight:700;
+ -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+#rc104OfflineBadge.show{display:block}
+</style>
+<div id="rc104OfflineBadge" aria-live="polite">OFFLINE • siap digunakan</div>
+<script id="rc104-offline-status">
+(function(){
+ function sync(){
+  var b=document.getElementById('rc104OfflineBadge'); if(!b)return;
+  b.textContent=navigator.onLine?'ONLINE • Offline tersedia':'OFFLINE • siap digunakan';
+  b.classList.toggle('show',!navigator.onLine);
+ }
+ window.addEventListener('online',sync,{passive:true});
+ window.addEventListener('offline',sync,{passive:true});
+ window.addEventListener('load',sync,{passive:true});
 })();
 </script>
 
