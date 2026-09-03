@@ -1,39 +1,54 @@
-/* Amalan RC91 - iPad offline-first service worker */
-const VERSION='amalan-rc91-offline-v1';
-const SHELL=[
- './','./index.html','./Amalan_RC80.html','./manifest.webmanifest',
- './icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'
+const CACHE_NAME = 'amalan-rc93-offline-v1';
+const APP_SHELL = [
+  './',
+  './index.html',
+  './Amalan_RC80.html',
+  './manifest.webmanifest'
 ];
-const PDFJS=[
- 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
- 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
- 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
- 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'
-];
-self.addEventListener('install',e=>e.waitUntil((async()=>{
- const c=await caches.open(VERSION);
- for(const u of SHELL){try{await c.add(u)}catch(err){console.warn('shell cache failed',u,err)}}
- // Optional dependencies: do not block installation.
- await Promise.all(PDFJS.map(async u=>{try{const r=await fetch(u,{cache:'reload'});if(r.ok)await c.put(u,r.clone())}catch(_){}}));
- await self.skipWaiting();
-})()));
-self.addEventListener('activate',e=>e.waitUntil((async()=>{
- const keys=await caches.keys();
- await Promise.all(keys.filter(k=>k.startsWith('amalan-')&&k!==VERSION).map(k=>caches.delete(k)));
- await self.clients.claim();
-})()));
-async function shell(){const c=await caches.open(VERSION);return (await c.match('./index.html'))||(await c.match('/index.html'));}
-self.addEventListener('fetch',e=>{
- const r=e.request;if(r.method!=='GET')return;
- const u=new URL(r.url);
- if(r.mode==='navigate'){
-  e.respondWith((async()=>{const c=await caches.open(VERSION);const hit=await c.match(r);if(hit)return hit;try{const net=await fetch(r);if(net.ok)c.put(r,net.clone());return net}catch(_){return await shell()}})());return;
- }
- e.respondWith((async()=>{
-  const c=await caches.open(VERSION);const hit=await c.match(r)||await c.match(u.href);if(hit)return hit;
-  try{const net=await fetch(r);if(net&&net.ok)c.put(r,net.clone());return net}catch(err){
-   if(u.origin===location.origin)return new Response('',{status:503,statusText:'Offline'});
-   throw err;
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    )).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  // Navigation: always keep the installed PWA usable after a reload with no network.
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy)).catch(() => {});
+        return res;
+      }).catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
+    );
+    return;
   }
- })());
+
+  // Same-origin app resources: cache first, then network and update cache.
+  const url = new URL(req.url);
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(req).then(cached => cached || fetch(req).then(res => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, copy)).catch(() => {});
+        }
+        return res;
+      }).catch(() => caches.match('./index.html')))
+    );
+  }
 });
