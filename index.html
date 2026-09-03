@@ -1094,8 +1094,35 @@ document.addEventListener('DOMContentLoaded',()=>{
 .counter-undo{bottom:124px!important}
 .smart-counter-controls{bottom:242px!important}
 </style>
+<style id="rc94-finetune">
+/* RC94: zero paragraph waste + stable Auto Fokus scroll + compact Smart Counter */
+.chapter{padding-top:10px!important}
+.chapter h2{margin-bottom:4px!important;padding-bottom:6px!important}
+.para{margin:0!important;padding-top:0!important;padding-bottom:0!important;line-height:1.58!important}
+.para + .para{margin-top:0!important}
+/* Do not let phrase-level focus repeatedly pull the viewport up/down. */
+body.focus .para.active,body.focus .para.af76-active{scroll-margin-top:30vh!important;scroll-margin-bottom:30vh!important}
+.counter-fab{width:78px!important;min-height:78px!important;height:78px!important;border-radius:22px!important;right:max(12px,calc((100vw - 8cm)/2 + 10px))!important;bottom:82px!important}
+.counter-fab .counter-value{font-size:19px!important}
+.counter-fab .counter-label{font-size:9px!important;margin-top:3px!important;max-width:66px}
+.counter-fab .counter-hint{font-size:8px!important;margin-top:2px}
+.counter-fab .counter-mini-progress{width:54px!important;height:4px!important;margin-top:5px}
+.counter-undo{right:max(96px,calc((100vw - 8cm)/2 + 96px))!important;bottom:96px!important;padding:6px 8px!important;font-size:10px!important}
+#counterFloatActions{bottom:14px!important;right:max(12px,calc((100vw - 8cm)/2 + 10px))!important;gap:5px!important}
+#counterFloatActions button{width:40px!important;height:34px!important;border-radius:11px!important;font-size:18px!important}
+.smart-counter-controls{top:calc(env(safe-area-inset-top) + 6px)!important;bottom:auto!important;right:max(10px,calc((100vw - 8cm)/2 + 10px))!important;padding:3px!important;gap:3px!important}
+.smart-counter-controls button{width:30px!important;height:30px!important;min-height:30px!important;font-size:15px!important}
+.smart-counter-controls button#scNext{font-size:12px!important;width:42px!important;border-radius:9px!important}
+#manualSmartCounterBtn{z-index:130!important}
+#counterTargetPicker{position:fixed;right:max(10px,calc((100vw - 8cm)/2 + 10px));top:48px;z-index:140;display:none;gap:5px;flex-wrap:wrap;width:min(220px,calc(100vw - 24px));padding:8px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--paper) 96%,transparent);backdrop-filter:blur(14px);box-shadow:0 12px 28px rgba(0,0,0,.2)}
+#counterTargetPicker.show{display:flex}
+#counterTargetPicker button{flex:1;min-width:52px;padding:7px 6px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font-weight:800;font-size:11px}
+#counterTargetPicker button.custom{flex-basis:100%}
+.counter-fab.done{border-color:var(--accent)!important}
+@media(max-width:520px){.counter-fab{right:10px!important}.counter-undo{right:92px!important}.smart-counter-controls{right:8px!important}}
+</style>
 </head>
-<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC71-V6.2.3-GALERI-MEDIA">
+<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC94-FINE-TUNING">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -1104,6 +1131,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 <button aria-label="Tambah hitungan" id="scNext" title="+1 hitungan" type="button">＋1</button>
 <button aria-label="Reset 0 dan keluar Smart Counter" class="exit" id="scExit" title="Reset 0 &amp; Exit" type="button">↺</button>
 </nav>
+<div id="counterTargetPicker" aria-label="Pilihan target Smart Counter"><button data-target="7">7×</button><button data-target="11">11×</button><button data-target="33">33×</button><button data-target="100">100×</button><button class="custom" id="counterCustomTarget">Target lain…</button></div>
 <div aria-live="polite" class="counter-toast" id="counterToast">Selesai</div>
 <div class="progress"><i id="bar"></i></div><div class="app"><header><button aria-label="Buka menu" class="icon" id="menuBtn">☰</button><h1>Amalan Muslim</h1><button aria-label="Bookmark" class="icon" id="bookmarkBtn">🔖</button><button aria-label="Layar penuh" class="icon" id="appFullscreenBtn" title="Layar penuh">⛶</button><button aria-label="Ganti tema" class="icon" id="themeBtn">◐</button></header><main class="reader-wrap" id="reader"><article class="book"><section class="chapter" id="tawasulan" data-title="TAWASULAN">
 <div class="chapter-head"><h2>TAWASULAN</h2></div>
@@ -1438,17 +1466,21 @@ function positionActiveParagraph(target,mode='paragraph'){
   requestAnimationFrame(()=>{
     const rr=reader.getBoundingClientRect();
     const tr=target.getBoundingClientRect();
-    let delta=0;
-    // Keep the active reading text consistently around 30% from the top
-    // of the visible reading area. This leaves comfortable space above the
-    // text for the navigation/status UI and makes the karaoke movement feel stable.
-    const desiredTop=rr.top+(reader.clientHeight*.30);
-    const currentTop=tr.top;
-    delta=currentTop-desiredTop;
-    if(Math.abs(delta)<12)return;
-    if(Math.abs(delta)>3){
-      reader.scrollTo({top:Math.max(0,reader.scrollTop+delta),behavior:'smooth'});
-    }
+    const h=Math.max(1,tr.height);
+    const relTop=tr.top-rr.top;
+    const relCenter=relTop+h/2;
+    const vh=reader.clientHeight;
+    // Stable 30% anchor: only scroll when the active paragraph leaves a
+    // generous dead-band. Phrase changes inside the same paragraph therefore
+    // do not repeatedly re-center the viewport and cause an up/down wobble.
+    const low=vh*.18, high=vh*.44;
+    if(relCenter>=low && relCenter<=high)return;
+    const desiredCenter=vh*.30;
+    const delta=relCenter-desiredCenter;
+    if(Math.abs(delta)<18)return;
+    const max=Math.max(0,reader.scrollHeight-reader.clientHeight);
+    const top=Math.max(0,Math.min(max,reader.scrollTop+delta));
+    reader.scrollTo({top,behavior:'smooth'});
   });
 }
 function focusPhrase(){
@@ -1556,7 +1588,7 @@ editBtn.onclick=openEditor;document.getElementById('closeEditorBtn').onclick=()=
 </script>
 <script>
 (()=>{const KEY='amp-b5-counter-',fab=document.getElementById('counterFab'),undoBtn=document.getElementById('counterUndo'),valueEl=document.getElementById('counterValue'),labelEl=document.getElementById('counterLabel'),progressEl=document.getElementById('counterProgress'),notice=document.getElementById('counterToast');let state={key:'',count:0,target:0,title:'',element:null,done:false,paused:false},noticeTimer=0;
-const vibrate=()=>{try{if(navigator.vibrate)navigator.vibrate(18)}catch(e){}};const clickSound=()=>{try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=window.__rc71Audio||(window.__rc71Audio=new C());if(c.state==='suspended')c.resume();const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(.045,c.currentTime+.004);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.055);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.06)}catch(e){}};const showNotice=t=>{notice.textContent=t;notice.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>notice.classList.remove('show'),1500)};
+const vibrate=()=>{try{if(navigator.vibrate)navigator.vibrate(18)}catch(e){}};const clickSound=()=>{try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=window.__rc71Audio||(window.__rc71Audio=new C());if(c.state==='suspended')c.resume();const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(.045,c.currentTime+.004);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.055);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.06)}catch(e){}};const completionBeep=()=>{try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=window.__rc71Audio||(window.__rc71Audio=new C());if(c.state==='suspended')c.resume();[0,0.12].forEach((d,i)=>{const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+d;o.type='sine';o.frequency.value=i?1046:880;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.07,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+.09);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.095)})}catch(e){}};const showNotice=t=>{notice.textContent=t;notice.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>notice.classList.remove('show'),1500)};
 const parseRepeat=el=>{if(el.dataset.repeat)return Number(el.dataset.repeat);const m=el.textContent.match(/(?:\(|\[)?\s*(\d{1,4})\s*[x×]\s*(?:\)|\])?/i);return m?Number(m[1]):0};
 const cleanTitle=el=>(el.dataset.repeatTitle||el.textContent.replace(/(?:\(|\[)?\s*\d{1,4}\s*[x×]\s*(?:\)|\])?/ig,'').trim()).slice(0,52);
 const itemKey=(el,i=0)=>(el.closest('.chapter')?.id||'umum')+':'+(el.dataset.repeatTitle||el.textContent.trim().slice(0,40))+':'+i;
@@ -1593,7 +1625,7 @@ function increment(){
   state.count++;
   pulse();vibrate();clickSound();save();render();
   if(state.count>=state.target){
-    showNotice(`✓ ${state.title} selesai ${state.target} kali`);
+    completionBeep();showNotice(`✓ ${state.title} selesai ${state.target} kali`);
     window.dispatchEvent(new CustomEvent('smartcountercomplete',{detail:{element:state.element,target:state.target,title:state.title}}));
   }
 }
@@ -4169,9 +4201,15 @@ document.addEventListener('DOMContentLoaded',()=>{
    const activeEl=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable');
    let target=Number(activeEl?.dataset.repeat||activeEl?.dataset.repeatTarget||0), el=activeEl;
    if(!target){const nearby=[...document.querySelectorAll('#reader .para')].find(x=>Number(x.dataset.repeat||x.dataset.repeatTarget||0)>0);if(nearby){el=nearby;target=Number(nearby.dataset.repeat||nearby.dataset.repeatTarget)}}
-   if(!target){const t=prompt('Smart Counter manual: masukkan jumlah pengulangan','33');target=Math.max(1,Math.min(9999,Number(t)||0));if(!target)return;el=document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';}
+   const picker=document.getElementById('counterTargetPicker');
+   if(!target){picker?.classList.add('show');return;}
    window.SmartDzikirCounter?.activate?.(el,0);sync();
  });
+ const picker=document.getElementById('counterTargetPicker');
+ const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';window.SmartDzikirCounter?.activate?.(el,0);sync();};
+ picker?.querySelectorAll('[data-target]')?.forEach(b=>b.addEventListener('click',()=>startManual(Number(b.dataset.target))));
+ document.getElementById('counterCustomTarget')?.addEventListener('click',()=>{const t=prompt('Target Smart Counter','33');const n=Math.max(1,Math.min(9999,Number(t)||0));if(n)startManual(n);});
+ document.addEventListener('click',e=>{if(picker?.classList.contains('show')&&!e.target.closest('#counterTargetPicker,#manualSmartCounterBtn'))picker.classList.remove('show')});
 });
 </script>
 
