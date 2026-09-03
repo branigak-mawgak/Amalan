@@ -114,7 +114,7 @@ body.focus .para.af-next-preview{opacity:.60!important;filter:saturate(.78)!impo
 .cover-ziarah .cover-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0}
 .cover-ziarah:after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.08),transparent 22%,transparent 78%,rgba(0,0,0,.62));z-index:1;pointer-events:none}
 .cover-date{position:absolute;top:14px;z-index:3;background:rgba(4,56,40,.94);color:#fff7cc;border:2px solid #d7bd62;border-radius:999px;padding:8px 12px;font-weight:800;font-size:clamp(11px,2.7vw,16px);max-width:46%;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.25)}
-.cover-date-left{left:12px}.cover-date-right{right:12px}.cover-actions{position:relative;z-index:3;margin-bottom:18px}
+.cover-date-left{left:12px}.cover-date-right{right:12px}.cover-actions{position:relative;z-index:3;margin-bottom:18px;display:flex;justify-content:flex-start;padding-left:12px}
 .ziarah-prayer-block{padding:16px;margin:14px 0;border:1px solid var(--line);border-radius:16px;background:var(--paper)}
 .ziarah-prayer-block h3{margin:0 0 12px;color:var(--accent)}
 .ziarah-prayer-block .arabic{font-size:1.35em;line-height:2.1;text-align:right}
@@ -138,7 +138,7 @@ body.cover-mode #cover-depan{display:flex!important;position:relative!important;
 #cover-depan .cover-date{position:absolute;top:max(14px,env(safe-area-inset-top));z-index:3;line-height:1.32;white-space:pre-line;max-width:46%;padding:9px 11px;border-radius:15px;background:rgba(0,0,0,.48);color:#fff;text-shadow:0 1px 3px #000;font-weight:700;font-size:12px}
 #cover-depan .cover-date-left{left:max(10px,env(safe-area-inset-left));text-align:left}
 #cover-depan .cover-date-right{right:max(10px,env(safe-area-inset-right));text-align:right}
-#cover-depan .cover-actions{z-index:4;margin-bottom:max(22px,calc(env(safe-area-inset-bottom) + 16px))}
+#cover-depan .cover-actions{z-index:4;margin-bottom:max(22px,calc(env(safe-area-inset-bottom) + 16px));justify-content:flex-start;padding-left:12px}
 .toc-group>.toc-list,.toc-group>.toc-sub{display:none}
 .toc-group.open>.toc-list,.toc-group.open>.toc-sub{display:flex}
 @media(max-width:390px){#cover-depan .cover-date{font-size:11px;padding:7px 8px;max-width:47%}}
@@ -1121,8 +1121,16 @@ body.focus .para.active,body.focus .para.af76-active{scroll-margin-top:30vh!impo
 .counter-fab.done{border-color:var(--accent)!important}
 @media(max-width:520px){.counter-fab{right:10px!important}.counter-undo{right:92px!important}.smart-counter-controls{right:8px!important}}
 </style>
+<style id="rc98-smartcounter-af-flow">
+/* RC98: compact reading + deterministic Auto Fokus → Smart Counter → Auto Fokus */
+.para{margin:0!important;padding-top:0!important;padding-bottom:0!important;line-height:1.58!important}
+.cover-actions{justify-content:flex-start!important;text-align:left!important}
+.cover-actions .action{margin-left:0!important}
+/* Keep the active paragraph near the 30% visual anchor without scroll hunting. */
+body.focus .para.active,body.focus .para.af76-active{scroll-margin-top:30vh!important;scroll-margin-bottom:30vh!important}
+</style>
 </head>
-<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC95-SMARTCOUNTER-FINETUNE">
+<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC98-SMARTCOUNTER-AF-FLOW">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -1517,6 +1525,14 @@ function startPhraseFocus(){
     phraseIndex++;
     if(phraseIndex>=currentPhrases().length){
       phraseIndex=0;
+      // Complete the full phrase-highlight pass first. If this paragraph
+      // has an explicit repeat target, pause Auto Fokus HERE and hand control
+      // to Smart Counter. The counter must never interrupt the first phrase.
+      const repeat=repeatTarget(paras[active]);
+      if(repeat>0 && !waitingCounter && !suppressRepeat){
+        triggerCounter(paras[active]);
+        return;
+      }
       if(active<paras.length-1)setActive(active+1);
     }
     startPhraseFocus();
@@ -1872,7 +1888,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     SmartDzikirCounter?.activate?.(el,active);
     return true;
   }
-  function start(resetPhrase=false){if(waitingCounter)return;if(resetPhrase)phraseIndex=0;clearClocks();running=true;paused=false;autoFocus=true;if(!document.body.classList.contains('focus'))toggleFocus();positionActiveParagraph(paras[active],'paragraph');lockWake();render();if(!triggerCounter(paras[active]))startPhraseFocus();}
+  function start(resetPhrase=false){if(waitingCounter)return;if(resetPhrase)phraseIndex=0;clearClocks();running=true;paused=false;autoFocus=true;if(!document.body.classList.contains('focus'))toggleFocus();positionActiveParagraph(paras[active],'paragraph');lockWake();render();startPhraseFocus();}
   function pause(){if(!running)return;clearClocks();running=false;paused=true;autoFocus=false;render();}
   function stopAll(reset=false){clearClocks();running=false;paused=false;waitingCounter=false;autoFocus=false;unlockWake();hideCounter();document.querySelectorAll('.af76-active').forEach(x=>x.classList.remove('af76-active'));if(reset)phraseIndex=0;render();}
   function move(step){if(waitingCounter)return;clearClocks();phraseIndex=0;suppressRepeat=false;setActive(active+step,true);if(running&&!waitingCounter)startPhraseFocus();render();}
@@ -1889,8 +1905,9 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     const focusModeActive=document.body.classList.contains('focus');
     const hasRepeat=repeatTarget(el)>0;
 
-    // Semua bacaan N×: pause Fokus/Auto Fokus dan buka Smart Counter.
-    if(hasRepeat && !suppressRepeat && !waitingCounter && (running||autoFocus||focusModeActive)){
+    // Auto Fokus waits until the complete phrase-highlight pass finishes.
+    // Manual Focus may still invoke Smart Counter immediately on a repeat item.
+    if(hasRepeat && !suppressRepeat && !waitingCounter && !autoFocus && focusModeActive){
       triggerCounter(el);
     }
 
@@ -1977,8 +1994,11 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
 
   cc?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();continueAfterCounter(0);});
   window.addEventListener('smartcountercomplete',()=>{
-      // Target tercapai: tetap di Smart Counter sampai pengguna memilih Exit.
-      try{toast('Target Smart Counter tercapai • tekan Exit bila selesai')}catch(_){}
+      // Target tercapai: double-beep is emitted by Smart Counter. After a
+      // short visual confirmation, automatically close the counter, advance
+      // one paragraph, and resume phrase-level Auto Fokus.
+      try{toast('✓ Target tercapai • Auto Fokus dilanjutkan')}catch(_){}
+      setTimeout(()=>continueAfterCounter(0),650);
     });
     window.addEventListener('smartcounterexit',()=>{
       if(!waitingCounter)return;
