@@ -1513,33 +1513,53 @@ function phraseDuration(){
 }
 function startPhraseFocus(){
   clearTimeout(phraseTimer);
-  if(!autoFocus)return;
-  if(document.getElementById('focusMode').value==='paragraph'){
-    const lines=Math.max(1,Math.ceil(paras[active].getBoundingClientRect().height/linePx()));
-    const paragraphMs=Math.max(1800,lines*1400*focusTempo);
-    phraseTimer=setTimeout(()=>{setActive(active+1);startPhraseFocus()},paragraphMs);
-    return;
+  if(!autoFocus || !running || waitingCounter)return;
+  const p=paras[active];
+  if(!p)return;
+  const ps=currentPhrases();
+  if(!ps.length){
+    // Safety fallback: semanticize the active paragraph if its phrase spans
+    // were lost after navigation/editor updates.
+    try{semanticize(p,p.dataset.phrases||'',p.dataset.sourceText||p.innerText)}catch(e){}
   }
+  const phrases=currentPhrases();
+  if(!phrases.length)return;
+  phraseIndex=Math.max(0,Math.min(phraseIndex,phrases.length-1));
   focusPhrase();
+  const ms=phraseDuration();
   phraseTimer=setTimeout(()=>{
+    if(!autoFocus || !running || waitingCounter)return;
     phraseIndex++;
-    if(phraseIndex>=currentPhrases().length){
-      phraseIndex=0;
-      // Complete the full phrase-highlight pass first. If this paragraph
-      // has an explicit repeat target, pause Auto Fokus HERE and hand control
-      // to Smart Counter. The counter must never interrupt the first phrase.
-      const repeat=repeatTarget(paras[active]);
-      if(repeat>0 && !waitingCounter && !suppressRepeat){
-        triggerCounter(paras[active]);
-        return;
-      }
-      if(active<paras.length-1)setActive(active+1);
+    if(phraseIndex < currentPhrases().length){
+      startPhraseFocus();
+      return;
     }
-    startPhraseFocus();
-  },phraseDuration());
+    // Full phrase pass completed. Only now hand an explicit repeat target
+    // to Smart Counter.
+    phraseIndex=0;
+    const repeat=repeatTarget(p);
+    if(repeat>0 && !waitingCounter && !suppressRepeat){
+      triggerCounter(p);
+      return;
+    }
+    if(active < paras.length-1){
+      suppressRepeat=false;
+      setActive(active+1,true);
+      if(autoFocus && running && !waitingCounter) startPhraseFocus();
+    }else{
+      running=false; autoFocus=false; paused=false; clearClocks(); render();
+      try{toast('Auto Fokus selesai')}catch(e){}
+    }
+  },ms);
 }
-toggleAutoFocus=function(force){autoFocus=typeof force==='boolean'?force:!autoFocus;autoFocusBtn.textContent=autoFocus?'⏸ Auto Fokus':'◎ Auto Fokus';autoFocusBtn.classList.toggle('on',autoFocus);if(autoFocus){if(!document.body.classList.contains('focus'))toggleFocus();phraseIndex=0;startPhraseFocus()}else{clearTimeout(phraseTimer);document.querySelectorAll('.focus-word').forEach(x=>x.classList.remove('focus-word'))}};autoFocusBtn.onclick=()=>toggleAutoFocus();
-document.getElementById('focusMode').onchange=()=>{phraseIndex=0;if(autoFocus)startPhraseFocus()};
+
+toggleAutoFocus=function(force){
+  const desired=typeof force==='boolean'?force:!autoFocus;
+  if(desired){ start(true); }
+  else { pause(); }
+};
+autoFocusBtn.onclick=()=>toggleAutoFocus();
+document.getElementById('focusMode').onchange=()=>{if(autoFocus){const fm=document.getElementById('focusMode');if(fm)fm.value='phrase';}phraseIndex=0;if(autoFocus&&running)startPhraseFocus()};
 // Smart resume and checkpoint
 function saveResume(manual=false){const p=paras[active],data={active,scroll:reader.scrollTop,chapter:p?.dataset.chapter||'',ayah:p?.dataset.ayah||'',text:p?.textContent.trim().slice(0,80)||'',time:new Date().toISOString(),manual};SAFE_STORE.setItem(B4KEY+'resume',JSON.stringify(data));renderResume();if(manual)toast('Penanda bacaan disimpan')}
 function renderResume(){let d;try{d=JSON.parse(SAFE_STORE.getItem(B4KEY+'resume')||'null')}catch{};const txt=document.getElementById('resumeText'),time=document.getElementById('resumeTime');if(!d){txt.textContent='Belum ada posisi tersimpan.';time.textContent='';return}txt.textContent=(d.chapter||'Bacaan').replaceAll('-',' ') +(d.ayah?' • ayat '+d.ayah:'')+' — '+d.text;time.textContent='Disimpan '+new Date(d.time).toLocaleString('id-ID')}
@@ -1888,7 +1908,24 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     SmartDzikirCounter?.activate?.(el,active);
     return true;
   }
-  function start(resetPhrase=false){if(waitingCounter)return;if(resetPhrase)phraseIndex=0;clearClocks();running=true;paused=false;autoFocus=true;if(!document.body.classList.contains('focus'))toggleFocus();positionActiveParagraph(paras[active],'paragraph');lockWake();render();startPhraseFocus();}
+  function start(resetPhrase=false){
+    if(waitingCounter)return;
+    if(resetPhrase)phraseIndex=0;
+    clearClocks();
+    running=true; paused=false; autoFocus=true;
+    // Auto Fokus is always phrase-by-phrase. Do not inherit the old
+    // paragraph-focus preference here.
+    const fm=document.getElementById('focusMode');
+    if(fm && fm.value!=='phrase') fm.value='phrase';
+    if(!document.body.classList.contains('focus')) toggleFocus();
+    positionActiveParagraph(paras[active],'paragraph');
+    lockWake(); render();
+    // Start on the next frame so iPad/Safari has completed the focus-mode
+    // layout before the first phrase is highlighted.
+    requestAnimationFrame(()=>{
+      if(running && autoFocus && !waitingCounter) startPhraseFocus();
+    });
+  }
   function pause(){if(!running)return;clearClocks();running=false;paused=true;autoFocus=false;render();}
   function stopAll(reset=false){clearClocks();running=false;paused=false;waitingCounter=false;autoFocus=false;unlockWake();hideCounter();document.querySelectorAll('.af76-active').forEach(x=>x.classList.remove('af76-active'));if(reset)phraseIndex=0;render();}
   function move(step){if(waitingCounter)return;clearClocks();phraseIndex=0;suppressRepeat=false;setActive(active+step,true);if(running&&!waitingCounter)startPhraseFocus();render();}
@@ -1949,7 +1986,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
         render();
         try{toast('Auto Fokus tetap dijeda pada '+title())}catch(_){}
       }else{
-        // FIX RC99: setiap kali pengguna membuka bacaan dari Beranda/Daftar Isi,
+        // FIX RC100: setiap kali pengguna membuka bacaan dari Beranda/Daftar Isi,
         // Auto Fokus langsung dimulai. Sebelumnya hanya restart bila wasRunning,
         // sehingga masuk ke bab baru dalam keadaan idle dan terlihat seperti
         // Auto Fokus tidak bekerja otomatis.
@@ -4283,6 +4320,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 #reader .para{margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;line-height:1.58!important}
 #reader .para + .para{margin-top:0!important}
 </style>
+
+// RC100 safety boot: after all semanticization/navigation hooks are ready,
+// make Auto Fokus actually runnable on the current reading screen. This does
+// not auto-start on initial app load; it guarantees the Start command is live.
+window.addEventListener('load',()=>{
+  try{
+    if(typeof render==='function') render();
+  }catch(e){}
+});
 </body>
 </html>
 <style id="rc95-final-ui">
