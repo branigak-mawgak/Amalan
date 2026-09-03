@@ -1249,7 +1249,7 @@ body.focus .para.active{scroll-margin-top:30vh!important;scroll-margin-bottom:55
 </style>
 
 </head>
-<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC101-AUTOFOCUS-RELIABLE">
+<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC102-AUTOFOCUS-DETERMINISTIC">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -2279,6 +2279,15 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
   window.addEventListener('focus',()=>setTimeout(offerBackgroundResume,180));
   document.addEventListener('keydown',e=>{if(!(running||paused))return;if(e.code==='Space'){e.preventDefault();running?pause():start(false)}if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1);if(e.key==='Escape')stopAll(false)});
   reader.addEventListener('click',e=>{if(waitingCounter||e.target.closest('button,a,input,textarea,select,.modal,.drawer'))return;if(running||paused){ctl.classList.add('show');status.classList.add('show');}}, {passive:true});
+  /* RC102: expose the actual Build76 Auto Fokus starter.
+     * This is intentionally inside the engine closure so it can call the
+     * real start() function instead of simulating a button click. */
+  window.__RC102_AF_START=function(resetPhrase){
+    try{
+      start(resetPhrase!==false);
+      return true;
+    }catch(_){ return false; }
+  };
   stopAll(false);
 })();
 </script>
@@ -4441,89 +4450,79 @@ document.addEventListener('DOMContentLoaded',()=>{
 </style>
 
 
-<script id="rc101-autofocus-reliable">
+<script id="rc102-autofocus-reliable">
 (function(){
   'use strict';
 
-  function afButton(){
-    return document.getElementById('autoFocusBtn');
-  }
-
-  function kickAutoFocus(reason){
+  function startRealAF(){
     try{
-      var btn=afButton();
-      if(!btn) return;
-      /* Do not toggle an already-running Auto Fokus off. */
-      if(btn.classList.contains('on')) return;
-      /* Only kick when a real reading paragraph is available. */
-      var active=document.querySelector('#reader .para.active') ||
-                 document.querySelector('#reader .para.af76-active');
-      if(!active) return;
-
-      /* The RC98/RC99 engine owns the real state machine. */
-      if(typeof window.__RC101_AF_START==='function'){
-        window.__RC101_AF_START();
-        return;
-      }
-
-      /* Final fallback: invoke the real UI command. */
-      btn.click();
-    }catch(_){}
+      if(typeof window.__RC102_AF_START!=='function') return false;
+      var p=document.querySelector('#reader .para.af76-active') ||
+            document.querySelector('#reader .para.active');
+      if(!p) return false;
+      return window.__RC102_AF_START(true);
+    }catch(_){ return false; }
   }
 
   /*
-   * Every chapter navigation gets a second, deterministic kick after the
-   * navigation/layout settles. This fixes iPad/Safari cases where the first
-   * requestAnimationFrame is lost during a large DOM reflow.
+   * Navigation is the primary automatic-start trigger.
+   * We deliberately use several delayed attempts because iPad Safari can
+   * finish scroll/layout asynchronously after a click.
    */
-  var originalGoTo=window.goTo;
-  if(typeof originalGoTo==='function'){
+  var previousGoTo=window.goTo;
+  if(typeof previousGoTo==='function'){
     window.goTo=function(id){
-      var result;
-      try{ result=originalGoTo.apply(this,arguments); }catch(e){ throw e; }
+      var result=previousGoTo.apply(this,arguments);
       if(id && id!=='beranda'){
-        setTimeout(function(){kickAutoFocus('goto-1')},220);
-        setTimeout(function(){kickAutoFocus('goto-2')},650);
-        setTimeout(function(){kickAutoFocus('goto-3')},1100);
+        [250,700,1200,1800].forEach(function(ms){
+          setTimeout(function(){
+            try{
+              var btn=document.getElementById('autoFocusBtn');
+              if(btn && btn.classList.contains('on')) return;
+              startRealAF();
+            }catch(_){}
+          },ms);
+        });
       }
       return result;
     };
   }
 
   /*
-   * If the app is restored from the Home Screen, Safari can restore the DOM
-   * without replaying the original click. Re-arm Auto Fokus only when a
-   * reading paragraph is already active.
+   * Home Screen / Safari restore. Only start when a chapter is actually open;
+   * never start on the Home page.
    */
-  function restoreKick(){
-    setTimeout(function(){kickAutoFocus('restore-1')},450);
-    setTimeout(function(){kickAutoFocus('restore-2')},1000);
+  function restore(){
+    setTimeout(function(){
+      if(document.body.classList.contains('cover-mode')) return;
+      if(document.body.classList.contains('reader-open') ||
+         document.querySelector('#reader .para.af76-active')){
+        var btn=document.getElementById('autoFocusBtn');
+        if(!btn || !btn.classList.contains('on')) startRealAF();
+      }
+    },600);
   }
-  window.addEventListener('pageshow',restoreKick,{passive:true});
-  window.addEventListener('load',restoreKick,{passive:true});
+  window.addEventListener('pageshow',restore,{passive:true});
+  window.addEventListener('load',restore,{passive:true});
 
   /*
-   * Short watchdog: if Auto Fokus is ON but a focus-word disappeared because
-   * Safari rebuilt inline spans, restart the current phrase engine. It never
-   * scrolls by itself, so it cannot create vertical hunting.
+   * If Safari loses the inline highlight after a DOM/layout rebuild, restart
+   * the real engine once. No scroll command is issued by this watchdog.
    */
-  var lastRepair=0;
+  var last=0;
   setInterval(function(){
     try{
-      var btn=afButton();
+      var btn=document.getElementById('autoFocusBtn');
       if(!btn || !btn.classList.contains('on')) return;
-      var active=document.querySelector('#reader .para.active') ||
-                  document.querySelector('#reader .para.af76-active');
-      if(!active) return;
-      if(active.querySelector('.focus-word')) return;
-      var now=Date.now();
-      if(now-lastRepair<1200) return;
-      lastRepair=now;
-      if(typeof window.__RC101_AF_START==='function') window.__RC101_AF_START();
+      var p=document.querySelector('#reader .para.af76-active') ||
+            document.querySelector('#reader .para.active');
+      if(!p || p.querySelector('.focus-word')) return;
+      if(Date.now()-last<1400) return;
+      last=Date.now();
+      startRealAF();
     }catch(_){}
-  },1200);
+  },1000);
 })();
 </script>
-
 </body>
 </html>
