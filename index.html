@@ -1122,7 +1122,7 @@ body.focus .para.active,body.focus .para.af76-active{scroll-margin-top:30vh!impo
 @media(max-width:520px){.counter-fab{right:10px!important}.counter-undo{right:92px!important}.smart-counter-controls{right:8px!important}}
 </style>
 </head>
-<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC96-SMARTCOUNTER-AF-SMART">
+<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC95-SMARTCOUNTER-FINETUNE">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -1460,7 +1460,7 @@ toggleAuto=function(){
   if(auto)raf=requestAnimationFrame(tickLpm);
   else cancelAnimationFrame(raf);
 };autoBtn.onclick=toggleAuto;
-function currentPhrases(){const p=paras[active];if(p&&!p.querySelector('.semantic'))semanticize(p,p.dataset.phrases||'',p.dataset.sourceText||p.textContent||'');return p?[...p.querySelectorAll('.semantic')]:[]}
+function currentPhrases(){return [...paras[active].querySelectorAll('.semantic')]}
 function positionActiveParagraph(target,mode='paragraph'){
   if(!target||!reader)return;
   requestAnimationFrame(()=>{
@@ -1517,13 +1517,6 @@ function startPhraseFocus(){
     phraseIndex++;
     if(phraseIndex>=currentPhrases().length){
       phraseIndex=0;
-      const repeat=repeatTarget(paras[active]);
-      // Finish highlighting the complete paragraph first. Only then pause
-      // Auto Fokus and hand control to Smart Counter.
-      if(repeat && !suppressRepeat && !waitingCounter){
-        triggerCounter(paras[active]);
-        return;
-      }
       if(active<paras.length-1)setActive(active+1);
     }
     startPhraseFocus();
@@ -1879,7 +1872,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     SmartDzikirCounter?.activate?.(el,active);
     return true;
   }
-  function start(resetPhrase=false){if(waitingCounter)return;if(resetPhrase)phraseIndex=0;clearClocks();running=true;paused=false;autoFocus=true;if(!document.body.classList.contains('focus'))toggleFocus();positionActiveParagraph(paras[active],'paragraph');lockWake();render();startPhraseFocus();}
+  function start(resetPhrase=false){if(waitingCounter)return;if(resetPhrase)phraseIndex=0;clearClocks();running=true;paused=false;autoFocus=true;if(!document.body.classList.contains('focus'))toggleFocus();positionActiveParagraph(paras[active],'paragraph');lockWake();render();if(!triggerCounter(paras[active]))startPhraseFocus();}
   function pause(){if(!running)return;clearClocks();running=false;paused=true;autoFocus=false;render();}
   function stopAll(reset=false){clearClocks();running=false;paused=false;waitingCounter=false;autoFocus=false;unlockWake();hideCounter();document.querySelectorAll('.af76-active').forEach(x=>x.classList.remove('af76-active'));if(reset)phraseIndex=0;render();}
   function move(step){if(waitingCounter)return;clearClocks();phraseIndex=0;suppressRepeat=false;setActive(active+step,true);if(running&&!waitingCounter)startPhraseFocus();render();}
@@ -1894,8 +1887,13 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     if(c)positionActiveParagraph(el,'paragraph');
 
     const focusModeActive=document.body.classList.contains('focus');
-    // Repeat targets are triggered after the active paragraph has completed
-    // its phrase-by-phrase highlight sequence (see startPhraseFocus).
+    const hasRepeat=repeatTarget(el)>0;
+
+    // Semua bacaan N×: pause Fokus/Auto Fokus dan buka Smart Counter.
+    if(hasRepeat && !suppressRepeat && !waitingCounter && (running||autoFocus||focusModeActive)){
+      triggerCounter(el);
+    }
+
     suppressRepeat=false;
     render();
   };
@@ -4248,63 +4246,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 #counterFloatActions #counterExit{font-size:20px;color:#d85b5b}
 @media(max-width:600px){#counterFloatActions{right:10px}}
 </style>
-
-<style id="rc96-final-finetune">
-.chapter{padding-top:6px!important}
-.chapter h2{margin-bottom:2px!important;padding-top:8px!important;padding-bottom:5px!important}
-.para{margin:0!important;padding-top:0!important;padding-bottom:0!important;line-height:1.58!important}
-.para + .para{margin-top:0!important}
-.para:empty{display:none!important}
-.ayah-no{font-size:9px!important;line-height:22px!important;overflow:visible!important;white-space:nowrap!important}
-body.focus .para.active,body.focus .para.af76-active{scroll-margin-top:30vh!important;scroll-margin-bottom:55vh!important}
-.build-note,.revision-note,.revision-card,.reading-info,.text-info,.source-note,.build-info{display:none!important}
-</style>
-<script id="rc96-final-behavior">
-(()=>{
-'use strict';
-const reader=document.getElementById('reader'); if(!reader)return;
-let lockUntil=0;
-window.rc96StableFocusScroll=function(el){
- if(!el)return;
- const now=performance.now(); if(now<lockUntil)return;
- const rr=reader.getBoundingClientRect(),er=el.getBoundingClientRect();
- const vh=reader.clientHeight,h=Math.max(1,er.height);
- const center=(er.top-rr.top)+h*.5;
- if(center>=vh*.20&&center<=vh*.40)return;
- const delta=center-vh*.30;
- if(Math.abs(delta)<24)return;
- const max=Math.max(0,reader.scrollHeight-reader.clientHeight);
- const top=Math.max(0,Math.min(max,reader.scrollTop+delta));
- if(Math.abs(top-reader.scrollTop)<10)return;
- lockUntil=now+560;
- reader.scrollTo({top,behavior:'smooth'});
-};
-/* Lazy phrase DOM: only the active paragraph keeps phrase spans hydrated. */
-function strip(p){if(!p)return;p.querySelectorAll('.semantic').forEach(s=>s.replaceWith(document.createTextNode(s.textContent||'')));}
-function hydrate(p){if(!p||p.querySelector('.semantic'))return;try{if(typeof semanticize==='function')semanticize(p,p.dataset.phrases||'',p.dataset.sourceText||p.textContent||'')}catch(e){console.warn('RC96 hydrate',e)}}
-requestAnimationFrame(()=>{
- const active=document.querySelector('#reader .para.active')||document.querySelector('#reader .para');
- document.querySelectorAll('#reader .para').forEach(p=>{if(p!==active)strip(p)});
- if(active)hydrate(active);
-});
-/* Whenever active paragraph changes, keep the phrase DOM small. */
-let lastActive=null;
-setInterval(()=>{
- const p=document.querySelector('#reader .para.active');
- if(p!==lastActive){lastActive=p;document.querySelectorAll('#reader .para').forEach(x=>{if(x!==p)strip(x)});hydrate(p)}
-},700);
-/* Remove visible revision/build/source information if a module re-adds it. */
-const clean=()=>document.querySelectorAll('.build-note,.revision-note,.revision-card,.reading-info,.text-info,.source-note,.build-info').forEach(el=>el.remove());
-clean();
-new MutationObserver(clean).observe(document.body,{childList:true,subtree:true});
-/* Completion beep is generated by SmartDzikirCounter; resume Auto Fokus after it. */
-let queued=false;
-window.addEventListener('smartcountercomplete',()=>{
- if(queued)return; queued=true;
- setTimeout(()=>{queued=false;window.dispatchEvent(new CustomEvent('smartcounterfinishcontinue'))},850);
-});
-})();
-</script>
 </body>
 </html>
 <style id="rc95-final-ui">
