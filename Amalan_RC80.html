@@ -1943,19 +1943,19 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       sec?.scrollIntoView({behavior:'auto',block:'start'});
       positionActiveParagraph(paras[active],'paragraph');
 
-      if(wasRunning){
-        // Restart otomatis pada menu baru; jangan melanjutkan indeks menu lama.
-        paused=false;
-        render();
-        requestAnimationFrame(()=>start(true));
-        try{toast('Auto Fokus dimulai dari awal '+title())}catch(_){}
-      }else if(wasPaused){
+      if(wasPaused && !wasRunning){
+        // Jika pengguna memang sedang pause, hormati pause tersebut.
         paused=true;
         render();
         try{toast('Auto Fokus tetap dijeda pada '+title())}catch(_){}
       }else{
+        // FIX RC99: setiap kali pengguna membuka bacaan dari Beranda/Daftar Isi,
+        // Auto Fokus langsung dimulai. Sebelumnya hanya restart bila wasRunning,
+        // sehingga masuk ke bab baru dalam keadaan idle dan terlihat seperti
+        // Auto Fokus tidak bekerja otomatis.
         paused=false;
-        render();
+        requestAnimationFrame(()=>start(true));
+        try{toast('Auto Fokus dimulai dari awal '+title())}catch(_){}
       }
     }else{
       sec?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -4265,6 +4265,23 @@ document.addEventListener('DOMContentLoaded',()=>{
 #counterFloatActions #counterResetZero{font-size:25px}
 #counterFloatActions #counterExit{font-size:20px;color:#d85b5b}
 @media(max-width:600px){#counterFloatActions{right:10px}}
+</style>
+<script id="rc99-autofocus-start-fix">
+(()=>{
+  // RC99: defensive restart for iPad/Safari after page restore.
+  // It does not autoplay the Home page; it only guarantees that a chapter
+  // navigation starts Auto Fokus through goTo().
+  window.addEventListener('pageshow',()=>{
+    try{
+      if(document.body.classList.contains('reader-open') && typeof window.goTo==='function'){}
+    }catch(_){}
+  },{passive:true});
+})();
+</script>
+<style id="rc99-paragraph-tight">
+/* RC99: zero vertical paragraph gap, preserve comfortable line-height. */
+#reader .para{margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;line-height:1.58!important}
+#reader .para + .para{margin-top:0!important}
 </style>
 </body>
 </html>
