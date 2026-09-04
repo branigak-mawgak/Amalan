@@ -12,12 +12,12 @@ Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 <!DOCTYPE html>
 <!-- AMALAN RC80 iPadOS EDITION RC82 — PORTRAIT CANVAS + SMART COUNTER + SURAH NUMBERING FIX — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
 <!-- RC46 -->
-<html lang="id" data-build="AMALAN-RC80-iPadOS">
+<html lang="id" data-build="AMALAN-RC105-iPadOS">
 <head>
 <meta name="amalan-build" content="RC54-STABLE-CANONICAL">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Amalan Muslim — RC80 iPadOS</title>
+<title>Amalan Muslim — RC105 iPadOS</title>
 <script id="tuned-safe-storage">
 (function(){
   'use strict';
@@ -1248,8 +1248,38 @@ body.focus .para.active .semantic.focus-word{
 body.focus .para.active{scroll-margin-top:30vh!important;scroll-margin-bottom:55vh!important}
 </style>
 
+
+<style id="rc105-landscape-cover-fix">
+/* RC105: Opening Page is a true viewport canvas in every orientation.
+   Landscape preserves the complete cover artwork instead of cropping it. */
+body.cover-mode .reader-wrap{width:100vw!important;height:100dvh!important;max-width:none!important;overflow:hidden!important;padding:0!important}
+body.cover-mode #cover-depan{width:100vw!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important}
+body.cover-mode #cover-depan .cover-bg{width:100%;height:100%;object-fit:cover;object-position:center center}
+@media (orientation:landscape){
+  body.cover-mode #cover-depan .cover-bg{object-fit:contain;background:#073b2b}
+  body.cover-mode #cover-depan .cover-actions{margin-bottom:max(14px,calc(env(safe-area-inset-bottom) + 10px));padding-left:max(12px,env(safe-area-inset-left))}
+}
+</style>
+
+<style id="rc105-top-navigation-ui">
+/* RC105: Smart Counter is a deliberate manual backup, never a permanent floating control. */
+#manualSmartCounterBtn,#counterUndo,#counterContinue,#smartCounterControls{display:none!important}
+#topSmartCounterBtn,#topHomeBtn{display:grid!important}
+@media (orientation:landscape){
+  .app>header{padding-right:10px!important}
+}
+</style>
+
+<style id="rc105-pdf-text-highlight-style">
+.rc71-vtp-page-holder{position:relative}
+.rc71-vtp-text-layer{position:absolute;inset:0;overflow:hidden;line-height:1;transform-origin:0 0;pointer-events:none;z-index:2}
+.rc71-vtp-text-layer span{position:absolute;white-space:pre;color:transparent!important;background:transparent;border-radius:4px;padding:0 1px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.rc71-vtp-text-layer .rc71-vtp-focus-line{background-image:linear-gradient(90deg,rgba(255,221,92,.42),rgba(102,214,166,.28))!important;box-shadow:0 0 0 2px rgba(255,221,92,.10);}
+.rc71-vtp-bottom{justify-content:flex-start}
+#rc71VtpStatus{flex:1;min-width:120px}
+</style>
 </head>
-<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC102-AUTOFOCUS-DETERMINISTIC">
+<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC105-MANUAL-AF-EDITOR-PDF">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -1260,7 +1290,7 @@ body.focus .para.active{scroll-margin-top:30vh!important;scroll-margin-bottom:55
 </nav>
 <div id="counterTargetPicker" aria-label="Pilihan target Smart Counter"><button data-target="7">7×</button><button data-target="11">11×</button><button data-target="33">33×</button><button data-target="100">100×</button><button class="custom" id="counterCustomTarget">Target lain…</button></div>
 <div aria-live="polite" class="counter-toast" id="counterToast">Selesai</div>
-<div class="progress"><i id="bar"></i></div><div class="app"><header><button aria-label="Buka menu" class="icon" id="menuBtn">☰</button><h1>Amalan Muslim</h1><button aria-label="Bookmark" class="icon" id="bookmarkBtn">🔖</button><button aria-label="Layar penuh" class="icon" id="appFullscreenBtn" title="Layar penuh">⛶</button><button aria-label="Ganti tema" class="icon" id="themeBtn">◐</button></header><main class="reader-wrap" id="reader"><article class="book"><section class="chapter" id="tawasulan" data-title="TAWASULAN">
+<div class="progress"><i id="bar"></i></div><div class="app"><header><button aria-label="Buka menu" class="icon" id="menuBtn">☰</button><h1>Amalan Muslim</h1><button aria-label="Bookmark" class="icon" id="bookmarkBtn" title="Bookmark">🔖</button><button aria-label="Layar penuh" class="icon" id="appFullscreenBtn" title="Layar penuh">⛶</button><button aria-label="Ganti tema" class="icon" id="themeBtn" title="Tema">◐</button><button aria-label="Smart Counter" class="icon" id="topSmartCounterBtn" title="Smart Counter">🔢</button><button aria-label="Home" class="icon" id="topHomeBtn" title="Home">⌂</button></header><main class="reader-wrap" id="reader"><article class="book"><section class="chapter" id="tawasulan" data-title="TAWASULAN">
 <div class="chapter-head"><h2>TAWASULAN</h2></div>
 <div class="chapter-body">
 <p class="para">A’uudZu Billahi Minasy SyaiThoonir RoJiim, BismillaaHir RohMaanir Rohiim</p>
@@ -1386,6 +1416,8 @@ body.focus .para.active{scroll-margin-top:30vh!important;scroll-margin-bottom:55
 <button id="redoEditBtn" type="button">↷ Redo</button>
 <button id="lineUpBtn" type="button">↑ Pindah</button>
 <button id="lineDownBtn" type="button">↓ Pindah</button>
+<button id="editPrevBtn" type="button">‹ PREV</button>
+<button id="editNextBtn" type="button">NEXT ›</button>
 </div>
 
 <div class="rc52-structure-panel" id="rc52StructurePanel">
@@ -1491,7 +1523,39 @@ const lpmRange=document.getElementById('lpmRange'),lpmOut=document.getElementByI
 lpmRange.value=String(lpm);lpmOut.textContent=lpm+' baris/menit';
 function paraKey(p){return (p.dataset.chapter||'umum')+':' +(p.dataset.ayah||paras.indexOf(p));}
 function getOverrides(){try{return JSON.parse(SAFE_STORE.getItem(B4KEY+'overrides')||'{}')}catch{return {}}}
-function setOverrides(v){SAFE_STORE.setItem(B4KEY+'overrides',JSON.stringify(v))}
+function setOverrides(v){
+  const json=JSON.stringify(v);
+  SAFE_STORE.setItem(B4KEY+'overrides',json);
+  try{
+    const r=indexedDB.open('AMALAN_RC105_PERSIST',1);
+    r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('editor'))r.result.createObjectStore('editor')};
+    r.onsuccess=()=>{try{const db=r.result,tx=db.transaction('editor','readwrite');tx.objectStore('editor').put(json,'overrides');tx.oncomplete=()=>db.close();}catch(_){}};
+  }catch(_){}
+}
+async function hydrateEditorOverrides(){
+  try{
+    const r=indexedDB.open('AMALAN_RC105_PERSIST',1);
+    const json=await new Promise((resolve,reject)=>{
+      r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('editor'))r.result.createObjectStore('editor')};
+      r.onsuccess=()=>{const db=r.result,tx=db.transaction('editor','readonly'),q=tx.objectStore('editor').get('overrides');q.onsuccess=()=>{const v=q.result;db.close();resolve(v)};q.onerror=()=>{db.close();reject(q.error)}};
+      r.onerror=()=>reject(r.error);
+    });
+    if(typeof json==='string'&&json.trim()){
+      let local={};try{local=getOverrides()}catch(_){}
+      let durable={};try{durable=JSON.parse(json)||{}}catch(_){}
+      const merged={...durable};
+      Object.keys(local||{}).forEach(k=>{
+        const a=local[k],b=merged[k];
+        if(!b || String(a?.time||'')>=String(b?.time||''))merged[k]=a;
+      });
+      const mergedJson=JSON.stringify(merged);
+      SAFE_STORE.setItem(B4KEY+'overrides',mergedJson);
+      if(mergedJson!==json){try{setOverrides(merged)}catch(_){} }
+      applyOverridesAndSemantic();
+    }
+  }catch(_){}
+}
+
 
 /* RC54 persistence repair — remove only the two known legacy Waqi'ah patches.
    The canonical 74–96 markup is already correct in this build. */
@@ -1545,6 +1609,7 @@ function semanticize(p, customPhrases, sourceText){
 function applyOverrideStyle(p,v){p.style.removeProperty('color');p.style.removeProperty('font-size');p.removeAttribute('data-edit-color');p.style.removeProperty('--edit-color');if(v?.color){p.setAttribute('data-edit-color','1');p.style.setProperty('--edit-color',v.color);p.style.setProperty('color',v.color,'important')}if(v?.fontSize)p.style.setProperty('font-size',v.fontSize,'important');}
 function applyOverridesAndSemantic(){const ov=getOverrides();paras.forEach(p=>{const k=paraKey(p),v=ov[k];if(v){p.dataset.phrases=v.phrases||'';semanticize(p,v.phrases||'',v.text);applyOverrideStyle(p,v);p.classList.add('edited')}else{semanticize(p);applyOverrideStyle(p,null)}});}
 applyOverridesAndSemantic();
+hydrateEditorOverrides();
 function linePx(){const p=paras[active];return p?parseFloat(getComputedStyle(p).lineHeight)||34:34}
 function updateLpm(showToast=true){
   lpm=Math.max(10,Math.min(420,+lpmRange.value||LPM_DEFAULT));
@@ -1732,12 +1797,28 @@ editText.addEventListener('input',handleEditorInput);editPhrases.addEventListene
 function replaceSelection(value){const a=editText.selectionStart??editText.value.length,b=editText.selectionEnd??a;editText.setRangeText(value,a,b,'end');editText.dispatchEvent(new Event('input',{bubbles:true}));editText.focus()}
 function currentLineRange(){const value=editText.value,pos=editText.selectionStart??0,start=value.lastIndexOf('\n',Math.max(0,pos-1))+1;let end=value.indexOf('\n',pos);if(end<0)end=value.length;return {value,pos,start,end}}
 function moveCurrentLine(direction){const r=currentLineRange(),lines=r.value.split('\n'),before=r.value.slice(0,r.start).split('\n').length-1,target=before+direction;if(target<0||target>=lines.length)return;[lines[before],lines[target]]=[lines[target],lines[before]];editText.value=lines.join('\n');const newPos=lines.slice(0,target).join('\n').length+(target?1:0);editText.setSelectionRange(newPos,newPos+lines[target].length);editText.dispatchEvent(new Event('input',{bubbles:true}));editText.focus()}
-document.getElementById('insertLineBtn').onclick=()=>replaceSelection('\n');document.getElementById('insertParagraphBtn').onclick=()=>replaceSelection('\n\n');document.getElementById('lineUpBtn').onclick=()=>moveCurrentLine(-1);document.getElementById('lineDownBtn').onclick=()=>moveCurrentLine(1);
+document.getElementById('insertLineBtn').onclick=()=>replaceSelection('\n');document.getElementById('insertParagraphBtn').onclick=()=>replaceSelection('\n\n');document.getElementById('lineUpBtn').onclick=()=>moveCurrentLine(-1);document.getElementById('lineDownBtn').onclick=()=>moveCurrentLine(1);document.getElementById('editPrevBtn').onclick=()=>editorNavigate(-1);document.getElementById('editNextBtn').onclick=()=>editorNavigate(1);
 document.getElementById('clearPhrasesBtn').onclick=()=>{setPhraseMode(false,true);refreshPreview();pushEditHistory();saveEditorDraft()};
 document.getElementById('syncPhrasesBtn').onclick=()=>{if(!editPhrases.value.trim()||!phraseSpecMatchesText(editText.value,editPhrases.value))editPhrases.value=buildAutoPhraseSpec(editText.value);setPhraseMode(true,true);refreshPreview();pushEditHistory();saveEditorDraft();setTimeout(()=>editPhrases.focus(),60)};
 document.getElementById('undoEditBtn').onclick=()=>{if(editHistoryIndex>0){editHistoryIndex--;applyEditorSnapshot(editHistory[editHistoryIndex]);saveEditorDraft()}};document.getElementById('redoEditBtn').onclick=()=>{if(editHistoryIndex<editHistory.length-1){editHistoryIndex++;applyEditorSnapshot(editHistory[editHistoryIndex]);saveEditorDraft()}};document.getElementById('previewEditBtn').onclick=()=>{refreshPreview();editorStatus.textContent='Preview diperbarui dari hasil editing terbaru.';preview.scrollIntoView({behavior:'smooth',block:'center'})};
 function renderVersions(){const k=paraKey(paras[active]),v=versions()[k]||[],box=document.getElementById('versionList');box.innerHTML=v.length?v.slice().reverse().map((x,ri)=>`<div class="version-item"><span>${new Date(x.time).toLocaleString('id-ID')}</span><button class="action" data-restore="${v.length-1-ri}">Pulihkan</button></div>`).join(''):'Belum ada riwayat.';box.querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>restoreVersion(+b.dataset.restore))}
-function saveEdit(){const p=paras[active],k=paraKey(p),ovs=getOverrides(),vs=versions();const text=normalizeEditorText(editText.value);if(!text){toast('Teks bacaan tidak boleh kosong');editText.focus();return}let phrases=manualPhraseMode?editPhrases.value.trim():'';if(phrases&&!phraseSpecMatchesText(text,phrases)){editorStatus.textContent='Jeda manual belum sesuai dengan teks.';toast('Periksa kembali susunan frasa');editPhrases.focus();return}vs[k]=vs[k]||[];if(ovs[k])vs[k].push({...ovs[k],time:new Date().toISOString()});else vs[k].push({text:p.dataset.sourceText||p.innerText.trim(),phrases:p.dataset.phrases||'',color:p.style.color||'',fontSize:p.style.fontSize||'',time:new Date().toISOString(),original:true});ovs[k]={text,phrases,color:editColor.value,fontSize:editFontSize.value,time:new Date().toISOString()};setOverrides(ovs);saveVersions(vs);semanticize(p,phrases,text);applyOverrideStyle(p,ovs[k]);p.classList.add('edited');SAFE_STORE.removeItem(B4KEY+'editor-draft:'+k);toast('Perubahan bacaan tersimpan');modal.classList.remove('open')}
+function saveEdit(closeAfter=true){const p=paras[active],k=paraKey(p),ovs=getOverrides(),vs=versions();const text=normalizeEditorText(editText.value);if(!text){toast('Teks bacaan tidak boleh kosong');editText.focus();return false}let phrases=manualPhraseMode?editPhrases.value.trim():'';if(phrases&&!phraseSpecMatchesText(text,phrases)){editorStatus.textContent='Jeda manual belum sesuai dengan teks.';toast('Periksa kembali susunan frasa');editPhrases.focus();return false}vs[k]=vs[k]||[];if(ovs[k])vs[k].push({...ovs[k],time:new Date().toISOString()});else vs[k].push({text:p.dataset.sourceText||p.innerText.trim(),phrases:p.dataset.phrases||'',color:p.style.color||'',fontSize:p.style.fontSize||'',time:new Date().toISOString(),original:true});ovs[k]={text,phrases,color:editColor.value,fontSize:editFontSize.value,time:new Date().toISOString()};setOverrides(ovs);saveVersions(vs);semanticize(p,phrases,text);applyOverrideStyle(p,ovs[k]);p.classList.add('edited');SAFE_STORE.removeItem(B4KEY+'editor-draft:'+k);if(closeAfter)modal.classList.remove('open');return true}
+function editorNavigate(step){
+  const target=active+step;
+  if(target<0||target>=paras.length)return toast(step<0?'Sudah di paragraf pertama':'Sudah di paragraf terakhir');
+  const current=editorSnapshot();
+  const saved=getOverrides()[paraKey(paras[active])]||{};
+  const dirty=normalizeEditorText(current.text)!==normalizeEditorText(saved.text||paras[active].dataset.sourceText||paras[active].innerText);
+  if(dirty && !confirm('Perubahan paragraf ini belum disimpan. Simpan sebelum pindah?'))return;
+  if(dirty && !saveEdit(false))return;
+  active=target;
+  paras.forEach((p,n)=>p.classList.toggle('active',n===active));
+  SAFE_STORE.setItem('tqv3b3-active',active);
+  const p=paras[active];
+  try{p.scrollIntoView({behavior:'smooth',block:'center'})}catch(_){}
+  openEditor();
+  editorStatus.textContent='Paragraf '+(step<0?'sebelumnya':'berikutnya')+' siap diedit.';
+}
 function restoreVersion(i){const p=paras[active],k=paraKey(p),vs=versions(),item=(vs[k]||[])[i];if(!item)return;const ovs=getOverrides();ovs[k]={text:item.text,phrases:item.phrases,color:item.color||'',fontSize:item.fontSize||'',time:new Date().toISOString()};setOverrides(ovs);semanticize(p,item.phrases||'',item.text);applyOverrideStyle(p,ovs[k]);modal.classList.remove('open');toast('Versi dipulihkan')}
 function restoreOriginal(){const p=paras[active],k=paraKey(p),ovs=getOverrides();delete ovs[k];setOverrides(ovs);SAFE_STORE.removeItem(B4KEY+'editor-draft:'+k);window.__ampSoftRefresh?.()}
 editBtn.onclick=openEditor;document.getElementById('closeEditorBtn').onclick=()=>modal.classList.remove('open');document.getElementById('saveEditBtn').onclick=saveEdit;document.getElementById('restoreOriginalBtn').onclick=restoreOriginal;window.__ampGenericSaveEdit=saveEdit;window.__ampGenericRestoreOriginal=restoreOriginal;modal.onclick=e=>{if(e.target===modal)modal.classList.remove('open')};
@@ -4049,12 +4130,15 @@ html:-webkit-full-screen .nav-fullscreen-btn{
 #rc71PdfVisualTpOverlay.rc71-vtp-controls-hidden .rc71-vtp-top,#rc71PdfVisualTpOverlay.rc71-vtp-controls-hidden .rc71-vtp-bottom,#rc71PdfVisualTpOverlay.rc71-vtp-controls-hidden #rc71VtpGuide{opacity:0;pointer-events:none;transform:translateY(-10px);transition:opacity .35s ease,transform .35s ease}
 #rc71PdfVisualTpOverlay.rc71-vtp-controls-hidden .rc71-vtp-bottom{transform:translateY(10px)}
 #rc71PdfVisualTpOverlay .rc71-vtp-top,#rc71PdfVisualTpOverlay .rc71-vtp-bottom,#rc71PdfVisualTpOverlay #rc71VtpGuide{transition:opacity .35s ease,transform .35s ease}
-#rc71PdfVisualTpOverlay.rc71-vtp-reader-mode #rc71VtpPause,#rc71PdfVisualTpOverlay.rc71-vtp-reader-mode .rc71-vtp-bottom{display:none!important}
+#rc71PdfVisualTpOverlay.rc71-vtp-reader-mode #rc71VtpPause{display:none!important}
+#rc71VtpSpeedRange{width:min(220px,32vw);min-width:130px;accent-color:#6ad6ad;touch-action:manipulation}
+#rc71VtpSpeedValue{min-width:54px;text-align:center;font-weight:850;color:#d8eee6}
+.rc71-vtp-bottom .rc71-vtp-play{order:0;margin-right:2px}
+@media(max-width:520px){#rc71VtpSpeedRange{width:150px;min-width:120px}}
 </style>
 <div id="rc71PdfVisualTpOverlay" aria-hidden="true">
   <div class="rc71-vtp-top">
     <div class="rc71-vtp-title" id="rc71VtpTitle">PDF Teleprompter • Original</div>
-    <button type="button" id="rc71VtpPause">▶ Auto Scroll</button>
     <button type="button" id="rc71VtpZoomOut" title="Perkecil PDF">🔍−</button><span id="rc71VtpZoomLabel">100%</span><button type="button" id="rc71VtpZoomIn" title="Perbesar PDF">🔍＋</button>
     <button type="button" id="rc71VtpFull">⛶ Fullscreen</button>
     <button type="button" id="rc71VtpClose">✕ Tutup</button>
@@ -4062,9 +4146,9 @@ html:-webkit-full-screen .nav-fullscreen-btn{
   <div id="rc71VtpViewport"><div id="rc71VtpPages"><div class="rc71-vtp-loading">Menyiapkan halaman PDF…</div></div></div>
   <div id="rc71VtpGuide"></div>
   <div class="rc71-vtp-bottom">
-    <button type="button" id="rc71VtpSlow">− Lambat</button>
-    <span id="rc71VtpSpeedLabel">40 px/s</span>
-    <button type="button" id="rc71VtpFast">＋ Cepat</button>
+    <button type="button" id="rc71VtpPause" class="rc71-vtp-play">▶ Auto Scroll</button>
+    <input type="range" id="rc71VtpSpeedRange" min="1" max="150" step="1" value="40" aria-label="Kecepatan Auto Scroll PDF">
+    <span id="rc71VtpSpeedValue">40 px/s</span>
     <button type="button" id="rc71VtpRestart">↺ Awal</button>
     <button type="button" id="rc71VtpPageUp">▲ Halaman</button>
     <button type="button" id="rc71VtpPageDown">▼ Halaman</button>
@@ -4078,7 +4162,7 @@ html:-webkit-full-screen .nav-fullscreen-btn{
 'use strict';
 const $=id=>document.getElementById(id);
 const ov=$('rc71PdfVisualTpOverlay'), vp=$('rc71VtpViewport'), pages=$('rc71VtpPages');
-const title=$('rc71VtpTitle'), pause=$('rc71VtpPause'), speedLabel=$('rc71VtpSpeedLabel'), status=$('rc71VtpStatus');
+const title=$('rc71VtpTitle'), pause=$('rc71VtpPause'), speedLabel=$('rc71VtpSpeedLabel'), speedRange=$('rc71VtpSpeedRange'), speedValue=$('rc71VtpSpeedValue'), status=$('rc71VtpStatus');
 if(!ov||!vp||!pages)return;
 let running=false, raf=0, last=0, speed=+(localStorage.getItem('rc71-vtp-speed')||40), current=null, pdfUrl=null, readerMode=false, controlsHideTimer=0, backgroundAbort=0, activePdfDoc=null, renderQueue=[], renderBusy=0, maxCachedPages=20, pageCache=new Set();
 let zoom=+(localStorage.getItem('rc71-vtp-zoom')||100);
@@ -4102,8 +4186,7 @@ function setZoom(delta){
     try{renderPdf(current)}catch(e){console.warn('PDF zoom render gagal',e)}
   }
 }
-const speeds=[10,20,30,40,55,70,90,120,160,220];
-function clampSpeed(){speed=Math.max(10,Math.min(220,speed));localStorage.setItem('rc71-vtp-speed',String(speed));speedLabel.textContent=speed+' px/s'}
+function clampSpeed(){speed=Math.max(1,Math.min(150,speed));localStorage.setItem('rc71-vtp-speed',String(speed));if(speedRange)speedRange.value=String(speed);if(speedValue)speedValue.textContent=speed+' px/s'}
 function clearAutoHide(){clearTimeout(controlsHideTimer);controlsHideTimer=0;ov.classList.remove('rc71-vtp-controls-hidden')}
 function armAutoHide(){clearTimeout(controlsHideTimer);if(!running||readerMode)return;controlsHideTimer=setTimeout(()=>{if(running)ov.classList.add('rc71-vtp-controls-hidden')},90000)}
 function showControls(){clearAutoHide();if(running)armAutoHide()}
@@ -4188,11 +4271,27 @@ async function ensurePdfJs(){
  return window.__rc71PdfJsPromise;
 }
 function toBlob(d){return d.blob instanceof Blob?d.blob:new Blob([d.blob],{type:d.type||d.mime||'application/pdf'})}
+function updatePdfTextHighlight(){
+  if(!vp)return;
+  document.querySelectorAll('.rc71-vtp-focus-line').forEach(x=>x.classList.remove('rc71-vtp-focus-line'));
+  const guide=vp.getBoundingClientRect().top+vp.clientHeight*.50;
+  let best=null,bestDist=Infinity;
+  pages.querySelectorAll('.rc71-vtp-text-layer span').forEach(span=>{
+    const r=span.getBoundingClientRect();
+    if(r.bottom<vp.getBoundingClientRect().top||r.top>vp.getBoundingClientRect().bottom)return;
+    const d=Math.abs((r.top+r.height*.5)-guide);
+    if(d<bestDist){bestDist=d;best=span}
+  });
+  if(best && bestDist<Math.max(110,vp.clientHeight*.18))best.classList.add('rc71-vtp-focus-line');
+}
 async function renderPdf(d){
   stop(); current=d; backgroundAbort++;
   const token=backgroundAbort;
   const resumeKey='rc71-vtp-last:'+String(d.id||d.name||'pdf');
-  let lastPage=Math.max(1,parseInt(localStorage.getItem(resumeKey)||'1',10)||1);
+  let resumeData={page:1,offset:0};
+  try{resumeData=JSON.parse(localStorage.getItem(resumeKey)||'{"page":1,"offset":0}')||resumeData}catch(_){}
+  let lastPage=Math.max(1,parseInt(resumeData.page||1,10)||1);
+  let lastOffset=Math.max(0,Number(resumeData.offset||0)||0);
   pages.innerHTML='<div class="rc71-vtp-loading">Menyiapkan 20 halaman…</div>';
   vp.scrollTop=0;
   title.textContent=(d.name||'PDF')+(readerMode?' • PDF Reader':' • Teleprompter Asli');
@@ -4232,7 +4331,22 @@ async function renderPdf(d){
         canvas.style.width=Math.ceil(cssView.width)+'px'; canvas.style.height=Math.ceil(cssView.height)+'px';
         const ctx=canvas.getContext('2d',{alpha:false}); ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
         h.replaceChildren(canvas); await page.render({canvasContext:ctx,viewport:renderView}).promise;
+        try{
+          const textLayer=document.createElement('div');
+          textLayer.className='rc71-vtp-text-layer';
+          textLayer.setAttribute('aria-hidden','true');
+          h.appendChild(textLayer);
+          const textContent=await page.getTextContent();
+          const textDivs=[];
+          if(lib.renderTextLayer){
+            await lib.renderTextLayer({textContent,container:textLayer,viewport:cssView,textDivs}).promise;
+          }else{
+            textContent.items.forEach(item=>{const span=document.createElement('span');span.textContent=item.str||'';span.className='rc71-vtp-text-fallback';textLayer.appendChild(span)});
+          }
+          textLayer.querySelectorAll('span').forEach((span,i)=>{span.dataset.textIndex=String(i);span.dataset.page=String(n)});
+        }catch(_){/* PDF remains readable even when a text layer is unavailable. */}
         pageCache.add(n);
+        updatePdfTextHighlight();
       } finally { pending.delete(n) }
     }
     async function pump(){
@@ -4279,14 +4393,19 @@ async function renderPdf(d){
     status.textContent=`Menyiapkan ${initialEnd-initialStart+1} halaman: ${initialStart}–${initialEnd} dari ${pdf.numPages}…`;
     for(let n=initialStart;n<=initialEnd;n++) await draw(n);
     if(token!==backgroundAbort)return;
-    if(lastPage>1){const h=holders.get(lastPage); if(h)vp.scrollTop=Math.max(0,h.offsetTop-24)}
+    if(lastPage>1){const h=holders.get(lastPage); if(h)vp.scrollTop=Math.max(0,h.offsetTop+lastOffset)}
     const firstCenter=lastPage>1?lastPage:1;
     status.textContent=`PDF asli • ${pdf.numPages} halaman • ${initialStart}–${initialEnd} siap • Smart Cache aktif`;
     smartPrefetch(firstCenter);
     let saveTimer=0, prefetchTimer=0;
     vp.onscroll=()=>{
       clearTimeout(saveTimer); clearTimeout(prefetchTimer);
-      saveTimer=setTimeout(()=>localStorage.setItem(resumeKey,String(centerPage())),250);
+      saveTimer=setTimeout(()=>{
+        const pg=centerPage(),h=holders.get(pg);
+        const offset=h?Math.max(0,vp.scrollTop-h.offsetTop):0;
+        localStorage.setItem(resumeKey,JSON.stringify({page:pg,offset}));
+      },250);
+      updatePdfTextHighlight();
       prefetchTimer=setTimeout(()=>smartPrefetch(centerPage()),120);
     };
     // Background work is progressive and memory-safe: preload around reading position, then discard distant canvases.
@@ -4324,8 +4443,7 @@ document.addEventListener('click',async e=>{
  }catch(err){console.error(err);alert('Teleprompter PDF gagal dibuka: '+err.message)}
 },true);
 pause.onclick=(e)=>{e.preventDefault();e.stopPropagation();toggle()};
-$('rc71VtpSlow').onclick=()=>{speed-=10;clampSpeed()};
-$('rc71VtpFast').onclick=()=>{speed+=10;clampSpeed()};
+speedRange?.addEventListener('input',()=>{speed=Number(speedRange.value)||40;clampSpeed();});
 $('rc71VtpRestart').onclick=()=>{stop();vp.scrollTo({top:0,behavior:'auto'});status.textContent='Awal PDF'};
 $('rc71VtpPageUp').onclick=()=>vp.scrollBy({top:-Math.round(vp.clientHeight*.85),behavior:'smooth'});
 $('rc71VtpPageDown').onclick=()=>vp.scrollBy({top:Math.round(vp.clientHeight*.85),behavior:'smooth'});
@@ -4337,6 +4455,7 @@ document.addEventListener('keydown',e=>{if(!ov.classList.contains('open'))return
 ov.addEventListener('pointerdown',e=>{if(ov.classList.contains('rc71-vtp-controls-hidden')){showControls();e.stopPropagation();}}, {passive:true});
 clampSpeed();
 applyZoom();
+vp.addEventListener('scroll',updatePdfTextHighlight,{passive:true});
 window.RC71VisualPDFTeleprompter={open,close,start,stop};
 })();
 </script>
@@ -4370,13 +4489,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.getElementById('scExit')?.addEventListener('click',e=>{e.stopPropagation();window.SmartDzikirCounter?.exit?.();sync()});
  document.getElementById('manualSmartCounterBtn')?.addEventListener('click',e=>{
    e.stopPropagation();
-   if(fab?.classList.contains('show')){window.SmartDzikirCounter?.exit?.();sync();return}
-   const activeEl=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable');
-   let target=Number(activeEl?.dataset.repeat||activeEl?.dataset.repeatTarget||0), el=activeEl;
-   if(!target){const nearby=[...document.querySelectorAll('#reader .para')].find(x=>Number(x.dataset.repeat||x.dataset.repeatTarget||0)>0);if(nearby){el=nearby;target=Number(nearby.dataset.repeat||nearby.dataset.repeatTarget)}}
    const picker=document.getElementById('counterTargetPicker');
-   if(!target){picker?.classList.add('show');return;}
-   window.SmartDzikirCounter?.activate?.(el,0);sync();
+   picker?.classList.add('show');
  });
  const picker=document.getElementById('counterTargetPicker');
  const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';window.SmartDzikirCounter?.activate?.(el,0);sync();};
@@ -4384,6 +4498,14 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.getElementById('counterCustomTarget')?.addEventListener('click',()=>{const t=prompt('Target Smart Counter','33');const n=Math.max(1,Math.min(9999,Number(t)||0));if(n)startManual(n);});
  document.addEventListener('click',e=>{if(picker?.classList.contains('show')&&!e.target.closest('#counterTargetPicker,#manualSmartCounterBtn'))picker.classList.remove('show')});
 });
+</script>
+<script id="rc105-top-navigation-bindings">
+(()=>{
+  const sc=document.getElementById('topSmartCounterBtn');
+  const home=document.getElementById('topHomeBtn');
+  sc?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();document.getElementById('manualSmartCounterBtn')?.click()});
+  home?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(typeof window.goTo==='function')window.goTo('beranda')});
+})();
 </script>
 
 <style id="rc83-ipad-portrait-fullscreen-fix">
@@ -4668,46 +4790,37 @@ body.focus .para.rc103-active .semantic.rc103-focus-word{
     e.preventDefault();e.stopPropagation();stop();
   });
 
-  /* Navigation: the user gesture opens a chapter, then Auto Fokus starts. */
+  /* RC105: navigation only selects the chapter. Auto Fokus is manual. */
   var baseGoTo=window.goTo;
   window.goTo=function(id){
     var result;
     try{result=baseGoTo?baseGoTo.apply(this,arguments):undefined;}catch(e){result=undefined;}
     if(id && id!=='beranda'){
-      [120,450,900].forEach(function(ms){
-        setTimeout(function(){
-          var sec=document.getElementById(id);
-          if(!sec)return;
-          var p=sec.querySelector('.para');
-          if(!p)return;
-          activePara(p);
-          start(true);
-        },ms);
-      });
+      setTimeout(function(){
+        var sec=document.getElementById(id),p=sec?.querySelector('.para');
+        if(p){activePara(p);phraseIndex=0;clearTimer();clearHighlight();running=false;paused=false;waiting=false;render();}
+      },180);
     }
     return result;
   };
 
-  /* Cover/TOC buttons that use data-nav-target may bypass inline onclick. */
   document.addEventListener('click',function(e){
-    var b=e.target.closest('[data-nav-target]');
+    var b=e.target.closest?.('[data-nav-target]');
     if(!b)return;
     var id=b.getAttribute('data-nav-target');
     if(!id||id==='beranda')return;
     setTimeout(function(){
       var sec=document.getElementById(id),p=sec?.querySelector('.para');
-      if(p)start(true);
-    },500);
+      if(p){activePara(p);phraseIndex=0;clearTimer();clearHighlight();running=false;paused=false;waiting=false;render();}
+    },220);
   },true);
 
-  /* If a chapter is already open after Home Screen restore, resume/start. */
+  /* No Auto Fokus autoplay after page restore. */
   window.addEventListener('pageshow',function(){
     setTimeout(function(){
       if(document.body.classList.contains('cover-mode'))return;
-      var p=document.querySelector('#reader .para.active')||
-            document.querySelector('#reader .para.rc103-active');
-      if(p && !running && !paused && !waiting)start(false);
-    },700);
+      clearTimer();clearHighlight();running=false;waiting=false;paused=false;render();
+    },120);
   },{passive:true});
 
   /* Counter completion: exactly one RC103 continuation path. */
