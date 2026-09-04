@@ -20,5 +20,7 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "description": "Amalan Muslim — RC106 Fine Tuning Offline",
+  "version": "RC106"
 }
