@@ -10,7 +10,7 @@ Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 -->
 <!-- AMALAN RC80 iPad Optimized: canonical build -->
 <!DOCTYPE html>
-<!-- AMALAN RC80 iPadOS EDITION RC82 — PORTRAIT CANVAS + SMART COUNTER + SURAH NUMBERING FIX — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
+<!-- AMALAN MUSLIM RC106 — iPadOS / Offline Fine Tuning -->
 <!-- RC46 -->
 <html lang="id" data-build="AMALAN-RC106-iPadOS">
 <head>
@@ -1301,7 +1301,7 @@ body.cover-mode #cover-depan .cover-bg{width:100%;height:100%;object-fit:cover;o
 @media(max-width:520px){#rc71VtpSpeedBand{min-width:62px;font-size:10px}}
 </style>
 </head>
-<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC106-FINETUNE-AF-PDF-COVER">
+<body data-revision="RC106-FINETUNE-AF-PDF-COVER" data-amalan-build="RC106-FINETUNE-AF-PDF-COVER">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -1549,19 +1549,30 @@ function setOverrides(v){
   const json=JSON.stringify(v);
   SAFE_STORE.setItem(B4KEY+'overrides',json);
   try{
-    const r=indexedDB.open('AMALAN_RC105_PERSIST',1);
+    const r=indexedDB.open('AMALAN_RC106_PERSIST',1);
     r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('editor'))r.result.createObjectStore('editor')};
     r.onsuccess=()=>{try{const db=r.result,tx=db.transaction('editor','readwrite');tx.objectStore('editor').put(json,'overrides');tx.oncomplete=()=>db.close();}catch(_){}};
   }catch(_){}
 }
 async function hydrateEditorOverrides(){
   try{
-    const r=indexedDB.open('AMALAN_RC105_PERSIST',1);
-    const json=await new Promise((resolve,reject)=>{
+    const readDb=async(name)=>await new Promise((resolve,reject)=>{
+      const r=indexedDB.open(name,1);
       r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('editor'))r.result.createObjectStore('editor')};
       r.onsuccess=()=>{const db=r.result,tx=db.transaction('editor','readonly'),q=tx.objectStore('editor').get('overrides');q.onsuccess=()=>{const v=q.result;db.close();resolve(v)};q.onerror=()=>{db.close();reject(q.error)}};
       r.onerror=()=>reject(r.error);
     });
+    let json=await readDb('AMALAN_RC106_PERSIST');
+    // One-time compatibility read from the previous RC105 namespace so existing edits survive the identity cleanup.
+    if(!(typeof json==='string'&&json.trim())){
+      try{
+        const legacy=await readDb('AMALAN_RC105_PERSIST');
+        if(typeof legacy==='string'&&legacy.trim()){
+          json=legacy;
+          try{setOverrides(JSON.parse(legacy)||{})}catch(_){}
+        }
+      }catch(_){ }
+    }
     if(typeof json==='string'&&json.trim()){
       let local={};try{local=getOverrides()}catch(_){}
       let durable={};try{durable=JSON.parse(json)||{}}catch(_){}
@@ -3567,7 +3578,7 @@ function closePlayer(save=true){
  current=null;
 }
 
-/* RC71 V4 — native PiP lifecycle belongs to the media-player scope. */
+/* RC106 media-player lifecycle guard. */
 let rc71PiPActive=false;
 function rc71SetMediaPiP(active){
   rc71PiPActive=!!active;
