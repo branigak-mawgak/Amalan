@@ -2209,7 +2209,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     const focusModeActive=document.body.classList.contains('focus');
     const hasRepeat=repeatTarget(el)>0;
 
-    // RC112: the standalone engine is authoritative. Legacy Build76 must
+    // RC113: the standalone engine is authoritative. Legacy Build76 must
     // never start Smart Counter or alter Auto Fokus state.
     if(!window.__RC103_STANDALONE && hasRepeat && !suppressRepeat && !waitingCounter && !autoFocus && focusModeActive){
       triggerCounter(el);
@@ -2248,7 +2248,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       positionActiveParagraph(paras[active],'paragraph');
 
       if(window.__RC103_STANDALONE){
-        // RC112: chapter navigation selects content only. Auto Fokus is manual.
+        // RC113: chapter navigation selects content only. Auto Fokus is manual.
         paused=false; render();
       }else if(wasPaused && !wasRunning){
         paused=true; render();
@@ -4343,7 +4343,7 @@ async function ensurePdfJs(){
 }
 function toBlob(d){return d.blob instanceof Blob?d.blob:new Blob([d.blob],{type:d.type||d.mime||'application/pdf'})}
 function updatePdfTextHighlight(){
-  /* RC112: PDF Reader highlighting intentionally disabled. */
+  /* RC113: PDF Reader highlighting intentionally disabled. */
   return;
 }
 async function renderPdf(d){
@@ -4555,7 +4555,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    picker?.classList.add('show');
  });
  const picker=document.getElementById('counterTargetPicker');
- const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC112_MANUAL_COUNTER_START==='function')window.__RC112_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
+ const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC113_MANUAL_COUNTER_START==='function')window.__RC113_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
  picker?.querySelectorAll('[data-target]')?.forEach(b=>b.addEventListener('click',()=>startManual(Number(b.dataset.target))));
  document.getElementById('counterCustomTarget')?.addEventListener('click',()=>{const t=prompt('Target Smart Counter','33');const n=Math.max(1,Math.min(9999,Number(t)||0));if(n)startManual(n);});
  document.addEventListener('click',e=>{if(picker?.classList.contains('show')&&!e.target.closest('#counterTargetPicker,#manualSmartCounterBtn'))picker.classList.remove('show')});
@@ -4677,8 +4677,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   }
   function clearHighlight(){
     document.querySelectorAll('.rc103-focus-word').forEach(function(x){
-      x.classList.remove('rc103-focus-word');
-      x.classList.remove('rc103-focus-word-enter');
+      x.classList.remove('rc103-focus-word','rc103-focus-word-enter','rc113-settled');
       x.style.removeProperty('--karaoke-duration');
     });
   }
@@ -4780,33 +4779,39 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     wordIndex=Math.max(0,Math.min(wordIndex,words.length-1));
 
     var node=words[wordIndex];
+    /* IMPORTANT: find the previous highlighted word globally, not only
+       inside the new active paragraph. This is what removes the paragraph
+       boundary gap. */
     var previous=document.querySelector(
-      '#reader .para.rc103-active .rc103-focus-word'
+      '#reader .rc103-focus-word'
     );
     var duration=durationFor(el,node);
     node.style.setProperty('--karaoke-duration',duration+'ms');
 
-    /* Android's key technique: force a layout read, then add the class in
-       the next frame so the CSS sweep always begins at 0%. */
     requestAnimationFrame(function(){
       if(!running||waiting)return;
+
+      /* Force 0% -> 100% animation start, exactly like the Android model. */
       void node.offsetWidth;
       node.classList.add('rc103-focus-word');
 
-      /* Short overlap: previous word remains visible while the next word
-         starts, preventing the "jump/gap" seen in RC112. */
+      /* Keep the previous word visible while the new word is sweeping.
+         The overlap is intentionally longer at paragraph boundaries. */
       if(previous && previous!==node){
-        previous.style.setProperty('--karaoke-duration',duration+'ms');
+        previous.classList.add('rc113-settled');
         setTimeout(function(){
-          previous.classList.remove('rc103-focus-word');
-          previous.style.removeProperty('--karaoke-duration');
-        },140);
+          if(previous!==node){
+            previous.classList.remove('rc103-focus-word','rc103-focus-word-enter','rc113-settled');
+            previous.style.removeProperty('--karaoke-duration');
+          }
+        },180);
       }
 
       stableScroll(el,wordIndex===0);
       render();
     });
 
+    /* Start the next word before the current one is visually torn down. */
     timer=setTimeout(function(){
       if(!running||waiting)return;
       wordIndex++;
@@ -4818,26 +4823,38 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
       var target=repeatTarget(el);
       if(target && openCounter(el))return;
       nextParagraph();
-    },Math.max(800,duration));
+    },Math.max(760,duration-180));
   }
   function nextParagraph(){
-    clearTimer();clearHighlight();
+    /* DO NOT clearHighlight here.
+       The current word must remain on-screen while the next paragraph's
+       first word is activated. */
+    clearTimer();
+
     var ps=paras();
     if(paraIndex<0){
       var a=document.querySelector('#reader .para.active')||ps[0];
       paraIndex=Math.max(0,ps.indexOf(a));
     }
     if(paraIndex>=ps.length-1){
+      clearHighlight();
       running=false;paused=false;waiting=false;render();
       try{toast('Auto Fokus selesai')}catch(_){}
       return;
     }
+
     paraIndex++;
     wordIndex=0;
     activePara(ps[paraIndex]);
     running=true;paused=false;waiting=false;
-    ensureFocusMode();render();
-    setTimeout(focusPhrase,80);
+    ensureFocusMode();
+    render();
+
+    /* No 80 ms dead interval. Activate the first word immediately on the
+       next animation frame, while the old word is still visible. */
+    requestAnimationFrame(function(){
+      if(running&&!waiting)focusPhrase();
+    });
   }
   function start(reset){
     if(waiting)return;
@@ -4857,7 +4874,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     activePara(ps[paraIndex]);
     running=true;paused=false;
     render();
-    setTimeout(focusPhrase,80);
+    requestAnimationFrame(function(){ if(running&&!waiting) focusPhrase(); });
   }
   function pause(){
     if(!running)return;
@@ -4940,9 +4957,9 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     setTimeout(focusPhrase,120);
   });
 
-  /* RC112: single Smart Counter hand-off bridge. Manual counter pauses AF;
+  /* RC113: single Smart Counter hand-off bridge. Manual counter pauses AF;
      completion/exit is the only path allowed to resume it. */
-  window.__RC112_MANUAL_COUNTER_START=function(el){
+  window.__RC113_MANUAL_COUNTER_START=function(el){
     if(!el)return false;
     clearTimer();clearHighlight();waiting=true;running=false;paused=true;render();
     try{window.SmartDzikirCounter?.activate?.(el,paraIndex);}catch(_){}
@@ -4979,7 +4996,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 
 
 <style id="rc109-absolute-final">
-/* RC112 absolute final overrides: this block is intentionally last so no legacy
+/* RC113 absolute final overrides: this block is intentionally last so no legacy
    RC71/RC105/RC107 rule can re-enable cover cropping or PDF highlighting. */
 body.cover-mode .reader-wrap{overflow:hidden!important;padding:0!important;background:#073b2b!important}
 body.cover-mode #cover-depan{width:100vw!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;display:block!important}
@@ -4995,19 +5012,18 @@ body.focus .para.rc103-active .semantic .rc103-word.rc103-focus-word{opacity:1!i
 .rc71-vtp-text-layer .rc71-vtp-focus-line,.rc71-vtp-text-layer span.rc71-vtp-focus-line{background:transparent!important;background-image:none!important;box-shadow:none!important;animation:none!important}
 #rc71VtpSpeedBand{display:none!important}
 </style>
-</body>
-</html>
-
-<style id="rc112-android-highlight-style">
-/* RC112 — Android highlighting model applied to the RC103 standalone engine.
-   Proven behavior: opacity transition + left-to-right background sweep. */
+<style id="rc113-continuous-highlight-style">
+/* RC113 — continuous word hand-off.
+   The Android sweep remains the visual model. Unlike RC113, the previous
+   word is NOT cleared before the next word starts. This removes the visible
+   blank interval at phrase/paragraph boundaries. */
 body.focus .para.rc103-active .rc103-word{
   opacity:.30;
   position:relative;
   border-radius:6px;
   -webkit-box-decoration-break:clone;
   box-decoration-break:clone;
-  transition:opacity .28s ease;
+  transition:opacity .22s ease;
   background-image:linear-gradient(90deg,
     color-mix(in srgb,var(--accent) 24%,transparent),
     color-mix(in srgb,var(--accent2) 30%,transparent));
@@ -5021,69 +5037,21 @@ body.focus .para.rc103-active .rc103-word.rc103-focus-word{
   white-space:nowrap;
   max-width:100%;
   vertical-align:baseline;
-  border-radius:6px;
-  animation:rc112KaraokeSweep var(--karaoke-duration,2200ms) linear forwards;
-  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 8%,transparent);
+  animation:rc113WordSweep var(--karaoke-duration,1200ms) linear forwards!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 6%,transparent);
 }
-@keyframes rc112KaraokeSweep{
+@keyframes rc113WordSweep{
   from{background-size:0% 100%}
   to{background-size:100% 100%}
 }
-body.focus .para.rc103-active{
-  opacity:1!important;
-  filter:none!important;
+
+/* No visual reset during handoff. The class is removed only after the next
+   word is already active. */
+body.focus .para.rc103-active .rc103-word.rc113-settled{
+  background-size:100% 100%;
+  opacity:.95!important;
+  animation:none!important;
 }
 </style>
-<script id="rc111-conflict-guard">
-(function(){
-  'use strict';
-  /* Manual Smart Counter is an independent tool. Stop all automatic motion
-     before its target picker is shown. */
-  var manual=document.getElementById('manualSmartCounterBtn');
-  manual?.addEventListener('click',function(){
-    try{
-      var af=document.getElementById('autoFocusBtn');
-      if(af?.classList.contains('on')) af.click();
-      var sc=document.getElementById('autoBtn');
-      if(sc?.classList.contains('on')) sc.click();
-    }catch(_){}
-  },true);
-
-  /* Clicking a repeatable paragraph must never launch Smart Counter by
-     itself. Repeat activation belongs only to the Auto Fokus hand-off. */
-  document.addEventListener('click',function(e){
-    var rep=e.target.closest?.('#reader .repeatable');
-    if(rep && !e.target.closest('button,a,input,textarea,select,.drawer,.modal')){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-    }
-  },true);
-
-  /* If Counter is active, Auto Fokus cannot be restarted by legacy controls. */
-  document.addEventListener('click',function(e){
-    if(!window.SmartDzikirCounter?.isActive?.()) return;
-    var af=e.target.closest?.('#autoFocusBtn,#af76PlayPause,#af76Play');
-    if(af){e.preventDefault();e.stopImmediatePropagation();}
-  },true);
-})();
-</script>
-
-<script id="rc112-highlight-guard">
-(function(){
-  'use strict';
-  window.addEventListener('pageshow',function(){
-    document.querySelectorAll('#reader .rc103-focus-word').forEach(function(el){
-      el.classList.remove('rc103-focus-word');
-      el.style.removeProperty('--karaoke-duration');
-      void el.offsetWidth;
-    });
-  });
-  var manual=document.getElementById('manualSmartCounterBtn');
-  if(manual) manual.addEventListener('click',function(){
-    document.querySelectorAll('#reader .rc103-focus-word').forEach(function(el){
-      el.classList.remove('rc103-focus-word');
-      el.style.removeProperty('--karaoke-duration');
-    });
-  },true);
-})();
-</script>
+</body>
+</html>
