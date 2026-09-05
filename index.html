@@ -12,7 +12,7 @@ Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 <!DOCTYPE html>
 <!-- AMALAN MUSLIM RC106 — iPadOS / Offline Fine Tuning -->
 <!-- RC46 -->
-<html lang="id" data-build="AMALAN-RC107-iPadOS">
+<html lang="id" data-build="AMALAN-RC114-iPadOS">
 <head>
 <meta name="amalan-build" content="RC54-STABLE-CANONICAL">
 <meta charset="utf-8">
@@ -1316,20 +1316,71 @@ body.cover-mode #cover-depan .cover-bg{width:100%!important;height:100%!importan
 body.cover-mode #cover-depan .cover-actions{position:absolute!important;left:max(18px,env(safe-area-inset-left))!important;bottom:max(24px,calc(env(safe-area-inset-bottom) + 20px))!important;margin:0!important;padding:0!important;z-index:10!important}
 body.cover-mode #cover-depan .cover-actions .action{min-width:155px!important;box-shadow:0 6px 18px rgba(0,0,0,.3)!important}
 </style>
-<style id="rc109-final-ui">
-.rc109-unified-speed{margin-top:12px}
-#focusSpeedRange,#lpmRange{width:100%;accent-color:var(--accent)}
-body.focus .para.rc103-active .semantic{opacity:.60!important}
-body.focus .para.rc103-active .rc103-word{display:inline-block;position:relative;opacity:.70;background:transparent!important;box-shadow:none!important;transition:opacity .18s ease,filter .18s ease}
-body.focus .para.rc103-active .rc103-word.rc103-focus-word{opacity:1!important;animation:rc109WordSweep var(--karaoke-duration,700ms) cubic-bezier(.12,.72,.22,1) both!important;will-change:background-size,opacity}
-@keyframes rc109WordSweep{0%{background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent2) 34%,transparent));background-repeat:no-repeat;background-size:0% 88%;background-position:left 55%;opacity:.76}72%{opacity:1}100%{background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent2) 34%,transparent));background-repeat:no-repeat;background-size:100% 88%;background-position:left 55%;opacity:1}}
-.rc71-vtp-text-layer .rc71-vtp-focus-line{background:transparent!important;background-image:none!important;box-shadow:none!important;animation:none!important}
 
-body.focus .para.rc103-active .rc103-word{vertical-align:baseline;border-radius:5px;padding:0 .02em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-body.focus .para.rc103-active .rc103-word.rc103-focus-word{animation-fill-mode:both!important}
+
+
+
+<style id="rc114-final-highlight">
+/* RC114 FINAL — Highlight state is independent from paragraph-active state. */
+body.focus #reader .rc103-word{
+  display:inline-block!important;
+  position:relative!important;
+  vertical-align:baseline!important;
+  border-radius:5px!important;
+  padding:0 .02em!important;
+  -webkit-box-decoration-break:clone!important;
+  box-decoration-break:clone!important;
+  opacity:.72!important;
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  transition:opacity .18s ease,filter .18s ease!important;
+}
+
+/* One word sweeps from left to right. */
+body.focus #reader .rc103-word.rc103-focus-word{
+  opacity:1!important;
+  background-image:linear-gradient(90deg,
+    color-mix(in srgb,var(--accent) 30%,transparent),
+    color-mix(in srgb,var(--accent2) 34%,transparent))!important;
+  background-repeat:no-repeat!important;
+  background-position:left 55%!important;
+  background-size:0% 88%!important;
+  animation:rc114WordSweepFinal var(--karaoke-duration,900ms)
+             linear both!important;
+  will-change:background-size,opacity!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 8%,transparent)!important;
+}
+@keyframes rc114WordSweepFinal{
+  0%{background-size:0% 88%;opacity:.82}
+  12%{opacity:1}
+  100%{background-size:100% 88%;opacity:1}
+}
+
+/* Active paragraph contrast is separate from highlight state. */
+body.focus #reader .para.rc103-active{
+  position:relative!important;
+  opacity:1!important;
+  filter:none!important;
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb,var(--accent) 8%,transparent),
+      transparent 36%)!important;
+  border-radius:10px!important;
+  box-shadow:inset 4px 0 0 var(--accent),
+             0 1px 0 color-mix(in srgb,var(--accent) 12%,transparent)!important;
+  padding-left:10px!important;
+}
+body.focus #reader .para.rc103-active .semantic{
+  opacity:1!important;
+  filter:none!important;
+}
+
+/* The old paragraph-karaoke slider is not a second timing source. */
+#paragraphKaraokeCard{display:none!important}
 </style>
 </head>
-<body data-revision="RC107-FINETUNE-AF-PDF-COVER-SMOOTH" data-amalan-build="RC107-FINETUNE-AF-PDF-COVER-SMOOTH">
+<body data-revision="RC114-SMOOTH-WORD-HANDOFF" data-amalan-build="RC114-SMOOTH-WORD-HANDOFF">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -1686,29 +1737,62 @@ function updateLpm(showToast=true){
   if(showToast)toast('Auto Scroll '+lpm+' baris/menit');
 }
 function updateFocusTempo(showToast=true){
-  focusTempo=Math.max(.5,Math.min(2,Number(focusTempo)||1));
-  if(focusSpeedRange)focusSpeedRange.value=String(focusTempo);
-  if(focusSpeedRangeOut)focusSpeedRangeOut.textContent=
-    focusTempo.toFixed(2).replace('.',',')+'×'+
-    (Math.abs(focusTempo-1)<0.001?' Normal':focusTempo<1?' Cepat':' Lambat');
-  if(focusSpeedLabel)focusSpeedLabel.textContent=focusTempo.toFixed(2).replace('.',',')+'×';
-  SAFE_STORE.setItem(B4KEY+'focusTempo',String(focusTempo));
-  if(showToast)toast('Kecepatan Auto Fokus '+focusTempo.toFixed(2).replace('.',',')+'×');
+  focusTempo=Math.max(.5,Math.min(2,focusTempo));
+  focusSpeedLabel.textContent=focusTempo.toFixed(2).replace('.',',')+'×';
+  SAFE_STORE.setItem(B4KEY+'focusTempo',focusTempo);
+  if(autoFocus)startPhraseFocus();
+  if(showToast)toast('Kecepatan fokus '+focusSpeedLabel.textContent);
 }
+/* RC114 — the visible slider is the authoritative Auto Fokus control.
+   It is independent from Auto Scroll and from the legacy Auto Fokus engine. */
+(function bindStandaloneFocusSlider(){
+  var range=document.getElementById('focusSpeedRange');
+  var out=document.getElementById('focusSpeedRangeOut');
+  if(!range)return;
 
+  var saved=Number(SAFE_STORE.getItem(B4KEY+'focusTempo'));
+  if(Number.isFinite(saved)) focusTempo=Math.max(.5,Math.min(2,saved));
+
+  range.min='0.5';
+  range.max='2';
+  range.step='0.05';
+  range.value=String(focusTempo);
+
+  function paint(){
+    var v=Number(range.value);
+    if(!Number.isFinite(v))return;
+    focusTempo=Math.max(.5,Math.min(2,v));
+    SAFE_STORE.setItem(B4KEY+'focusTempo',String(focusTempo));
+
+    var label='Normal';
+    if(focusTempo<.98) label='Lebih cepat';
+    else if(focusTempo>1.02) label='Lebih lambat';
+
+    if(out)out.textContent=focusTempo.toFixed(2).replace('.',',')+'× '+label;
+
+    /* Restart only the current standalone word. Auto Scroll is untouched. */
+    if(window.__RC103_STANDALONE && document.body.classList.contains('focus')){
+      try{window.__RC114_SYNC_FOCUS_SPEED?.();}catch(_){}
+    }
+  }
+
+  range.addEventListener('input',paint,{passive:true});
+  range.addEventListener('change',paint,{passive:true});
+  paint();
+
+  window.__RC114_SET_FOCUS_SPEED=function(v){
+    v=Math.max(.5,Math.min(2,Number(v)||1));
+    range.value=String(v);
+    paint();
+  };
+})();
 lpmRange.oninput=()=>updateLpm(true);
 speedDown.onclick=()=>{lpmRange.value=String(Math.max(10,lpm-10));updateLpm(true)};
 speedUp.onclick=()=>{lpmRange.value=String(Math.min(420,lpm+20));updateLpm(true)};
 const speedTurbo=document.getElementById('speedTurbo');
 if(speedTurbo)speedTurbo.onclick=()=>{lpmRange.value=String(Math.min(420,lpm+60));updateLpm(true)};
-focusSpeedDown.onclick=()=>{focusTempo=Math.min(2.5,+(focusTempo+.15).toFixed(2));updateFocusTempo(true)};
+focusSpeedDown.onclick=()=>{focusTempo=Math.min(2,+(focusTempo+.15).toFixed(2));updateFocusTempo(true)};
 focusSpeedUp.onclick=()=>{focusTempo=Math.max(.5,+(focusTempo-.15).toFixed(2));updateFocusTempo(true)};
-if(focusSpeedRange){
-  focusSpeedRange.oninput=()=>{
-    focusTempo=Number(focusSpeedRange.value)||1;
-    updateFocusTempo(false);
-  };
-}
 updateLpm(false);
 updateFocusTempo(false);
 window.addEventListener('pageshow',()=>{
@@ -4687,7 +4771,8 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   }
   function clearHighlight(){
     document.querySelectorAll('.rc103-focus-word').forEach(function(x){
-      x.classList.remove('rc103-focus-word','rc103-focus-word-enter','rc113-settled');
+      x.classList.remove('rc103-focus-word');
+      x.classList.remove('rc103-focus-word-enter');
       x.style.removeProperty('--karaoke-duration');
     });
   }
@@ -4714,21 +4799,13 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   }
   function activePara(el){
     var ps=paras();
-    var old=document.querySelector('#reader .para.rc103-active');
     paraIndex=ps.indexOf(el);
-
-    /* Keep old paragraph visually alive during handoff. It is removed after
-       the new first word is painted. */
-    ps.forEach(function(p){
-      if(p!==el) p.classList.remove('active');
-    });
+    ps.forEach(function(p){p.classList.remove('rc103-active');});
+    document.querySelectorAll('#reader .para.active').forEach(function(p){p.classList.remove('active');});
     if(el){
       el.classList.add('rc103-active','active');
     }
     return el;
-  }
-  function releasePreviousParagraph(old){
-    if(old && old!==current()) old.classList.remove('rc103-active');
   }
   function stableScroll(el,force){
     if(!el||!reader)return;
@@ -4751,16 +4828,45 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   function wordNodes(el){
     return el?Array.from(el.querySelectorAll('.rc103-word')):[];
   }
+  window.__RC114_SYNC_FOCUS_SPEED=function(){
+    if(!running||waiting)return;
+    clearTimeout(timer);
+    var el=current(), words=wordNodes(el);
+    if(!el||!words.length)return;
+    var node=words[Math.max(0,Math.min(wordIndex,words.length-1))];
+    var duration=durationFor(el,node);
+    node.style.setProperty('--karaoke-duration',duration+'ms');
+    requestAnimationFrame(function(){
+      if(!running||waiting)return;
+      void node.offsetWidth;
+      node.classList.remove('rc103-focus-word');
+      void node.offsetWidth;
+      node.classList.add('rc103-focus-word');
+    });
+    timer=setTimeout(function(){
+      if(!running||waiting)return;
+      wordIndex++;
+      if(wordIndex<wordNodes(el).length)focusPhrase();
+      else{
+        var target=repeatTarget(el);
+        if(target&&openCounter(el))return;
+        nextParagraph();
+      }
+    },Math.max(700,duration));
+  };
   function durationFor(el,node){
-    const text=(node?.textContent||'').trim();
-    const words=Math.max(1,text.split(/\s+/).filter(Boolean).length);
-    let tempo=1;
+    var text=(node?.textContent||'').trim();
+    var letters=Math.max(1,text.replace(/\s+/g,'').length);
+    var tempo=1;
+
     try{
-      const v=Number(SAFE_STORE.getItem('amp-b4-focusTempo'));
-      if(Number.isFinite(v)&&v>0)tempo=Math.max(.5,Math.min(2,v));
+      var v=Number(localStorage.getItem('amp-b4-focusTempo'));
+      if(Number.isFinite(v)) tempo=Math.max(.5,Math.min(2,v));
     }catch(_){}
-    // Android baseline: word-count based timing.
-    return Math.max(800,Math.min(3000,words*900*tempo));
+
+    /* RC114: 0.50x = faster, 1.00x = normal, 2.00x = slower.
+       Timing is based on word length, not Auto Scroll. */
+    return Math.max(520,Math.min(2400,(360+letters*62)*tempo));
   }
   function repeatTarget(el){
     if(!el)return 0;
@@ -4797,29 +4903,30 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     wordIndex=Math.max(0,Math.min(wordIndex,words.length-1));
 
     var node=words[wordIndex];
-    /* IMPORTANT: find the previous highlighted word globally, not only
-       inside the new active paragraph. This is what removes the paragraph
-       boundary gap. */
-    var previous=document.querySelector(
-      '#reader .rc103-focus-word'
-    );
+    var previous=document.querySelector('#reader .rc103-focus-word');
+    if(previous===node)previous=null;
+
     var duration=durationFor(el,node);
     node.style.setProperty('--karaoke-duration',duration+'ms');
 
+    /* RC114 handoff:
+       - the previous word is NOT cleared when changing word/paragraph
+       - the new word starts first
+       - the previous word is released only after 240 ms
+       This removes: disappear -> blank -> appear. */
     requestAnimationFrame(function(){
       if(!running||waiting)return;
 
-      /* Force 0% -> 100% animation start, exactly like the Android model. */
+      /* Force the animation to begin at 0% every time. */
       void node.offsetWidth;
       node.classList.add('rc103-focus-word');
 
-      /* Keep the previous word visible while the new word is sweeping.
-         The overlap is intentionally longer at paragraph boundaries. */
-      if(previous && previous!==node){
-        previous.classList.add('rc113-settled');
-        setTimeout(function(){
+      /* The previous word may belong to the previous paragraph. Keep it. */
+      if(previous){
+        clearTimeout(previous.__rc114ReleaseTimer);
+        previous.__rc114ReleaseTimer=setTimeout(function(){
           if(previous!==node){
-            previous.classList.remove('rc103-focus-word','rc103-focus-word-enter','rc113-settled');
+            previous.classList.remove('rc103-focus-word','rc103-focus-word-enter');
             previous.style.removeProperty('--karaoke-duration');
           }
         },240);
@@ -4829,9 +4936,9 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
       render();
     });
 
-    /* Start the next word before the current one is visually torn down. */
     timer=setTimeout(function(){
       if(!running||waiting)return;
+
       wordIndex++;
       if(wordIndex<wordNodes(el).length){
         focusPhrase();
@@ -4841,20 +4948,20 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
       var target=repeatTarget(el);
       if(target && openCounter(el))return;
       nextParagraph();
-    },Math.max(760,duration-180));
+    },Math.max(700,duration));
   }
   function nextParagraph(){
+    /* IMPORTANT: no clearHighlight() here.
+       The last word of the previous paragraph remains visible while the
+       first word of the next paragraph starts its own sweep. */
     clearTimer();
 
-    var old=document.querySelector('#reader .para.rc103-active');
     var ps=paras();
     if(paraIndex<0){
       var a=document.querySelector('#reader .para.active')||ps[0];
       paraIndex=Math.max(0,ps.indexOf(a));
     }
     if(paraIndex>=ps.length-1){
-      clearHighlight();
-      ps.forEach(function(p){p.classList.remove('rc103-active');});
       running=false;paused=false;waiting=false;render();
       try{toast('Auto Fokus selesai')}catch(_){}
       return;
@@ -4864,18 +4971,10 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     wordIndex=0;
     activePara(ps[paraIndex]);
     running=true;paused=false;waiting=false;
-    ensureFocusMode();
-    render();
+    ensureFocusMode();render();
 
-    /* First word of the new paragraph is painted while the old word is still
-       retained. Only then is the old paragraph released. */
-    requestAnimationFrame(function(){
-      if(!running||waiting)return;
-      focusPhrase();
-      setTimeout(function(){
-        if(old && old!==current()) old.classList.remove('rc103-active');
-      },220);
-    });
+    /* No artificial paragraph delay. The new word enters immediately. */
+    requestAnimationFrame(focusPhrase);
   }
   function start(reset){
     if(waiting)return;
@@ -4895,7 +4994,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     activePara(ps[paraIndex]);
     running=true;paused=false;
     render();
-    requestAnimationFrame(function(){ if(running&&!waiting) focusPhrase(); });
+    setTimeout(focusPhrase,80);
   }
   function pause(){
     if(!running)return;
@@ -5016,138 +5115,94 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 </script>
 
 
-<style id="rc109-absolute-final">
-/* RC114 absolute final overrides: this block is intentionally last so no legacy
-   RC71/RC105/RC107 rule can re-enable cover cropping or PDF highlighting. */
-body.cover-mode .reader-wrap{overflow:hidden!important;padding:0!important;background:#073b2b!important}
-body.cover-mode #cover-depan{width:100vw!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;display:block!important}
-body.cover-mode #cover-depan .cover-bg{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;margin:0!important;object-fit:contain!important;object-position:center center!important;background:#073b2b!important}
-body.cover-mode #cover-depan .cover-actions{position:absolute!important;left:max(18px,env(safe-area-inset-left))!important;right:auto!important;top:auto!important;bottom:max(24px,calc(env(safe-area-inset-bottom) + 20px))!important;margin:0!important;padding:0!important;z-index:20!important}
-body.cover-mode #cover-depan .cover-actions .action{min-width:155px!important}
-/* Word-by-word karaoke: one active word, continuous cadence, no layout jump. */
-body.focus .para.rc103-active .semantic{opacity:.60!important;filter:none!important}
-body.focus .para.rc103-active .semantic .rc103-word{display:inline-block!important;position:relative!important;opacity:.72!important;background:transparent!important;box-shadow:none!important;vertical-align:baseline!important;transition:opacity .14s linear!important}
-body.focus .para.rc103-active .semantic .rc103-word.rc103-focus-word{opacity:1!important;background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent2) 34%,transparent))!important;background-repeat:no-repeat!important;background-position:left 55%!important;background-size:100% 88%!important;animation:rc109WordSweepFinal var(--karaoke-duration,700ms) cubic-bezier(.12,.72,.22,1) both!important;will-change:background-size,opacity!important}
-@keyframes rc109WordSweepFinal{0%{background-size:0% 88%;opacity:.76}100%{background-size:100% 88%;opacity:1}}
-/* PDF Reader: completely remove all highlight visuals. */
-.rc71-vtp-text-layer .rc71-vtp-focus-line,.rc71-vtp-text-layer span.rc71-vtp-focus-line{background:transparent!important;background-image:none!important;box-shadow:none!important;animation:none!important}
-#rc71VtpSpeedBand{display:none!important}
-</style>
-<style id="rc114-continuous-highlight-style">
-/* RC114: highlight is NOT scoped to rc103-active. This is the critical
-   paragraph-handoff fix: the last word of paragraph A remains painted while
-   the first word of paragraph B starts. */
-body.focus #reader .rc103-word{
-  display:inline-block!important;
-  position:relative!important;
-  vertical-align:baseline!important;
-  border-radius:6px;
-  opacity:.64;
-  transition:opacity .20s linear,filter .20s linear;
-  background-image:none;
-  background-repeat:no-repeat;
-  background-position:left 55%;
-  background-size:0% 88%;
-}
-body.focus #reader .rc103-word.rc103-focus-word{
-  opacity:1!important;
-  background-image:linear-gradient(90deg,
-    color-mix(in srgb,var(--accent) 34%,transparent),
-    color-mix(in srgb,var(--accent2) 38%,transparent))!important;
-  animation:rc114WordSweep var(--karaoke-duration,900ms) linear forwards!important;
-  will-change:background-size,opacity;
-}
-body.focus #reader .rc103-word.rc113-settled{
-  opacity:1!important;
-  background-image:linear-gradient(90deg,
-    color-mix(in srgb,var(--accent) 34%,transparent),
-    color-mix(in srgb,var(--accent2) 38%,transparent))!important;
-  background-size:100% 88%!important;
-  animation:none!important;
-}
-@keyframes rc114WordSweep{
-  from{background-size:0% 88%;opacity:.72}
-  to{background-size:100% 88%;opacity:1}
+
+
+<script id="rc114-slider-final">
+(function(){
+  'use strict';
+  var range=document.getElementById('focusSpeedRange');
+  var out=document.getElementById('focusSpeedRangeOut');
+  if(!range)return;
+
+  function paint(){
+    var v=Number(range.value);
+    if(!Number.isFinite(v))return;
+    v=Math.max(.5,Math.min(2,v));
+    range.value=String(v);
+    try{SAFE_STORE.setItem('amp-b4-focusTempo',String(v));}catch(_){}
+    var label=v<.98?'Lebih cepat':(v>1.02?'Lebih lambat':'Normal');
+    if(out)out.textContent=v.toFixed(2).replace('.',',')+'× '+label;
+    if(window.__RC103_STANDALONE && window.__RC114_SYNC_FOCUS_SPEED){
+      window.__RC114_SYNC_FOCUS_SPEED();
+    }
+  }
+  range.min='0.5'; range.max='2'; range.step='0.05';
+  range.addEventListener('input',paint,{passive:true});
+  range.addEventListener('change',paint,{passive:true});
+  paint();
+})();
+</script>
+
+<style id="rc114-active-paragraph-contrast">
+/* RC114 — Active paragraph contrast only.
+   Semantic colors are inherited unchanged; the paragraph container supplies
+   the active-state contrast while the current word remains dominant. */
+
+body.focus #reader .para:not(.rc103-active){
+  opacity:.78!important;
+  filter:saturate(.94)!important;
+  transition:opacity .28s ease,filter .28s ease!important;
 }
 
-/* Active paragraph: deliberately higher contrast than RC114. */
 body.focus #reader .para.rc103-active{
+  position:relative!important;
+  z-index:2!important;
   opacity:1!important;
   filter:none!important;
-  background:color-mix(in srgb,var(--accent) 7%,var(--panel))!important;
-  box-shadow:inset 4px 0 0 color-mix(in srgb,var(--accent) 72%,transparent),
-             0 2px 10px color-mix(in srgb,#000 8%,transparent)!important;
+
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb,var(--accent) 11%,var(--paper)),
+      color-mix(in srgb,var(--paper) 97%,transparent) 46%,
+      color-mix(in srgb,var(--paper) 95%,transparent))!important;
+
+  border-radius:12px!important;
+  padding:8px 12px 8px 16px!important;
+
+  box-shadow:
+    inset 4px 0 0 var(--accent),
+    0 1px 0 color-mix(in srgb,var(--accent) 18%,transparent),
+    0 5px 18px color-mix(in srgb,var(--ink) 7%,transparent)!important;
+
+  transition:
+    background .28s ease,
+    box-shadow .28s ease,
+    opacity .28s ease!important;
 }
+
+/* Never fade semantic spans inside the active paragraph. */
 body.focus #reader .para.rc103-active .semantic{
   opacity:1!important;
+  filter:none!important;
   color:inherit!important;
-  filter:none!important;
 }
-body.focus #reader .para.rc103-active .rc103-word:not(.rc103-focus-word){
-  opacity:.72!important;
-}
-</style>
 
-
-<style id="rc119-preserve-original-multicolor">
-/*
- RC119 — COLOR ONLY.
- Root cause fixed:
- Previous patch used color:inherit!important on .semantic, which overrode
- .semantic.s1/.s2/.s3/.s4/.s5. RC119 deliberately does NOT set color on
- semantic spans or word spans.
-
- Auto Fokus may emphasize the active word, but it must never desaturate,
- fade, blur, or recolor the reading text.
-*/
-
-/* Never dim the reading text merely because Auto Fokus is active. */
-body.focus #reader .para,
-body.focus #reader .para.active,
-body.focus #reader .para.af76-active,
-body.focus #reader .para.rc103-active{
+/* Current word remains the strongest visual layer. */
+body.focus #reader .para.rc103-active .semantic.rc103-focus-word{
   opacity:1!important;
-  filter:none!important;
-  -webkit-filter:none!important;
+  filter:saturate(1.08) brightness(1.02)!important;
+  position:relative!important;
+  z-index:3!important;
+  border-radius:6px!important;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb,var(--accent) 15%,transparent),
+    0 2px 8px color-mix(in srgb,var(--accent) 10%,transparent)!important;
 }
 
-/* Keep every original semantic colour rule authoritative. */
-body.focus #reader .semantic.s1{color:var(--c1)!important}
-body.focus #reader .semantic.s2{color:var(--c2)!important}
-body.focus #reader .semantic.s3{color:var(--c3)!important}
-body.focus #reader .semantic.s4{color:var(--c4)!important}
-body.focus #reader .semantic.s5{color:var(--c5)!important}
-
-/* Preserve opening text colour rules. */
-body.focus #reader .semantic.opening{
-  color:#111!important;
-}
-html[data-theme="dark"] body.focus #reader .semantic.opening{
-  color:#fff!important;
-}
-
-/* Word wrappers inherit the colour that is already assigned by their
- semantic parent. Do not assign a new colour here. */
-body.focus #reader .semantic .rc103-word,
-body.focus #reader .rc103-word{
-  opacity:1!important;
-  filter:none!important;
-  -webkit-filter:none!important;
-}
-
-/* Active paragraph is distinguished by its panel/accent only. */
-body.focus #reader .para.rc103-active{
-  opacity:1!important;
-  filter:none!important;
-  background:color-mix(in srgb,var(--accent) 7%,var(--panel))!important;
-  box-shadow:inset 4px 0 0 color-mix(in srgb,var(--accent) 72%,transparent),
-             0 2px 10px color-mix(in srgb,#000 8%,transparent)!important;
-}
-
-/* Keep the current-word highlight visual without changing its text colour. */
-body.focus #reader .para.rc103-active .rc103-word.rc103-focus-word{
-  opacity:1!important;
-  filter:none!important;
+/* Do not change line wrapping. */
+body.focus #reader .para.rc103-active .semantic{
+  -webkit-box-decoration-break:clone;
+  box-decoration-break:clone;
 }
 </style>
 
