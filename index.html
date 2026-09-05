@@ -3,7 +3,6 @@
 <!-- RC54 PERSISTENCE FIX — VERIFIED: clears only legacy Waqi'ah overrides 75/96 when they contain the known erroneous duplicate text. -->
 <!--
 REVISION MARKER
-RC80.1 — Seamless phrase highlight handoff (no inter-phrase blank gap)
 RC54 SCREENSHOT MATCH — VERIFIED
 Reference: user-provided screenshot
 Status: VERIFIED
@@ -48,7 +47,7 @@ html[data-theme="dark"]{--bg:#101512;--paper:#18201c;--ink:#eef5f0;--muted:#aab7
 .semantic{font-weight:650;transition:.2s;padding:1px 2px;border-radius:5px}
 .semantic.s1{color:var(--c1)}.semantic.s2{color:var(--c2)}.semantic.s3{color:var(--c3)}.semantic.s4{color:var(--c4)}.semantic.s5{color:var(--c5)}
 .semantic.opening{color:#111!important;font-weight:850}html[data-theme="dark"] .semantic.opening{color:#fff!important}
-body.focus .semantic{opacity:.30;transition:opacity .12s linear;position:relative;border-radius:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}body.focus .para.active .semantic{opacity:.58}body.focus .para.active .semantic.focus-word{opacity:1;transition:none;display:inline-block!important;white-space:nowrap;max-width:100%;vertical-align:baseline;border-radius:6px;transform:none;background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 24%,transparent),color-mix(in srgb,var(--accent2) 30%,transparent));background-repeat:no-repeat;background-position:left center;background-size:0% 100%;animation:karaokeSweep var(--karaoke-duration,2200ms) linear forwards;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 8%,transparent)}@keyframes karaokeSweep{from{background-size:0% 100%}to{background-size:100% 100%}}
+body.focus .semantic{opacity:.30;transition:opacity .28s ease;position:relative;border-radius:6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}body.focus .para.active .semantic{opacity:.58}body.focus .para.active .semantic.focus-word{opacity:1;display:inline-block!important;white-space:nowrap;max-width:100%;vertical-align:baseline;border-radius:6px;transform:none;background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 24%,transparent),color-mix(in srgb,var(--accent2) 30%,transparent));background-repeat:no-repeat;background-position:left center;background-size:0% 100%;animation:karaokeSweep var(--karaoke-duration,2200ms) linear forwards;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 8%,transparent)}@keyframes karaokeSweep{from{background-size:0% 100%}to{background-size:100% 100%}}
 .control-card{border:1px solid var(--line);border-radius:14px;padding:12px;margin:12px 0;background:var(--bg)}
 .control-card label{display:block;font-weight:750;margin-bottom:8px}.control-card output{font-weight:850;color:var(--accent)}
 .control-card input[type=range]{width:100%}.hint{font-size:12px;color:var(--muted);line-height:1.45}
@@ -1421,22 +1420,18 @@ function positionActiveParagraph(target,mode='paragraph'){
   });
 }
 function focusPhrase(){
+  document.querySelectorAll('.focus-word').forEach(x=>{x.classList.remove('focus-word');x.style.removeProperty('--karaoke-duration')});
   const ps=currentPhrases();
   if(!ps.length)return;
   phraseIndex=Math.min(phraseIndex,ps.length-1);
   const el=ps[phraseIndex];
   const duration=phraseDuration();
-  const previous=[...document.querySelectorAll('.focus-word')].filter(x=>x!==el);
-
-  // Seamless handoff: activate the next phrase first, then release the old one.
-  // This removes the one-frame blank gap that used to occur between phrases.
-  el.style.setProperty('--karaoke-duration',Math.max(700,duration)+'ms');
-  if(!el.classList.contains('focus-word')){
+  el.style.setProperty('--karaoke-duration',Math.max(700,duration-80)+'ms');
+  requestAnimationFrame(()=>{
     void el.offsetWidth;
     el.classList.add('focus-word');
-  }
-  previous.forEach(x=>{x.classList.remove('focus-word');x.style.removeProperty('--karaoke-duration')});
-  positionActiveParagraph(el,'phrase');
+    positionActiveParagraph(el,'phrase');
+  });
 }
 function phraseDuration(){
   const ps=currentPhrases();
