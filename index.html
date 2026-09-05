@@ -2219,7 +2219,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     const focusModeActive=document.body.classList.contains('focus');
     const hasRepeat=repeatTarget(el)>0;
 
-    // RC116: the standalone engine is authoritative. Legacy Build76 must
+    // RC114: the standalone engine is authoritative. Legacy Build76 must
     // never start Smart Counter or alter Auto Fokus state.
     if(!window.__RC103_STANDALONE && hasRepeat && !suppressRepeat && !waitingCounter && !autoFocus && focusModeActive){
       triggerCounter(el);
@@ -2258,7 +2258,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       positionActiveParagraph(paras[active],'paragraph');
 
       if(window.__RC103_STANDALONE){
-        // RC116: chapter navigation selects content only. Auto Fokus is manual.
+        // RC114: chapter navigation selects content only. Auto Fokus is manual.
         paused=false; render();
       }else if(wasPaused && !wasRunning){
         paused=true; render();
@@ -4353,7 +4353,7 @@ async function ensurePdfJs(){
 }
 function toBlob(d){return d.blob instanceof Blob?d.blob:new Blob([d.blob],{type:d.type||d.mime||'application/pdf'})}
 function updatePdfTextHighlight(){
-  /* RC116: PDF Reader highlighting intentionally disabled. */
+  /* RC114: PDF Reader highlighting intentionally disabled. */
   return;
 }
 async function renderPdf(d){
@@ -4565,7 +4565,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    picker?.classList.add('show');
  });
  const picker=document.getElementById('counterTargetPicker');
- const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC116_MANUAL_COUNTER_START==='function')window.__RC116_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
+ const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC114_MANUAL_COUNTER_START==='function')window.__RC114_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
  picker?.querySelectorAll('[data-target]')?.forEach(b=>b.addEventListener('click',()=>startManual(Number(b.dataset.target))));
  document.getElementById('counterCustomTarget')?.addEventListener('click',()=>{const t=prompt('Target Smart Counter','33');const n=Math.max(1,Math.min(9999,Number(t)||0));if(n)startManual(n);});
  document.addEventListener('click',e=>{if(picker?.classList.contains('show')&&!e.target.closest('#counterTargetPicker,#manualSmartCounterBtn'))picker.classList.remove('show')});
@@ -4717,9 +4717,11 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     var old=document.querySelector('#reader .para.rc103-active');
     paraIndex=ps.indexOf(el);
 
-    /* RC116: never tear down the previous paragraph before the new first
-       highlighted word has been painted. The old paragraph stays active
-       through the handoff window. */
+    /* Keep old paragraph visually alive during handoff. It is removed after
+       the new first word is painted. */
+    ps.forEach(function(p){
+      if(p!==el) p.classList.remove('active');
+    });
     if(el){
       el.classList.add('rc103-active','active');
     }
@@ -4752,15 +4754,12 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   function durationFor(el,node){
     const text=(node?.textContent||'').trim();
     const words=Math.max(1,text.split(/\s+/).filter(Boolean).length);
-
-    /* RC116: read the live control first; localStorage is fallback only. */
-    let tempo=Number(window.__RC116_FOCUS_TEMPO);
-    if(!Number.isFinite(tempo)||tempo<=0){
-      try{tempo=Number(SAFE_STORE.getItem('amp-b4-focusTempo'));}catch(_){}
-    }
-    if(!Number.isFinite(tempo)||tempo<=0)tempo=1;
-    tempo=Math.max(.5,Math.min(2,tempo));
-
+    let tempo=1;
+    try{
+      const v=Number(SAFE_STORE.getItem('amp-b4-focusTempo'));
+      if(Number.isFinite(v)&&v>0)tempo=Math.max(.5,Math.min(2,v));
+    }catch(_){}
+    // Android baseline: word-count based timing.
     return Math.max(800,Math.min(3000,words*900*tempo));
   }
   function repeatTarget(el){
@@ -4863,23 +4862,19 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 
     paraIndex++;
     wordIndex=0;
-    var next=ps[paraIndex];
-
-    /* Do not remove old active state here. */
-    activePara(next);
+    activePara(ps[paraIndex]);
     running=true;paused=false;waiting=false;
     ensureFocusMode();
     render();
 
+    /* First word of the new paragraph is painted while the old word is still
+       retained. Only then is the old paragraph released. */
     requestAnimationFrame(function(){
       if(!running||waiting)return;
       focusPhrase();
-
-      /* The next word is now painted; release the old paragraph only after
-         the handoff has visually begun. */
       setTimeout(function(){
-        if(old && old!==next) old.classList.remove('rc103-active');
-      },280);
+        if(old && old!==current()) old.classList.remove('rc103-active');
+      },220);
     });
   }
   function start(reset){
@@ -4971,7 +4966,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
       wordIndex=0;
       activePara(ps[paraIndex]);
       ensureFocusMode();render();
-      requestAnimationFrame(function(){ if(running&&!waiting) focusPhrase(); });
+      setTimeout(focusPhrase,180);
     }else{
       running=false;render();
     }
@@ -4983,9 +4978,9 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     setTimeout(focusPhrase,120);
   });
 
-  /* RC116: single Smart Counter hand-off bridge. Manual counter pauses AF;
+  /* RC114: single Smart Counter hand-off bridge. Manual counter pauses AF;
      completion/exit is the only path allowed to resume it. */
-  window.__RC116_MANUAL_COUNTER_START=function(el){
+  window.__RC114_MANUAL_COUNTER_START=function(el){
     if(!el)return false;
     clearTimer();clearHighlight();waiting=true;running=false;paused=true;render();
     try{window.SmartDzikirCounter?.activate?.(el,paraIndex);}catch(_){}
@@ -5022,7 +5017,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 
 
 <style id="rc109-absolute-final">
-/* RC116 absolute final overrides: this block is intentionally last so no legacy
+/* RC114 absolute final overrides: this block is intentionally last so no legacy
    RC71/RC105/RC107 rule can re-enable cover cropping or PDF highlighting. */
 body.cover-mode .reader-wrap{overflow:hidden!important;padding:0!important;background:#073b2b!important}
 body.cover-mode #cover-depan{width:100vw!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;display:block!important}
@@ -5039,7 +5034,7 @@ body.focus .para.rc103-active .semantic .rc103-word.rc103-focus-word{opacity:1!i
 #rc71VtpSpeedBand{display:none!important}
 </style>
 <style id="rc114-continuous-highlight-style">
-/* RC116: highlight is NOT scoped to rc103-active. This is the critical
+/* RC114: highlight is NOT scoped to rc103-active. This is the critical
    paragraph-handoff fix: the last word of paragraph A remains painted while
    the first word of paragraph B starts. */
 body.focus #reader .rc103-word{
@@ -5075,7 +5070,7 @@ body.focus #reader .rc103-word.rc113-settled{
   to{background-size:100% 88%;opacity:1}
 }
 
-/* Active paragraph: deliberately higher contrast than RC116. */
+/* Active paragraph: deliberately higher contrast than RC114. */
 body.focus #reader .para.rc103-active{
   opacity:1!important;
   filter:none!important;
@@ -5093,117 +5088,66 @@ body.focus #reader .para.rc103-active .rc103-word:not(.rc103-focus-word){
 }
 </style>
 
-<style id="rc116-preserve-original-colors">
-/* RC116 — Auto Fokus never changes the original multicolour text. */
+
+<style id="rc118-preserve-reading-colors">
+/* RC118 — safe visual correction only.
+   Auto Fokus may emphasize the active word, but it must never convert the
+   original colour-coded reading text into grey/black-and-white. */
+
+/* Keep every paragraph fully visible and colour-preserving during focus. */
 body.focus #reader .para,
 body.focus #reader .para.active,
+body.focus #reader .para.af76-active,
 body.focus #reader .para.rc103-active{
   opacity:1!important;
   filter:none!important;
-  color:var(--para-color,inherit)!important;
   -webkit-filter:none!important;
 }
+
+/* Preserve the five established paragraph colours. */
 body.focus #reader .para.c1,
 body.focus #reader .para.active.c1,
+body.focus #reader .para.af76-active.c1,
 body.focus #reader .para.rc103-active.c1{color:var(--c1)!important}
+
 body.focus #reader .para.c2,
 body.focus #reader .para.active.c2,
+body.focus #reader .para.af76-active.c2,
 body.focus #reader .para.rc103-active.c2{color:var(--c2)!important}
+
 body.focus #reader .para.c3,
 body.focus #reader .para.active.c3,
+body.focus #reader .para.af76-active.c3,
 body.focus #reader .para.rc103-active.c3{color:var(--c3)!important}
+
 body.focus #reader .para.c4,
 body.focus #reader .para.active.c4,
+body.focus #reader .para.af76-active.c4,
 body.focus #reader .para.rc103-active.c4{color:var(--c4)!important}
+
 body.focus #reader .para.c5,
 body.focus #reader .para.active.c5,
+body.focus #reader .para.af76-active.c5,
 body.focus #reader .para.rc103-active.c5{color:var(--c5)!important}
 
-/* Semantic spans and word spans inherit their original phrase colour. */
+/* Semantic phrases keep their original colours; only the current-word
+   background/highlight is allowed to change. */
 body.focus #reader .semantic,
+body.focus #reader .semantic .rc103-word,
 body.focus #reader .rc103-word{
-  color:inherit!important;
   opacity:1!important;
   filter:none!important;
   -webkit-filter:none!important;
+  color:inherit!important;
 }
 
-/* Active paragraph contrast without desaturating the text. */
+/* Active paragraph contrast comes from its panel/accent, not text colour. */
 body.focus #reader .para.rc103-active{
   background:color-mix(in srgb,var(--accent) 7%,var(--paper))!important;
   box-shadow:inset 4px 0 0 color-mix(in srgb,var(--accent) 72%,transparent),
              0 2px 10px color-mix(in srgb,#000 8%,transparent)!important;
 }
 </style>
-
-
-<script id="rc116-control-bridge">
-(function(){
-  'use strict';
-
-  /* Dedicated Auto Fokus speed source. durationFor reads this first. */
-  var speedRange=document.getElementById('focusSpeedRange');
-  window.__RC116_FOCUS_TEMPO=Number(speedRange?.value)||1;
-
-  if(speedRange){
-    speedRange.addEventListener('input',function(){
-      var v=Number(this.value);
-      if(!Number.isFinite(v))return;
-      window.__RC116_FOCUS_TEMPO=Math.max(.5,Math.min(2,v));
-    },true);
-    speedRange.addEventListener('change',function(){
-      var v=Number(this.value);
-      if(Number.isFinite(v))window.__RC116_FOCUS_TEMPO=Math.max(.5,Math.min(2,v));
-    },true);
-  }
-
-  function navigate(step){
-    var ps=Array.from(document.querySelectorAll('#reader .para'));
-    if(!ps.length)return;
-    var cur=document.querySelector('#reader .para.active') ||
-            document.querySelector('#reader .para.rc103-active');
-    var i=cur?ps.indexOf(cur):0;
-    i=Math.max(0,Math.min(ps.length-1,i+step));
-
-    /* Stop any currently running standalone focus before manual navigation.
-       The user can press Auto Fokus again deliberately. */
-    try{
-      var af=document.getElementById('autoFocusBtn');
-      if(af && af.textContent.indexOf('⏸')===0) af.click();
-    }catch(_){}
-
-    try{
-      if(typeof window.setActive==='function'){
-        window.setActive(i,true);
-      }else{
-        ps[i].scrollIntoView({behavior:'smooth',block:'center'});
-      }
-    }catch(_){
-      ps[i].scrollIntoView({behavior:'smooth',block:'center'});
-    }
-
-    ps.forEach(function(p,n){
-      p.classList.toggle('active',n===i);
-      if(n!==i)p.classList.remove('rc103-active');
-    });
-  }
-
-  /* Capture phase makes these the authoritative handlers, avoiding the
-     multiple legacy handlers that previously swallowed Prev/Next clicks. */
-  document.addEventListener('click',function(e){
-    var b=e.target.closest?.('#af76Prev,#prevBtn');
-    if(b){
-      e.preventDefault();e.stopImmediatePropagation();
-      navigate(-1);return;
-    }
-    b=e.target.closest?.('#af76Next,#nextBtn');
-    if(b){
-      e.preventDefault();e.stopImmediatePropagation();
-      navigate(1);return;
-    }
-  },true);
-})();
-</script>
 
 </body>
 </html>
