@@ -5089,12 +5089,19 @@ body.focus #reader .para.rc103-active .rc103-word:not(.rc103-focus-word){
 </style>
 
 
-<style id="rc118-preserve-reading-colors">
-/* RC118 — safe visual correction only.
-   Auto Fokus may emphasize the active word, but it must never convert the
-   original colour-coded reading text into grey/black-and-white. */
+<style id="rc119-preserve-original-multicolor">
+/*
+ RC119 — COLOR ONLY.
+ Root cause fixed:
+ Previous patch used color:inherit!important on .semantic, which overrode
+ .semantic.s1/.s2/.s3/.s4/.s5. RC119 deliberately does NOT set color on
+ semantic spans or word spans.
 
-/* Keep every paragraph fully visible and colour-preserving during focus. */
+ Auto Fokus may emphasize the active word, but it must never desaturate,
+ fade, blur, or recolor the reading text.
+*/
+
+/* Never dim the reading text merely because Auto Fokus is active. */
 body.focus #reader .para,
 body.focus #reader .para.active,
 body.focus #reader .para.af76-active,
@@ -5104,48 +5111,43 @@ body.focus #reader .para.rc103-active{
   -webkit-filter:none!important;
 }
 
-/* Preserve the five established paragraph colours. */
-body.focus #reader .para.c1,
-body.focus #reader .para.active.c1,
-body.focus #reader .para.af76-active.c1,
-body.focus #reader .para.rc103-active.c1{color:var(--c1)!important}
+/* Keep every original semantic colour rule authoritative. */
+body.focus #reader .semantic.s1{color:var(--c1)!important}
+body.focus #reader .semantic.s2{color:var(--c2)!important}
+body.focus #reader .semantic.s3{color:var(--c3)!important}
+body.focus #reader .semantic.s4{color:var(--c4)!important}
+body.focus #reader .semantic.s5{color:var(--c5)!important}
 
-body.focus #reader .para.c2,
-body.focus #reader .para.active.c2,
-body.focus #reader .para.af76-active.c2,
-body.focus #reader .para.rc103-active.c2{color:var(--c2)!important}
+/* Preserve opening text colour rules. */
+body.focus #reader .semantic.opening{
+  color:#111!important;
+}
+html[data-theme="dark"] body.focus #reader .semantic.opening{
+  color:#fff!important;
+}
 
-body.focus #reader .para.c3,
-body.focus #reader .para.active.c3,
-body.focus #reader .para.af76-active.c3,
-body.focus #reader .para.rc103-active.c3{color:var(--c3)!important}
-
-body.focus #reader .para.c4,
-body.focus #reader .para.active.c4,
-body.focus #reader .para.af76-active.c4,
-body.focus #reader .para.rc103-active.c4{color:var(--c4)!important}
-
-body.focus #reader .para.c5,
-body.focus #reader .para.active.c5,
-body.focus #reader .para.af76-active.c5,
-body.focus #reader .para.rc103-active.c5{color:var(--c5)!important}
-
-/* Semantic phrases keep their original colours; only the current-word
-   background/highlight is allowed to change. */
-body.focus #reader .semantic,
+/* Word wrappers inherit the colour that is already assigned by their
+ semantic parent. Do not assign a new colour here. */
 body.focus #reader .semantic .rc103-word,
 body.focus #reader .rc103-word{
   opacity:1!important;
   filter:none!important;
   -webkit-filter:none!important;
-  color:inherit!important;
 }
 
-/* Active paragraph contrast comes from its panel/accent, not text colour. */
+/* Active paragraph is distinguished by its panel/accent only. */
 body.focus #reader .para.rc103-active{
-  background:color-mix(in srgb,var(--accent) 7%,var(--paper))!important;
+  opacity:1!important;
+  filter:none!important;
+  background:color-mix(in srgb,var(--accent) 7%,var(--panel))!important;
   box-shadow:inset 4px 0 0 color-mix(in srgb,var(--accent) 72%,transparent),
              0 2px 10px color-mix(in srgb,#000 8%,transparent)!important;
+}
+
+/* Keep the current-word highlight visual without changing its text colour. */
+body.focus #reader .para.rc103-active .rc103-word.rc103-focus-word{
+  opacity:1!important;
+  filter:none!important;
 }
 </style>
 
