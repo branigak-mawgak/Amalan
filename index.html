@@ -1686,19 +1686,29 @@ function updateLpm(showToast=true){
   if(showToast)toast('Auto Scroll '+lpm+' baris/menit');
 }
 function updateFocusTempo(showToast=true){
-  focusTempo=Math.max(.45,Math.min(2.5,focusTempo));
-  focusSpeedLabel.textContent=focusTempo.toFixed(2).replace('.',',')+'×';
-  SAFE_STORE.setItem(B4KEY+'focusTempo',focusTempo);
-  if(autoFocus)startPhraseFocus();
-  if(showToast)toast('Kecepatan fokus '+focusSpeedLabel.textContent);
+  focusTempo=Math.max(.5,Math.min(2,Number(focusTempo)||1));
+  if(focusSpeedRange)focusSpeedRange.value=String(focusTempo);
+  if(focusSpeedRangeOut)focusSpeedRangeOut.textContent=
+    focusTempo.toFixed(2).replace('.',',')+'×'+
+    (Math.abs(focusTempo-1)<0.001?' Normal':focusTempo<1?' Cepat':' Lambat');
+  if(focusSpeedLabel)focusSpeedLabel.textContent=focusTempo.toFixed(2).replace('.',',')+'×';
+  SAFE_STORE.setItem(B4KEY+'focusTempo',String(focusTempo));
+  if(showToast)toast('Kecepatan Auto Fokus '+focusTempo.toFixed(2).replace('.',',')+'×');
 }
+
 lpmRange.oninput=()=>updateLpm(true);
 speedDown.onclick=()=>{lpmRange.value=String(Math.max(10,lpm-10));updateLpm(true)};
 speedUp.onclick=()=>{lpmRange.value=String(Math.min(420,lpm+20));updateLpm(true)};
 const speedTurbo=document.getElementById('speedTurbo');
 if(speedTurbo)speedTurbo.onclick=()=>{lpmRange.value=String(Math.min(420,lpm+60));updateLpm(true)};
 focusSpeedDown.onclick=()=>{focusTempo=Math.min(2.5,+(focusTempo+.15).toFixed(2));updateFocusTempo(true)};
-focusSpeedUp.onclick=()=>{focusTempo=Math.max(.45,+(focusTempo-.15).toFixed(2));updateFocusTempo(true)};
+focusSpeedUp.onclick=()=>{focusTempo=Math.max(.5,+(focusTempo-.15).toFixed(2));updateFocusTempo(true)};
+if(focusSpeedRange){
+  focusSpeedRange.oninput=()=>{
+    focusTempo=Number(focusSpeedRange.value)||1;
+    updateFocusTempo(false);
+  };
+}
 updateLpm(false);
 updateFocusTempo(false);
 window.addEventListener('pageshow',()=>{
@@ -2209,7 +2219,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     const focusModeActive=document.body.classList.contains('focus');
     const hasRepeat=repeatTarget(el)>0;
 
-    // RC113: the standalone engine is authoritative. Legacy Build76 must
+    // RC114: the standalone engine is authoritative. Legacy Build76 must
     // never start Smart Counter or alter Auto Fokus state.
     if(!window.__RC103_STANDALONE && hasRepeat && !suppressRepeat && !waitingCounter && !autoFocus && focusModeActive){
       triggerCounter(el);
@@ -2248,7 +2258,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       positionActiveParagraph(paras[active],'paragraph');
 
       if(window.__RC103_STANDALONE){
-        // RC113: chapter navigation selects content only. Auto Fokus is manual.
+        // RC114: chapter navigation selects content only. Auto Fokus is manual.
         paused=false; render();
       }else if(wasPaused && !wasRunning){
         paused=true; render();
@@ -4343,7 +4353,7 @@ async function ensurePdfJs(){
 }
 function toBlob(d){return d.blob instanceof Blob?d.blob:new Blob([d.blob],{type:d.type||d.mime||'application/pdf'})}
 function updatePdfTextHighlight(){
-  /* RC113: PDF Reader highlighting intentionally disabled. */
+  /* RC114: PDF Reader highlighting intentionally disabled. */
   return;
 }
 async function renderPdf(d){
@@ -4555,7 +4565,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    picker?.classList.add('show');
  });
  const picker=document.getElementById('counterTargetPicker');
- const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC113_MANUAL_COUNTER_START==='function')window.__RC113_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
+ const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC114_MANUAL_COUNTER_START==='function')window.__RC114_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
  picker?.querySelectorAll('[data-target]')?.forEach(b=>b.addEventListener('click',()=>startManual(Number(b.dataset.target))));
  document.getElementById('counterCustomTarget')?.addEventListener('click',()=>{const t=prompt('Target Smart Counter','33');const n=Math.max(1,Math.min(9999,Number(t)||0));if(n)startManual(n);});
  document.addEventListener('click',e=>{if(picker?.classList.contains('show')&&!e.target.closest('#counterTargetPicker,#manualSmartCounterBtn'))picker.classList.remove('show')});
@@ -4704,13 +4714,21 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   }
   function activePara(el){
     var ps=paras();
+    var old=document.querySelector('#reader .para.rc103-active');
     paraIndex=ps.indexOf(el);
-    ps.forEach(function(p){p.classList.remove('rc103-active');});
-    document.querySelectorAll('#reader .para.active').forEach(function(p){p.classList.remove('active');});
+
+    /* Keep old paragraph visually alive during handoff. It is removed after
+       the new first word is painted. */
+    ps.forEach(function(p){
+      if(p!==el) p.classList.remove('active');
+    });
     if(el){
       el.classList.add('rc103-active','active');
     }
     return el;
+  }
+  function releasePreviousParagraph(old){
+    if(old && old!==current()) old.classList.remove('rc103-active');
   }
   function stableScroll(el,force){
     if(!el||!reader)return;
@@ -4738,8 +4756,8 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     const words=Math.max(1,text.split(/\s+/).filter(Boolean).length);
     let tempo=1;
     try{
-      const v=Number(localStorage.getItem('amp-b4-focusTempo'));
-      if(Number.isFinite(v)&&v>0)tempo=Math.max(.45,Math.min(2.5,v));
+      const v=Number(SAFE_STORE.getItem('amp-b4-focusTempo'));
+      if(Number.isFinite(v)&&v>0)tempo=Math.max(.5,Math.min(2,v));
     }catch(_){}
     // Android baseline: word-count based timing.
     return Math.max(800,Math.min(3000,words*900*tempo));
@@ -4804,7 +4822,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
             previous.classList.remove('rc103-focus-word','rc103-focus-word-enter','rc113-settled');
             previous.style.removeProperty('--karaoke-duration');
           }
-        },180);
+        },240);
       }
 
       stableScroll(el,wordIndex===0);
@@ -4826,11 +4844,9 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     },Math.max(760,duration-180));
   }
   function nextParagraph(){
-    /* DO NOT clearHighlight here.
-       The current word must remain on-screen while the next paragraph's
-       first word is activated. */
     clearTimer();
 
+    var old=document.querySelector('#reader .para.rc103-active');
     var ps=paras();
     if(paraIndex<0){
       var a=document.querySelector('#reader .para.active')||ps[0];
@@ -4838,6 +4854,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     }
     if(paraIndex>=ps.length-1){
       clearHighlight();
+      ps.forEach(function(p){p.classList.remove('rc103-active');});
       running=false;paused=false;waiting=false;render();
       try{toast('Auto Fokus selesai')}catch(_){}
       return;
@@ -4850,10 +4867,14 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     ensureFocusMode();
     render();
 
-    /* No 80 ms dead interval. Activate the first word immediately on the
-       next animation frame, while the old word is still visible. */
+    /* First word of the new paragraph is painted while the old word is still
+       retained. Only then is the old paragraph released. */
     requestAnimationFrame(function(){
-      if(running&&!waiting)focusPhrase();
+      if(!running||waiting)return;
+      focusPhrase();
+      setTimeout(function(){
+        if(old && old!==current()) old.classList.remove('rc103-active');
+      },220);
     });
   }
   function start(reset){
@@ -4957,9 +4978,9 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     setTimeout(focusPhrase,120);
   });
 
-  /* RC113: single Smart Counter hand-off bridge. Manual counter pauses AF;
+  /* RC114: single Smart Counter hand-off bridge. Manual counter pauses AF;
      completion/exit is the only path allowed to resume it. */
-  window.__RC113_MANUAL_COUNTER_START=function(el){
+  window.__RC114_MANUAL_COUNTER_START=function(el){
     if(!el)return false;
     clearTimer();clearHighlight();waiting=true;running=false;paused=true;render();
     try{window.SmartDzikirCounter?.activate?.(el,paraIndex);}catch(_){}
@@ -4996,7 +5017,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 
 
 <style id="rc109-absolute-final">
-/* RC113 absolute final overrides: this block is intentionally last so no legacy
+/* RC114 absolute final overrides: this block is intentionally last so no legacy
    RC71/RC105/RC107 rule can re-enable cover cropping or PDF highlighting. */
 body.cover-mode .reader-wrap{overflow:hidden!important;padding:0!important;background:#073b2b!important}
 body.cover-mode #cover-depan{width:100vw!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;display:block!important}
@@ -5012,45 +5033,58 @@ body.focus .para.rc103-active .semantic .rc103-word.rc103-focus-word{opacity:1!i
 .rc71-vtp-text-layer .rc71-vtp-focus-line,.rc71-vtp-text-layer span.rc71-vtp-focus-line{background:transparent!important;background-image:none!important;box-shadow:none!important;animation:none!important}
 #rc71VtpSpeedBand{display:none!important}
 </style>
-<style id="rc113-continuous-highlight-style">
-/* RC113 — continuous word hand-off.
-   The Android sweep remains the visual model. Unlike RC113, the previous
-   word is NOT cleared before the next word starts. This removes the visible
-   blank interval at phrase/paragraph boundaries. */
-body.focus .para.rc103-active .rc103-word{
-  opacity:.30;
-  position:relative;
-  border-radius:6px;
-  -webkit-box-decoration-break:clone;
-  box-decoration-break:clone;
-  transition:opacity .22s ease;
-  background-image:linear-gradient(90deg,
-    color-mix(in srgb,var(--accent) 24%,transparent),
-    color-mix(in srgb,var(--accent2) 30%,transparent));
-  background-repeat:no-repeat;
-  background-position:left center;
-  background-size:0% 100%;
-}
-body.focus .para.rc103-active .rc103-word.rc103-focus-word{
-  opacity:1!important;
+<style id="rc114-continuous-highlight-style">
+/* RC114: highlight is NOT scoped to rc103-active. This is the critical
+   paragraph-handoff fix: the last word of paragraph A remains painted while
+   the first word of paragraph B starts. */
+body.focus #reader .rc103-word{
   display:inline-block!important;
-  white-space:nowrap;
-  max-width:100%;
-  vertical-align:baseline;
-  animation:rc113WordSweep var(--karaoke-duration,1200ms) linear forwards!important;
-  box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 6%,transparent);
+  position:relative!important;
+  vertical-align:baseline!important;
+  border-radius:6px;
+  opacity:.64;
+  transition:opacity .20s linear,filter .20s linear;
+  background-image:none;
+  background-repeat:no-repeat;
+  background-position:left 55%;
+  background-size:0% 88%;
 }
-@keyframes rc113WordSweep{
-  from{background-size:0% 100%}
-  to{background-size:100% 100%}
+body.focus #reader .rc103-word.rc103-focus-word{
+  opacity:1!important;
+  background-image:linear-gradient(90deg,
+    color-mix(in srgb,var(--accent) 34%,transparent),
+    color-mix(in srgb,var(--accent2) 38%,transparent))!important;
+  animation:rc114WordSweep var(--karaoke-duration,900ms) linear forwards!important;
+  will-change:background-size,opacity;
+}
+body.focus #reader .rc103-word.rc113-settled{
+  opacity:1!important;
+  background-image:linear-gradient(90deg,
+    color-mix(in srgb,var(--accent) 34%,transparent),
+    color-mix(in srgb,var(--accent2) 38%,transparent))!important;
+  background-size:100% 88%!important;
+  animation:none!important;
+}
+@keyframes rc114WordSweep{
+  from{background-size:0% 88%;opacity:.72}
+  to{background-size:100% 88%;opacity:1}
 }
 
-/* No visual reset during handoff. The class is removed only after the next
-   word is already active. */
-body.focus .para.rc103-active .rc103-word.rc113-settled{
-  background-size:100% 100%;
-  opacity:.95!important;
-  animation:none!important;
+/* Active paragraph: deliberately higher contrast than RC114. */
+body.focus #reader .para.rc103-active{
+  opacity:1!important;
+  filter:none!important;
+  background:color-mix(in srgb,var(--accent) 7%,var(--panel))!important;
+  box-shadow:inset 4px 0 0 color-mix(in srgb,var(--accent) 72%,transparent),
+             0 2px 10px color-mix(in srgb,#000 8%,transparent)!important;
+}
+body.focus #reader .para.rc103-active .semantic{
+  opacity:1!important;
+  color:inherit!important;
+  filter:none!important;
+}
+body.focus #reader .para.rc103-active .rc103-word:not(.rc103-focus-word){
+  opacity:.72!important;
 }
 </style>
 </body>
