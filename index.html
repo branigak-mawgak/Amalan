@@ -12,7 +12,7 @@ Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 <!DOCTYPE html>
 <!-- AMALAN MUSLIM RC106 — iPadOS / Offline Fine Tuning -->
 <!-- RC46 -->
-<html lang="id" data-build="AMALAN-RC114-iPadOS">
+<html lang="id" data-build="AMALAN-RC115-iPadOS">
 <head>
 <meta name="amalan-build" content="RC54-STABLE-CANONICAL">
 <meta charset="utf-8">
@@ -1320,8 +1320,8 @@ body.cover-mode #cover-depan .cover-actions .action{min-width:155px!important;bo
 
 
 
-<style id="rc114-final-highlight">
-/* RC114 FINAL — Highlight state is independent from paragraph-active state. */
+<style id="rc115-final-highlight">
+/* RC115 FINAL — Highlight state is independent from paragraph-active state. */
 body.focus #reader .rc103-word{
   display:inline-block!important;
   position:relative!important;
@@ -1346,12 +1346,12 @@ body.focus #reader .rc103-word.rc103-focus-word{
   background-repeat:no-repeat!important;
   background-position:left 55%!important;
   background-size:0% 88%!important;
-  animation:rc114WordSweepFinal var(--karaoke-duration,900ms)
+  animation:rc115WordSweepFinal var(--karaoke-duration,900ms)
              linear both!important;
   will-change:background-size,opacity!important;
   box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 8%,transparent)!important;
 }
-@keyframes rc114WordSweepFinal{
+@keyframes rc115WordSweepFinal{
   0%{background-size:0% 88%;opacity:.82}
   12%{opacity:1}
   100%{background-size:100% 88%;opacity:1}
@@ -1380,7 +1380,7 @@ body.focus #reader .para.rc103-active .semantic{
 #paragraphKaraokeCard{display:none!important}
 </style>
 </head>
-<body data-revision="RC114-SMOOTH-WORD-HANDOFF" data-amalan-build="RC114-SMOOTH-WORD-HANDOFF">
+<body data-revision="RC115-SMOOTH-WORD-HANDOFF" data-amalan-build="RC115-SMOOTH-WORD-HANDOFF">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button><div id="counterFloatActions" aria-label="Kontrol Smart Counter"><button aria-label="Reset hitungan ke 0" id="counterResetZero" title="Reset ke 0" type="button">↺</button><button aria-label="Exit Smart Counter" id="counterExit" title="Exit Smart Counter" type="button">✕</button></div>
@@ -1743,7 +1743,7 @@ function updateFocusTempo(showToast=true){
   if(autoFocus)startPhraseFocus();
   if(showToast)toast('Kecepatan fokus '+focusSpeedLabel.textContent);
 }
-/* RC114 — the visible slider is the authoritative Auto Fokus control.
+/* RC115 — the visible slider is the authoritative Auto Fokus control.
    It is independent from Auto Scroll and from the legacy Auto Fokus engine. */
 (function bindStandaloneFocusSlider(){
   var range=document.getElementById('focusSpeedRange');
@@ -1772,7 +1772,7 @@ function updateFocusTempo(showToast=true){
 
     /* Restart only the current standalone word. Auto Scroll is untouched. */
     if(window.__RC103_STANDALONE && document.body.classList.contains('focus')){
-      try{window.__RC114_SYNC_FOCUS_SPEED?.();}catch(_){}
+      try{window.__RC115_SYNC_FOCUS_SPEED?.();}catch(_){}
     }
   }
 
@@ -1780,7 +1780,7 @@ function updateFocusTempo(showToast=true){
   range.addEventListener('change',paint,{passive:true});
   paint();
 
-  window.__RC114_SET_FOCUS_SPEED=function(v){
+  window.__RC115_SET_FOCUS_SPEED=function(v){
     v=Math.max(.5,Math.min(2,Number(v)||1));
     range.value=String(v);
     paint();
@@ -2303,7 +2303,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     const focusModeActive=document.body.classList.contains('focus');
     const hasRepeat=repeatTarget(el)>0;
 
-    // RC114: the standalone engine is authoritative. Legacy Build76 must
+    // RC115: the standalone engine is authoritative. Legacy Build76 must
     // never start Smart Counter or alter Auto Fokus state.
     if(!window.__RC103_STANDALONE && hasRepeat && !suppressRepeat && !waitingCounter && !autoFocus && focusModeActive){
       triggerCounter(el);
@@ -2342,7 +2342,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       positionActiveParagraph(paras[active],'paragraph');
 
       if(window.__RC103_STANDALONE){
-        // RC114: chapter navigation selects content only. Auto Fokus is manual.
+        // RC115: chapter navigation selects content only. Auto Fokus is manual.
         paused=false; render();
       }else if(wasPaused && !wasRunning){
         paused=true; render();
@@ -4437,7 +4437,7 @@ async function ensurePdfJs(){
 }
 function toBlob(d){return d.blob instanceof Blob?d.blob:new Blob([d.blob],{type:d.type||d.mime||'application/pdf'})}
 function updatePdfTextHighlight(){
-  /* RC114: PDF Reader highlighting intentionally disabled. */
+  /* RC115: PDF Reader highlighting intentionally disabled. */
   return;
 }
 async function renderPdf(d){
@@ -4649,7 +4649,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    picker?.classList.add('show');
  });
  const picker=document.getElementById('counterTargetPicker');
- const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC114_MANUAL_COUNTER_START==='function')window.__RC114_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
+ const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC115_MANUAL_COUNTER_START==='function')window.__RC115_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
  picker?.querySelectorAll('[data-target]')?.forEach(b=>b.addEventListener('click',()=>startManual(Number(b.dataset.target))));
  document.getElementById('counterCustomTarget')?.addEventListener('click',()=>{const t=prompt('Target Smart Counter','33');const n=Math.max(1,Math.min(9999,Number(t)||0));if(n)startManual(n);});
  document.addEventListener('click',e=>{if(picker?.classList.contains('show')&&!e.target.closest('#counterTargetPicker,#manualSmartCounterBtn'))picker.classList.remove('show')});
@@ -4828,7 +4828,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   function wordNodes(el){
     return el?Array.from(el.querySelectorAll('.rc103-word')):[];
   }
-  window.__RC114_SYNC_FOCUS_SPEED=function(){
+  window.__RC115_SYNC_FOCUS_SPEED=function(){
     if(!running||waiting)return;
     clearTimeout(timer);
     var el=current(), words=wordNodes(el);
@@ -4864,7 +4864,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
       if(Number.isFinite(v)) tempo=Math.max(.5,Math.min(2,v));
     }catch(_){}
 
-    /* RC114: 0.50x = faster, 1.00x = normal, 2.00x = slower.
+    /* RC115: 0.50x = faster, 1.00x = normal, 2.00x = slower.
        Timing is based on word length, not Auto Scroll. */
     return Math.max(520,Math.min(2400,(360+letters*62)*tempo));
   }
@@ -4909,7 +4909,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     var duration=durationFor(el,node);
     node.style.setProperty('--karaoke-duration',duration+'ms');
 
-    /* RC114 handoff:
+    /* RC115 handoff:
        - the previous word is NOT cleared when changing word/paragraph
        - the new word starts first
        - the previous word is released only after 240 ms
@@ -4923,8 +4923,8 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 
       /* The previous word may belong to the previous paragraph. Keep it. */
       if(previous){
-        clearTimeout(previous.__rc114ReleaseTimer);
-        previous.__rc114ReleaseTimer=setTimeout(function(){
+        clearTimeout(previous.__rc115ReleaseTimer);
+        previous.__rc115ReleaseTimer=setTimeout(function(){
           if(previous!==node){
             previous.classList.remove('rc103-focus-word','rc103-focus-word-enter');
             previous.style.removeProperty('--karaoke-duration');
@@ -5077,9 +5077,9 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     setTimeout(focusPhrase,120);
   });
 
-  /* RC114: single Smart Counter hand-off bridge. Manual counter pauses AF;
+  /* RC115: single Smart Counter hand-off bridge. Manual counter pauses AF;
      completion/exit is the only path allowed to resume it. */
-  window.__RC114_MANUAL_COUNTER_START=function(el){
+  window.__RC115_MANUAL_COUNTER_START=function(el){
     if(!el)return false;
     clearTimer();clearHighlight();waiting=true;running=false;paused=true;render();
     try{window.SmartDzikirCounter?.activate?.(el,paraIndex);}catch(_){}
@@ -5117,7 +5117,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 
 
 
-<script id="rc114-slider-final">
+<script id="rc115-slider-final">
 (function(){
   'use strict';
   var range=document.getElementById('focusSpeedRange');
@@ -5132,8 +5132,8 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     try{SAFE_STORE.setItem('amp-b4-focusTempo',String(v));}catch(_){}
     var label=v<.98?'Lebih cepat':(v>1.02?'Lebih lambat':'Normal');
     if(out)out.textContent=v.toFixed(2).replace('.',',')+'× '+label;
-    if(window.__RC103_STANDALONE && window.__RC114_SYNC_FOCUS_SPEED){
-      window.__RC114_SYNC_FOCUS_SPEED();
+    if(window.__RC103_STANDALONE && window.__RC115_SYNC_FOCUS_SPEED){
+      window.__RC115_SYNC_FOCUS_SPEED();
     }
   }
   range.min='0.5'; range.max='2'; range.step='0.05';
@@ -5143,66 +5143,49 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 })();
 </script>
 
-<style id="rc114-active-paragraph-contrast">
-/* RC114 — Active paragraph contrast only.
-   Semantic colors are inherited unchanged; the paragraph container supplies
-   the active-state contrast while the current word remains dominant. */
-
-body.focus #reader .para:not(.rc103-active){
-  opacity:.78!important;
-  filter:saturate(.94)!important;
-  transition:opacity .28s ease,filter .28s ease!important;
+<style id="rc115-active-paragraph-contrast">
+/* RC115: clear active reading position; semantic colors remain intact. */
+body.focus #reader .para:not(.active):not(.rc103-active){
+  opacity:.56!important;
+  filter:none!important;
+  transition:opacity .30s ease!important;
 }
-
+body.focus #reader .para.active,
 body.focus #reader .para.rc103-active{
   position:relative!important;
-  z-index:2!important;
+  z-index:5!important;
   opacity:1!important;
   filter:none!important;
-
-  background:
-    linear-gradient(90deg,
-      color-mix(in srgb,var(--accent) 11%,var(--paper)),
-      color-mix(in srgb,var(--paper) 97%,transparent) 46%,
-      color-mix(in srgb,var(--paper) 95%,transparent))!important;
-
-  border-radius:12px!important;
-  padding:8px 12px 8px 16px!important;
-
+  background:rgba(12,107,79,.095)!important;
+  border-left:6px solid #0c6b4f!important;
+  border-radius:10px!important;
   box-shadow:
-    inset 4px 0 0 var(--accent),
-    0 1px 0 color-mix(in srgb,var(--accent) 18%,transparent),
-    0 5px 18px color-mix(in srgb,var(--ink) 7%,transparent)!important;
-
-  transition:
-    background .28s ease,
-    box-shadow .28s ease,
-    opacity .28s ease!important;
+    inset 0 0 0 1px rgba(12,107,79,.10),
+    0 2px 12px rgba(0,0,0,.055)!important;
+  padding-left:12px!important;
+  transform:none!important;
+  transition:background .30s ease,box-shadow .30s ease,opacity .30s ease!important;
 }
-
-/* Never fade semantic spans inside the active paragraph. */
+body.focus #reader .para.active .semantic,
 body.focus #reader .para.rc103-active .semantic{
   opacity:1!important;
   filter:none!important;
-  color:inherit!important;
 }
-
-/* Current word remains the strongest visual layer. */
-body.focus #reader .para.rc103-active .semantic.rc103-focus-word{
-  opacity:1!important;
-  filter:saturate(1.08) brightness(1.02)!important;
+body.focus #reader .para.active .semantic.s1,
+body.focus #reader .para.rc103-active .semantic.s1{color:var(--c1)!important}
+body.focus #reader .para.active .semantic.s2,
+body.focus #reader .para.rc103-active .semantic.s2{color:var(--c2)!important}
+body.focus #reader .para.active .semantic.s3,
+body.focus #reader .para.rc103-active .semantic.s3{color:var(--c3)!important}
+body.focus #reader .para.active .semantic.s4,
+body.focus #reader .para.rc103-active .semantic.s4{color:var(--c4)!important}
+body.focus #reader .para.active .semantic.s5,
+body.focus #reader .para.rc103-active .semantic.s5{color:var(--c5)!important}
+body.focus #reader .para.active .rc103-focus-word,
+body.focus #reader .para.rc103-active .rc103-focus-word{
   position:relative!important;
-  z-index:3!important;
-  border-radius:6px!important;
-  box-shadow:
-    0 0 0 2px color-mix(in srgb,var(--accent) 15%,transparent),
-    0 2px 8px color-mix(in srgb,var(--accent) 10%,transparent)!important;
-}
-
-/* Do not change line wrapping. */
-body.focus #reader .para.rc103-active .semantic{
-  -webkit-box-decoration-break:clone;
-  box-decoration-break:clone;
+  z-index:8!important;
+  opacity:1!important;
 }
 </style>
 
