@@ -2209,7 +2209,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     const focusModeActive=document.body.classList.contains('focus');
     const hasRepeat=repeatTarget(el)>0;
 
-    // RC111: the standalone engine is authoritative. Legacy Build76 must
+    // RC112: the standalone engine is authoritative. Legacy Build76 must
     // never start Smart Counter or alter Auto Fokus state.
     if(!window.__RC103_STANDALONE && hasRepeat && !suppressRepeat && !waitingCounter && !autoFocus && focusModeActive){
       triggerCounter(el);
@@ -2248,7 +2248,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       positionActiveParagraph(paras[active],'paragraph');
 
       if(window.__RC103_STANDALONE){
-        // RC111: chapter navigation selects content only. Auto Fokus is manual.
+        // RC112: chapter navigation selects content only. Auto Fokus is manual.
         paused=false; render();
       }else if(wasPaused && !wasRunning){
         paused=true; render();
@@ -4343,7 +4343,7 @@ async function ensurePdfJs(){
 }
 function toBlob(d){return d.blob instanceof Blob?d.blob:new Blob([d.blob],{type:d.type||d.mime||'application/pdf'})}
 function updatePdfTextHighlight(){
-  /* RC111: PDF Reader highlighting intentionally disabled. */
+  /* RC112: PDF Reader highlighting intentionally disabled. */
   return;
 }
 async function renderPdf(d){
@@ -4555,7 +4555,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    picker?.classList.add('show');
  });
  const picker=document.getElementById('counterTargetPicker');
- const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC111_MANUAL_COUNTER_START==='function')window.__RC111_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
+ const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC112_MANUAL_COUNTER_START==='function')window.__RC112_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
  picker?.querySelectorAll('[data-target]')?.forEach(b=>b.addEventListener('click',()=>startManual(Number(b.dataset.target))));
  document.getElementById('counterCustomTarget')?.addEventListener('click',()=>{const t=prompt('Target Smart Counter','33');const n=Math.max(1,Math.min(9999,Number(t)||0));if(n)startManual(n);});
  document.addEventListener('click',e=>{if(picker?.classList.contains('show')&&!e.target.closest('#counterTargetPicker,#manualSmartCounterBtn'))picker.classList.remove('show')});
@@ -4736,14 +4736,14 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   }
   function durationFor(el,node){
     const text=(node?.textContent||'').trim();
-    const chars=Math.max(1,text.replace(/\s+/g,'').length);
+    const words=Math.max(1,text.split(/\s+/).filter(Boolean).length);
     let tempo=1;
     try{
       const v=Number(localStorage.getItem('amp-b4-focusTempo'));
-      if(Number.isFinite(v)&&v>0)tempo=Math.max(.5,Math.min(2,v));
+      if(Number.isFinite(v)&&v>0)tempo=Math.max(.45,Math.min(2.5,v));
     }catch(_){}
-    // RC111: one timing source. 1.00x = normal; >1 = slower; <1 = faster.
-    return Math.max(460,Math.min(1900,(420+chars*78)*tempo));
+    // Android baseline: word-count based timing.
+    return Math.max(800,Math.min(3000,words*900*tempo));
   }
   function repeatTarget(el){
     if(!el)return 0;
@@ -4774,39 +4774,39 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   }
   function focusPhrase(){
     if(!running||waiting)return;
+
     var el=current(), words=wordNodes(el);
     if(!el||!words.length){nextParagraph();return;}
     wordIndex=Math.max(0,Math.min(wordIndex,words.length-1));
 
-    // RC111: never clear the previous word before the next word has entered.
-    // This creates a continuous eye-guidance sweep with a short overlap.
-    var previous=document.querySelector('#reader .rc103-focus-word');
     var node=words[wordIndex];
+    var previous=document.querySelector(
+      '#reader .para.rc103-active .rc103-focus-word'
+    );
     var duration=durationFor(el,node);
     node.style.setProperty('--karaoke-duration',duration+'ms');
-    node.classList.add('rc103-focus-word');
 
+    /* Android's key technique: force a layout read, then add the class in
+       the next frame so the CSS sweep always begins at 0%. */
     requestAnimationFrame(function(){
-      node.classList.add('rc103-focus-word-enter');
-      requestAnimationFrame(function(){
-        node.classList.remove('rc103-focus-word-enter');
-      });
+      if(!running||waiting)return;
+      void node.offsetWidth;
+      node.classList.add('rc103-focus-word');
+
+      /* Short overlap: previous word remains visible while the next word
+         starts, preventing the "jump/gap" seen in RC112. */
+      if(previous && previous!==node){
+        previous.style.setProperty('--karaoke-duration',duration+'ms');
+        setTimeout(function(){
+          previous.classList.remove('rc103-focus-word');
+          previous.style.removeProperty('--karaoke-duration');
+        },140);
+      }
+
+      stableScroll(el,wordIndex===0);
+      render();
     });
 
-    if(previous && previous!==node){
-      clearTimeout(window.__rc111HandoffTimer);
-      window.__rc111HandoffTimer=setTimeout(function(){
-        previous.classList.remove('rc103-focus-word');
-        previous.classList.remove('rc103-focus-word-enter');
-        previous.style.removeProperty('--karaoke-duration');
-      },120);
-    }
-
-    stableScroll(el,wordIndex===0);
-    render();
-
-    // Start the next word slightly before the current sweep completely ends.
-    var overlap=120;
     timer=setTimeout(function(){
       if(!running||waiting)return;
       wordIndex++;
@@ -4814,10 +4814,11 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
         focusPhrase();
         return;
       }
+
       var target=repeatTarget(el);
       if(target && openCounter(el))return;
       nextParagraph();
-    },Math.max(280,duration-overlap));
+    },Math.max(800,duration));
   }
   function nextParagraph(){
     clearTimer();clearHighlight();
@@ -4939,9 +4940,9 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     setTimeout(focusPhrase,120);
   });
 
-  /* RC111: single Smart Counter hand-off bridge. Manual counter pauses AF;
+  /* RC112: single Smart Counter hand-off bridge. Manual counter pauses AF;
      completion/exit is the only path allowed to resume it. */
-  window.__RC111_MANUAL_COUNTER_START=function(el){
+  window.__RC112_MANUAL_COUNTER_START=function(el){
     if(!el)return false;
     clearTimer();clearHighlight();waiting=true;running=false;paused=true;render();
     try{window.SmartDzikirCounter?.activate?.(el,paraIndex);}catch(_){}
@@ -4978,7 +4979,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 
 
 <style id="rc109-absolute-final">
-/* RC111 absolute final overrides: this block is intentionally last so no legacy
+/* RC112 absolute final overrides: this block is intentionally last so no legacy
    RC71/RC105/RC107 rule can re-enable cover cropping or PDF highlighting. */
 body.cover-mode .reader-wrap{overflow:hidden!important;padding:0!important;background:#073b2b!important}
 body.cover-mode #cover-depan{width:100vw!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;display:block!important}
@@ -4997,55 +4998,40 @@ body.focus .para.rc103-active .semantic .rc103-word.rc103-focus-word{opacity:1!i
 </body>
 </html>
 
-<style id="rc111-final-style">
-/* RC111: the speed slider controls the actual standalone engine. */
-#paragraphKaraokeCard{display:none!important}
+<style id="rc112-android-highlight-style">
+/* RC112 — Android highlighting model applied to the RC103 standalone engine.
+   Proven behavior: opacity transition + left-to-right background sweep. */
 body.focus .para.rc103-active .rc103-word{
-  display:inline!important;
+  opacity:.30;
   position:relative;
-  padding:0 1px;
-  border-radius:5px;
+  border-radius:6px;
+  -webkit-box-decoration-break:clone;
+  box-decoration-break:clone;
+  transition:opacity .28s ease;
   background-image:linear-gradient(90deg,
-    color-mix(in srgb,var(--accent) 34%,transparent),
-    color-mix(in srgb,var(--accent2) 31%,transparent));
+    color-mix(in srgb,var(--accent) 24%,transparent),
+    color-mix(in srgb,var(--accent2) 30%,transparent));
   background-repeat:no-repeat;
   background-position:left center;
   background-size:0% 100%;
 }
 body.focus .para.rc103-active .rc103-word.rc103-focus-word{
   opacity:1!important;
-  animation:rc111WordSweep var(--karaoke-duration,900ms)
-             cubic-bezier(.20,.58,.20,1) both!important;
-  will-change:background-size,opacity;
+  display:inline-block!important;
+  white-space:nowrap;
+  max-width:100%;
+  vertical-align:baseline;
+  border-radius:6px;
+  animation:rc112KaraokeSweep var(--karaoke-duration,2200ms) linear forwards;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 8%,transparent);
 }
-@keyframes rc111WordSweep{
-  0%{background-size:0% 100%;opacity:.70}
-  8%{opacity:1}
-  100%{background-size:100% 100%;opacity:1}
+@keyframes rc112KaraokeSweep{
+  from{background-size:0% 100%}
+  to{background-size:100% 100%}
 }
-
-/* The cover is deliberately contain-based; no cropping is allowed. */
-body.cover-mode #cover-depan{
-  width:100vw!important;height:100dvh!important;min-height:100dvh!important;
-  margin:0!important;padding:0!important;border-radius:0!important;
-  overflow:hidden!important;
-}
-body.cover-mode #cover-depan .cover-bg{
-  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-  object-fit:contain!important;object-position:center!important;
-  background:#163a2d!important;
-}
-body.cover-mode #cover-depan .cover-actions{
-  position:absolute!important;
-  left:max(4vw,env(safe-area-inset-left))!important;
-  top:50%!important;
-  transform:translateY(-50%)!important;
-  bottom:auto!important;margin:0!important;padding:0!important;
-  z-index:20!important;
-}
-body.cover-mode #cover-depan .cover-actions .action{
-  min-width:155px!important;padding:11px 16px!important;
-  box-shadow:0 8px 24px rgba(0,0,0,.36)!important;
+body.focus .para.rc103-active{
+  opacity:1!important;
+  filter:none!important;
 }
 </style>
 <script id="rc111-conflict-guard">
@@ -5078,6 +5064,26 @@ body.cover-mode #cover-depan .cover-actions .action{
     if(!window.SmartDzikirCounter?.isActive?.()) return;
     var af=e.target.closest?.('#autoFocusBtn,#af76PlayPause,#af76Play');
     if(af){e.preventDefault();e.stopImmediatePropagation();}
+  },true);
+})();
+</script>
+
+<script id="rc112-highlight-guard">
+(function(){
+  'use strict';
+  window.addEventListener('pageshow',function(){
+    document.querySelectorAll('#reader .rc103-focus-word').forEach(function(el){
+      el.classList.remove('rc103-focus-word');
+      el.style.removeProperty('--karaoke-duration');
+      void el.offsetWidth;
+    });
+  });
+  var manual=document.getElementById('manualSmartCounterBtn');
+  if(manual) manual.addEventListener('click',function(){
+    document.querySelectorAll('#reader .rc103-focus-word').forEach(function(el){
+      el.classList.remove('rc103-focus-word');
+      el.style.removeProperty('--karaoke-duration');
+    });
   },true);
 })();
 </script>
