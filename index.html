@@ -1309,6 +1309,25 @@ body.cover-mode #cover-depan .cover-bg{width:100%;height:100%;object-fit:cover;o
   body.cover-mode #cover-depan .cover-bg{object-fit:cover!important;object-position:center center!important;background:#073b2b}
 }
 </style>
+<style id="rc109-cover-no-crop">
+body.cover-mode .reader-wrap{overflow:hidden!important;padding:0!important;background:#073b2b!important}
+body.cover-mode #cover-depan{width:100vw!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;border-radius:0!important}
+body.cover-mode #cover-depan .cover-bg{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center center!important;background:#073b2b!important}
+body.cover-mode #cover-depan .cover-actions{position:absolute!important;left:max(18px,env(safe-area-inset-left))!important;bottom:max(24px,calc(env(safe-area-inset-bottom) + 20px))!important;margin:0!important;padding:0!important;z-index:10!important}
+body.cover-mode #cover-depan .cover-actions .action{min-width:155px!important;box-shadow:0 6px 18px rgba(0,0,0,.3)!important}
+</style>
+<style id="rc109-final-ui">
+.rc109-unified-speed{margin-top:12px}
+#focusSpeedRange,#lpmRange{width:100%;accent-color:var(--accent)}
+body.focus .para.rc103-active .semantic{opacity:.60!important}
+body.focus .para.rc103-active .rc103-word{display:inline-block;position:relative;opacity:.70;background:transparent!important;box-shadow:none!important;transition:opacity .18s ease,filter .18s ease}
+body.focus .para.rc103-active .rc103-word.rc103-focus-word{opacity:1!important;animation:rc109WordSweep var(--karaoke-duration,700ms) cubic-bezier(.12,.72,.22,1) both!important;will-change:background-size,opacity}
+@keyframes rc109WordSweep{0%{background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent2) 34%,transparent));background-repeat:no-repeat;background-size:0% 88%;background-position:left 55%;opacity:.76}72%{opacity:1}100%{background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent2) 34%,transparent));background-repeat:no-repeat;background-size:100% 88%;background-position:left 55%;opacity:1}}
+.rc71-vtp-text-layer .rc71-vtp-focus-line{background:transparent!important;background-image:none!important;box-shadow:none!important;animation:none!important}
+
+body.focus .para.rc103-active .rc103-word{vertical-align:baseline;border-radius:5px;padding:0 .02em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+body.focus .para.rc103-active .rc103-word.rc103-focus-word{animation-fill-mode:both!important}
+</style>
 </head>
 <body data-revision="RC107-FINETUNE-AF-PDF-COVER-SMOOTH" data-amalan-build="RC107-FINETUNE-AF-PDF-COVER-SMOOTH">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
@@ -1431,7 +1450,7 @@ body.cover-mode #cover-depan .cover-bg{width:100%;height:100%;object-fit:cover;o
 </div>
 <div class="notes-list" id="notesList"></div><div class="empty-state" id="notesEmpty">Belum ada diary.</div></section></article>
 </main><footer class="bottom"><button class="action" onclick="goTo('beranda')">⌂ Home</button><button class="action nav-fullscreen-btn" id="navFullscreenBtn" aria-label="Layar penuh" title="Layar penuh">⛶</button><button class="action" id="themeNavBtn" aria-label="Ganti tema gelap/terang" title="Ganti tema">◐ Tema</button><button class="action" id="smartCounterNavBtn" aria-label="Buka Smart Counter" title="Smart Counter">🔢 Counter</button><button class="action nav-step" id="prevBtn" aria-label="Previous" title="Previous">‹‹</button><button class="action" id="focusBtn">Fokus</button><button class="action primary" id="autoBtn">▶ Scroll</button><button class="action" id="autoFocusBtn">◎ Auto Fokus</button><button class="action nav-step" id="nextBtn" aria-label="Next" title="Next">››</button><button class="action" id="fontDownBtn">A−</button><button class="action" id="fontBtn">A+</button><button class="action" id="checkpointBtn">📍 Simpan</button><button class="action" id="editBtn">✏️ Edit</button></footer></div><div class="drawer" id="drawer"><div class="shade"></div><aside class="panel"><button aria-label="Tutup menu" class="icon" id="closeBtn">✕</button><h3>Daftar Isi</h3><input class="searchbox" id="search" placeholder="Cari kata dalam bacaan..."/><button class="action primary" id="manageTocBtn" style="width:100%;margin:14px 0">☰ Atur Daftar Isi</button><div class="toc-group" data-menu-id="panduan-ziarah"><button class="toc-head"><span>🕌 Panduan Ziarah Kubur</span><b>+</b></button><div class="toc-list">
-<button onclick="goTo('panduan-ziarah')">Buka</button></div></div><div class="toc-group" data-menu-id="tawasulan"><button class="toc-head"><span>📿 TAWASULAN</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('tawasulan')">Buka</button><small>Bacaan Tawassul</small></div></div><div class="toc-group" data-menu-id="surat-yasin-ziarah"><button class="toc-head"><span>📖 Surat Yasin</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-yasin-ziarah')">Buka</button><small>83 ayat • Ritual Ziarah</small></div></div><div class="toc-group" data-menu-id="tahlil-ziarah"><button class="toc-head"><span>📿 Tahlil</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('tahlil-ziarah')">Buka</button><small>Bacaan Tahlil • Ritual Ziarah</small></div></div><div class="toc-group" data-menu-id="doa-tahlil"><button class="toc-head"><span>🤲 DOA TAHLIL</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-tahlil')">Buka</button><small>Doa penutup Tahlil</small></div></div><div class="toc-group" data-menu-id="surat-waqiah"><button class="toc-head"><span>🌾 Surat Al-Waqi’ah</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-waqiah')">Buka</button><small>96 ayat</small></div></div><div class="toc-group" data-menu-id="surat-mulk"><button class="toc-head"><span>🌙 Surat Al-Mulk</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-mulk')">Buka</button><small>30 ayat</small></div></div><div class="toc-group" data-menu-id="yasin-waqiah-tabarok"><button class="toc-head"><span>📚 Yasin Waqiah Tabarok</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('yasin-waqiah-tabarok')">Buka</button><small>Yasin • Al-Waqi’ah • Al-Mulk</small></div></div><div class="toc-group" data-menu-id="doa-1"><button class="toc-head"><span>🤲 Doa Setelah Sholat</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-1')">Buka</button><small>Bacaan pilihan</small></div></div><div class="toc-group" data-menu-id="doa-2"><button class="toc-head"><span>⭐ Doa Hajat</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-2')">Buka</button><small>Bacaan pilihan</small></div></div><div class="toc-group" data-menu-id="library-bacaan"><button class="toc-head"><span>📚 Library Bacaan</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('library-bacaan')">Buka</button><small>Koleksi bacaan</small></div></div><div class="toc-group" data-menu-id="galeri-foto"><button class="toc-head"><span>🎞️ Galeri Media</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('galeri-foto')">Buka</button><small>Foto, Audio &amp; Video</small></div></div><div class="toc-group" data-menu-id="catatan"><button class="toc-head"><span>📝 Catatan</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('catatan')">Buka</button><small>Catatan pribadi</small></div></div><h3>Pengaturan</h3><div class="settings-row"><button data-theme="emerald">Emerald</button><button data-theme="sepia">Sepia</button><button data-theme="dark">Gelap</button></div><div class="settings-row"><button id="speedDown">Scroll −</button><button id="speedLabel">1.0×</button><button id="speedUp">Scroll +</button><button id="speedTurbo" type="button">⚡ +60</button></div><div class="settings-row"><button id="focusSpeedDown">Fokus lebih lambat</button><button id="focusSpeedLabel">0,75×</button><button id="focusSpeedUp">Fokus lebih cepat</button></div><div class="control-card"><label>Kecepatan Auto Scroll: <output id="lpmOut">200 baris/menit</output></label><input id="lpmRange" max="420" min="10" step="5" type="range" value="200"/><div class="hint">Kecepatan dihitung berdasarkan tinggi baris aktual. Font lebih besar otomatis disesuaikan agar ritme baca tetap stabil.</div></div><div class="control-card"><label>Auto Fokus</label><select id="focusMode"><option selected="" value="phrase">Per frasa</option><option value="paragraph">Per paragraf</option></select><div class="hint">Auto Fokus memiliki ritme sendiri dan tidak bergantung pada kecepatan Auto Scroll.</div></div>
+<button onclick="goTo('panduan-ziarah')">Buka</button></div></div><div class="toc-group" data-menu-id="tawasulan"><button class="toc-head"><span>📿 TAWASULAN</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('tawasulan')">Buka</button><small>Bacaan Tawassul</small></div></div><div class="toc-group" data-menu-id="surat-yasin-ziarah"><button class="toc-head"><span>📖 Surat Yasin</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-yasin-ziarah')">Buka</button><small>83 ayat • Ritual Ziarah</small></div></div><div class="toc-group" data-menu-id="tahlil-ziarah"><button class="toc-head"><span>📿 Tahlil</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('tahlil-ziarah')">Buka</button><small>Bacaan Tahlil • Ritual Ziarah</small></div></div><div class="toc-group" data-menu-id="doa-tahlil"><button class="toc-head"><span>🤲 DOA TAHLIL</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-tahlil')">Buka</button><small>Doa penutup Tahlil</small></div></div><div class="toc-group" data-menu-id="surat-waqiah"><button class="toc-head"><span>🌾 Surat Al-Waqi’ah</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-waqiah')">Buka</button><small>96 ayat</small></div></div><div class="toc-group" data-menu-id="surat-mulk"><button class="toc-head"><span>🌙 Surat Al-Mulk</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-mulk')">Buka</button><small>30 ayat</small></div></div><div class="toc-group" data-menu-id="yasin-waqiah-tabarok"><button class="toc-head"><span>📚 Yasin Waqiah Tabarok</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('yasin-waqiah-tabarok')">Buka</button><small>Yasin • Al-Waqi’ah • Al-Mulk</small></div></div><div class="toc-group" data-menu-id="doa-1"><button class="toc-head"><span>🤲 Doa Setelah Sholat</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-1')">Buka</button><small>Bacaan pilihan</small></div></div><div class="toc-group" data-menu-id="doa-2"><button class="toc-head"><span>⭐ Doa Hajat</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-2')">Buka</button><small>Bacaan pilihan</small></div></div><div class="toc-group" data-menu-id="library-bacaan"><button class="toc-head"><span>📚 Library Bacaan</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('library-bacaan')">Buka</button><small>Koleksi bacaan</small></div></div><div class="toc-group" data-menu-id="galeri-foto"><button class="toc-head"><span>🎞️ Galeri Media</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('galeri-foto')">Buka</button><small>Foto, Audio &amp; Video</small></div></div><div class="toc-group" data-menu-id="catatan"><button class="toc-head"><span>📝 Catatan</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('catatan')">Buka</button><small>Catatan pribadi</small></div></div><h3>Pengaturan</h3><div class="settings-row"><button data-theme="emerald">Emerald</button><button data-theme="sepia">Sepia</button><button data-theme="dark">Gelap</button></div><div class="settings-row"><button id="speedDown">Scroll −</button><button id="speedLabel">1.0×</button><button id="speedUp">Scroll +</button><button id="speedTurbo" type="button">⚡ +60</button></div><div class="control-card rc109-unified-speed"><label><b>⚙️ Kecepatan Auto Fokus</b> <output id="focusSpeedRangeOut">1,00× Normal</output></label><input id="focusSpeedRange" max="2" min="0.5" step="0.05" type="range" value="1"/><div class="hint">Highlight bergerak kata demi kata. Pengaturan ini hanya mengatur Auto Fokus dan tidak mengubah Auto Scroll.</div></div><div class="control-card"><label><b>↕ Kecepatan Auto Scroll</b> <output id="lpmOut">200 baris/menit</output></label><input id="lpmRange" max="420" min="10" step="5" type="range" value="200"/><div class="hint">Auto Scroll memiliki pengaturan sendiri.</div></div>
 <div class="control-card" id="paragraphKaraokeCard">
 <label>🎤 Karaoke per paragraf: <output id="karaokeParagraphOut">7,5 dtk</output></label>
 <input id="karaokeParagraphRange" max="30" min="2" step="0.5" type="range" value="7.5"/>
@@ -1635,6 +1654,10 @@ function semanticize(p, customPhrases, sourceText){
   const sourceLines=base.split('\n');
   const customLines=useCustom?String(customPhrases||'').split('\n'):[];
   let phraseNo=0;
+  function wordize(text){
+    const words=String(text||'').trim().split(/\s+/).filter(Boolean);
+    return words.map((w,i)=>`<span class="rc103-word" data-word="${i}">${escapeSemanticText(w)}</span>`).join(' ');
+  }
   const html=sourceLines.map((line,lineIndex)=>{
     if(!line.trim())return '<span class="editor-blank-line" aria-hidden="true">&nbsp;</span>';
     let chunks;
@@ -1642,7 +1665,7 @@ function semanticize(p, customPhrases, sourceText){
       const manualLine=(customLines[lineIndex]??'').trim();
       chunks=manualLine?manualLine.split('|').map(x=>x.trim()).filter(Boolean):splitMeaning(line);
     }else chunks=splitMeaning(line);
-    return chunks.map((x,i)=>`<span class="semantic s${phraseNo++%5+1}${phraseNo===1?' opening':''}" data-phrase="${phraseNo-1}">${escapeSemanticText(x)}</span>${i<chunks.length-1?' ':''}`).join('');
+    return chunks.map((x,i)=>`<span class="semantic s${phraseNo++%5+1}" data-phrase="${phraseNo-1}">${wordize(x)}</span>${i<chunks.length-1?' ':''}`).join('');
   }).join('<br>');
   p.dataset.sourceText=base;
   p.dataset.phrases=useCustom?(customPhrases||''):'';
@@ -2186,9 +2209,9 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
     const focusModeActive=document.body.classList.contains('focus');
     const hasRepeat=repeatTarget(el)>0;
 
-    // Auto Fokus waits until the complete phrase-highlight pass finishes.
-    // Manual Focus may still invoke Smart Counter immediately on a repeat item.
-    if(hasRepeat && !suppressRepeat && !waitingCounter && !autoFocus && focusModeActive){
+    // RC109: the standalone engine is authoritative. Legacy Build76 must
+    // never start Smart Counter or alter Auto Fokus state.
+    if(!window.__RC103_STANDALONE && hasRepeat && !suppressRepeat && !waitingCounter && !autoFocus && focusModeActive){
       triggerCounter(el);
     }
 
@@ -2224,16 +2247,13 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       sec?.scrollIntoView({behavior:'auto',block:'start'});
       positionActiveParagraph(paras[active],'paragraph');
 
-      if(wasPaused && !wasRunning){
-        // Jika pengguna memang sedang pause, hormati pause tersebut.
-        paused=true;
-        render();
+      if(window.__RC103_STANDALONE){
+        // RC109: chapter navigation selects content only. Auto Fokus is manual.
+        paused=false; render();
+      }else if(wasPaused && !wasRunning){
+        paused=true; render();
         try{toast('Auto Fokus tetap dijeda pada '+title())}catch(_){}
       }else{
-        // FIX RC100: setiap kali pengguna membuka bacaan dari Beranda/Daftar Isi,
-        // Auto Fokus langsung dimulai. Sebelumnya hanya restart bila wasRunning,
-        // sehingga masuk ke bab baru dalam keadaan idle dan terlihat seperti
-        // Auto Fokus tidak bekerja otomatis.
         paused=false;
         requestAnimationFrame(()=>start(true));
         try{toast('Auto Fokus dimulai dari awal '+title())}catch(_){}
@@ -2275,6 +2295,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
 
   cc?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();continueAfterCounter(0);});
   window.addEventListener('smartcountercomplete',()=>{
+      if(window.__RC103_STANDALONE)return;
       // Target tercapai: double-beep is emitted by Smart Counter. After a
       // short visual confirmation, automatically close the counter, advance
       // one paragraph, and resume phrase-level Auto Fokus.
@@ -2282,6 +2303,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       setTimeout(()=>continueAfterCounter(0),650);
     });
     window.addEventListener('smartcounterexit',()=>{
+      if(window.__RC103_STANDALONE)return;
       if(!waitingCounter)return;
       waitingCounter=false;
       clearClocks();
@@ -2307,6 +2329,7 @@ body.focus .para.active,body.focus .para.af76-active{transition:opacity .38s eas
       }
     });
     window.addEventListener('smartcounterfinishcontinue',()=>{
+      if(window.__RC103_STANDALONE)return;
       if(!waitingCounter)return;
       waitingCounter=false;
       clearClocks();
@@ -4320,17 +4343,8 @@ async function ensurePdfJs(){
 }
 function toBlob(d){return d.blob instanceof Blob?d.blob:new Blob([d.blob],{type:d.type||d.mime||'application/pdf'})}
 function updatePdfTextHighlight(){
-  if(!vp)return;
-  document.querySelectorAll('.rc71-vtp-focus-line').forEach(x=>x.classList.remove('rc71-vtp-focus-line'));
-  const guide=vp.getBoundingClientRect().top+vp.clientHeight*.50;
-  let best=null,bestDist=Infinity;
-  pages.querySelectorAll('.rc71-vtp-text-layer span').forEach(span=>{
-    const r=span.getBoundingClientRect();
-    if(r.bottom<vp.getBoundingClientRect().top||r.top>vp.getBoundingClientRect().bottom)return;
-    const d=Math.abs((r.top+r.height*.5)-guide);
-    if(d<bestDist){bestDist=d;best=span}
-  });
-  if(best && bestDist<Math.max(110,vp.clientHeight*.18)){best.style.setProperty('--pdf-highlight-duration',highlightDuration(speed)+'ms');best.classList.add('rc71-vtp-focus-line');}
+  /* RC109: PDF Reader highlighting intentionally disabled. */
+  return;
 }
 async function renderPdf(d){
   stop(); current=d; backgroundAbort++;
@@ -4541,7 +4555,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    picker?.classList.add('show');
  });
  const picker=document.getElementById('counterTargetPicker');
- const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';window.SmartDzikirCounter?.activate?.(el,0);sync();};
+ const startManual=(target)=>{if(!target)return;picker?.classList.remove('show');const el=document.querySelector('#reader .para.active')||document.querySelector('#reader .para.repeatable')||document.createElement('p');el.dataset.repeat=String(target);el.dataset.repeatTitle='Smart Counter Manual';if(typeof window.__RC109_MANUAL_COUNTER_START==='function')window.__RC109_MANUAL_COUNTER_START(el);else window.SmartDzikirCounter?.activate?.(el,0);sync();};
  picker?.querySelectorAll('[data-target]')?.forEach(b=>b.addEventListener('click',()=>startManual(Number(b.dataset.target))));
  document.getElementById('counterCustomTarget')?.addEventListener('click',()=>{const t=prompt('Target Smart Counter','33');const n=Math.max(1,Math.min(9999,Number(t)||0));if(n)startManual(n);});
  document.addEventListener('click',e=>{if(picker?.classList.contains('show')&&!e.target.closest('#counterTargetPicker,#manualSmartCounterBtn'))picker.classList.remove('show')});
@@ -4650,7 +4664,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   var afBtn=document.getElementById('autoFocusBtn');
   var status=document.getElementById('rc103AfStatus');
   var running=false, paused=false, waiting=false;
-  var paraIndex=-1, phraseIndex=0, timer=0, scrollTimer=0, startedAt=0;
+  var paraIndex=-1, wordIndex=0, timer=0, scrollTimer=0, startedAt=0;
 
   function paras(){
     return Array.from(document.querySelectorAll('#reader > article.book > section.chapter .para'));
@@ -4679,7 +4693,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     if(status){
       status.classList.toggle('show',running||paused||waiting);
       setStatus(waiting?'Smart Counter • '+(current()?.dataset.repeatTitle||'Pengulangan'):
-        (running?'Auto Fokus • Phrase '+(phraseIndex+1):
+        (running?'Auto Fokus • Kata '+(wordIndex+1):
         (paused?'Auto Fokus dijeda':'Auto Fokus')));
     }
   }
@@ -4717,17 +4731,18 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
       try{reader.scrollTo({top:next,behavior:'smooth'});}catch(_){reader.scrollTop=next;}
     },40);
   }
-  function phraseNodes(el){
-    return el?Array.from(el.querySelectorAll('.semantic')):[];
+  function wordNodes(el){
+    return el?Array.from(el.querySelectorAll('.rc103-word')):[];
   }
   function durationFor(el,node){
-    var words=(node?.textContent||'').trim().split(/\s+/).filter(Boolean).length||2;
-    var tempo=0.75;
+    const text=(node?.textContent||'').trim();
+    const chars=Math.max(1,text.replace(/\s+/g,'').length);
+    let rate=1;
     try{
-      var v=Number(localStorage.getItem('tqv3b3-focusTempo'));
-      if(Number.isFinite(v)&&v>0)tempo=Math.max(.45,Math.min(2.5,v));
+      const v=Number(localStorage.getItem('amp-b4-focusRate'));
+      if(Number.isFinite(v)&&v>0)rate=Math.max(.5,Math.min(2,v));
     }catch(_){}
-    return Math.max(750,Math.min(5000,words*520*tempo));
+    return Math.max(320,Math.min(1500,(300+chars*65)/rate));
   }
   function repeatTarget(el){
     if(!el)return 0;
@@ -4758,29 +4773,28 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   }
   function focusPhrase(){
     if(!running||waiting)return;
-    var el=current(), ps=phraseNodes(el);
-    if(!el||!ps.length){nextParagraph();return;}
-    phraseIndex=Math.max(0,Math.min(phraseIndex,ps.length-1));
+    var el=current(), words=wordNodes(el);
+    if(!el||!words.length){nextParagraph();return;}
+    wordIndex=Math.max(0,Math.min(wordIndex,words.length-1));
     clearHighlight();
-    var node=ps[phraseIndex];
+    var node=words[wordIndex];
+    var duration=durationFor(el,node);
+    node.style.setProperty('--karaoke-duration',duration+'ms');
     node.classList.add('rc103-focus-word','rc103-focus-word-enter');
-    node.style.setProperty('--karaoke-duration',durationFor(el,node)+'ms');
     requestAnimationFrame(function(){node.classList.remove('rc103-focus-word-enter')});
-    /* Scroll only at paragraph boundaries or when the paragraph leaves the
-       dead-band; never recenter every phrase. */
-    stableScroll(el,phraseIndex===0);
+    stableScroll(el,wordIndex===0);
     render();
     timer=setTimeout(function(){
       if(!running||waiting)return;
-      phraseIndex++;
-      if(phraseIndex<phraseNodes(el).length){
+      wordIndex++;
+      if(wordIndex<wordNodes(el).length){
         focusPhrase();
       }else{
         var target=repeatTarget(el);
         if(target && openCounter(el))return;
         nextParagraph();
       }
-    },durationFor(el,node));
+    },duration);
   }
   function nextParagraph(){
     clearTimer();clearHighlight();
@@ -4795,7 +4809,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
       return;
     }
     paraIndex++;
-    phraseIndex=0;
+    wordIndex=0;
     activePara(ps[paraIndex]);
     running=true;paused=false;waiting=false;
     ensureFocusMode();render();
@@ -4808,11 +4822,11 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     if(reset){
       var a=document.querySelector('#reader .para.active')||ps[0];
       paraIndex=Math.max(0,ps.indexOf(a));
-      phraseIndex=0;
+      wordIndex=0;
     }else if(paraIndex<0){
       var b=document.querySelector('#reader .para.active')||ps[0];
       paraIndex=Math.max(0,ps.indexOf(b));
-      phraseIndex=0;
+      wordIndex=0;
     }
     clearTimer();clearHighlight();
     ensureFocusMode();
@@ -4855,7 +4869,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     if(id && id!=='beranda'){
       setTimeout(function(){
         var sec=document.getElementById(id),p=sec?.querySelector('.para');
-        if(p){activePara(p);phraseIndex=0;clearTimer();clearHighlight();running=false;paused=false;waiting=false;render();}
+        if(p){activePara(p);wordIndex=0;clearTimer();clearHighlight();running=false;paused=false;waiting=false;render();}
       },180);
     }
     return result;
@@ -4868,7 +4882,7 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
     if(!id||id==='beranda')return;
     setTimeout(function(){
       var sec=document.getElementById(id),p=sec?.querySelector('.para');
-      if(p){activePara(p);phraseIndex=0;clearTimer();clearHighlight();running=false;paused=false;waiting=false;render();}
+      if(p){activePara(p);wordIndex=0;clearTimer();clearHighlight();running=false;paused=false;waiting=false;render();}
     },220);
   },true);
 
@@ -4881,13 +4895,13 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
   },{passive:true});
 
   /* Counter completion: exactly one RC103 continuation path. */
-  window.addEventListener('smartcountercomplete',function(){
+  window.addEventListener('smartcountercomplete',function(e){e.stopImmediatePropagation();
     if(!waiting)return;
     waiting=false;paused=false;running=true;
     var ps=paras();
     if(paraIndex<ps.length-1){
       paraIndex++;
-      phraseIndex=0;
+      wordIndex=0;
       activePara(ps[paraIndex]);
       ensureFocusMode();render();
       setTimeout(focusPhrase,180);
@@ -4895,12 +4909,21 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
       running=false;render();
     }
   });
-  window.addEventListener('smartcounterexit',function(){
+  window.addEventListener('smartcounterexit',function(e){e.stopImmediatePropagation();
     if(!waiting)return;
     waiting=false;paused=false;running=true;
     ensureFocusMode();render();
     setTimeout(focusPhrase,120);
   });
+
+  /* RC109: single Smart Counter hand-off bridge. Manual counter pauses AF;
+     completion/exit is the only path allowed to resume it. */
+  window.__RC109_MANUAL_COUNTER_START=function(el){
+    if(!el)return false;
+    clearTimer();clearHighlight();waiting=true;running=false;paused=true;render();
+    try{window.SmartDzikirCounter?.activate?.(el,paraIndex);}catch(_){}
+    return true;
+  };
 
   render();
 })();
@@ -4930,5 +4953,23 @@ body.focus .para.rc103-active .semantic.rc103-focus-word.rc103-focus-word-enter{
 })();
 </script>
 
+
+<style id="rc109-absolute-final">
+/* RC109 absolute final overrides: this block is intentionally last so no legacy
+   RC71/RC105/RC107 rule can re-enable cover cropping or PDF highlighting. */
+body.cover-mode .reader-wrap{overflow:hidden!important;padding:0!important;background:#073b2b!important}
+body.cover-mode #cover-depan{width:100vw!important;height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;display:block!important}
+body.cover-mode #cover-depan .cover-bg{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;margin:0!important;object-fit:contain!important;object-position:center center!important;background:#073b2b!important}
+body.cover-mode #cover-depan .cover-actions{position:absolute!important;left:max(18px,env(safe-area-inset-left))!important;right:auto!important;top:auto!important;bottom:max(24px,calc(env(safe-area-inset-bottom) + 20px))!important;margin:0!important;padding:0!important;z-index:20!important}
+body.cover-mode #cover-depan .cover-actions .action{min-width:155px!important}
+/* Word-by-word karaoke: one active word, continuous cadence, no layout jump. */
+body.focus .para.rc103-active .semantic{opacity:.60!important;filter:none!important}
+body.focus .para.rc103-active .semantic .rc103-word{display:inline-block!important;position:relative!important;opacity:.72!important;background:transparent!important;box-shadow:none!important;vertical-align:baseline!important;transition:opacity .14s linear!important}
+body.focus .para.rc103-active .semantic .rc103-word.rc103-focus-word{opacity:1!important;background-image:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent),color-mix(in srgb,var(--accent2) 34%,transparent))!important;background-repeat:no-repeat!important;background-position:left 55%!important;background-size:100% 88%!important;animation:rc109WordSweepFinal var(--karaoke-duration,700ms) cubic-bezier(.12,.72,.22,1) both!important;will-change:background-size,opacity!important}
+@keyframes rc109WordSweepFinal{0%{background-size:0% 88%;opacity:.76}100%{background-size:100% 88%;opacity:1}}
+/* PDF Reader: completely remove all highlight visuals. */
+.rc71-vtp-text-layer .rc71-vtp-focus-line,.rc71-vtp-text-layer span.rc71-vtp-focus-line{background:transparent!important;background-image:none!important;box-shadow:none!important;animation:none!important}
+#rc71VtpSpeedBand{display:none!important}
+</style>
 </body>
 </html>
