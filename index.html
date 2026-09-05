@@ -11,14 +11,14 @@ Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 -->
 <!-- RC54 STABLE CANONICAL: legacy patch cleanup; canonical gallery + editor retained. -->
 <!DOCTYPE html>
-<!-- AMALAN RC80 iPadOS EDITION — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
+<!-- AMALAN RC80.3 iPadOS EDITION — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
 <!-- RC46 -->
 <html lang="id" data-build="AMALAN-RC80-iPadOS">
 <head>
 <meta name="amalan-build" content="RC54-STABLE-CANONICAL">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Amalan Muslim — RC80 iPadOS</title>
+<title>Amalan Muslim — RC80.3 iPadOS</title>
 <script id="tuned-safe-storage">
 (function(){
   'use strict';
@@ -1018,7 +1018,7 @@ body.rc71-native-pip-active{
 </style>
 
 
-<!-- RC80 iPadOS deployment layer: preserves RC71 V6.2.4 application logic/content. -->
+<!-- RC80.3 iPadOS deployment layer: preserves RC71 V6.2.4 application logic/content. -->
 <meta name="application-name" content="Amalan Muslim RC80">
 <meta name="apple-mobile-web-app-title" content="Amalan RC80">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1058,6 +1058,13 @@ header{padding-top:max(10px,calc(10px + var(--rc80-safe-top)))}
 @media (hover:none) and (pointer:coarse){button,.icon,.action{min-height:44px}.home-card{min-height:120px}}
 </style>
 
+<style id="rc80-3-editor-speed-ui">
+.editor-paragraph-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:8px 0 12px;position:sticky;top:-1px;z-index:4;background:var(--paper);padding:6px 0}.editor-paragraph-nav button{min-width:0;font-weight:750}#editParaCounter{font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap;text-align:center}
+.unified-speed-button{width:100%;margin:10px 0}.unified-speed-panel{border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0 12px;background:color-mix(in srgb,var(--accent) 5%,var(--paper))}.unified-speed-panel[hidden]{display:none!important}.unified-speed-head{display:flex;align-items:center;justify-content:space-between}.unified-speed-panel label{display:flex;justify-content:space-between;gap:12px;font-size:13px;font-weight:750;margin:10px 0 3px}.unified-speed-panel input[type=range]{width:100%;accent-color:var(--accent)}
+#af76Controller{gap:4px!important;padding:5px!important}#af76Controller button{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;font-size:16px!important}#af76Controller button.main{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;font-size:18px!important}#af76Status{bottom:128px!important;font-size:10px!important;padding:5px 9px!important}
+@media(max-width:430px){.editor-paragraph-nav{grid-template-columns:1fr 1fr}.editor-paragraph-nav #editParaCounter{grid-column:1/-1;grid-row:1}.editor-paragraph-nav button{font-size:12px;padding:8px 6px}}
+@media(orientation:landscape){#af76Controller.show,body.app-fullscreen #af76Controller.show,html:fullscreen #af76Controller.show,html:-webkit-full-screen #af76Controller.show{transform:translateX(-50%) scale(.58)!important}}
+</style>
 </head>
 <body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC71-V6.2.3-GALERI-MEDIA">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
@@ -1179,15 +1186,25 @@ header{padding-top:max(10px,calc(10px + var(--rc80-safe-top)))}
 </div>
 <div class="notes-list" id="notesList"></div><div class="empty-state" id="notesEmpty">Belum ada diary.</div></section></article>
 </main><footer class="bottom"><button class="action" onclick="goTo('beranda')">⌂ Home</button><button class="action nav-fullscreen-btn" id="navFullscreenBtn" aria-label="Layar penuh" title="Layar penuh">⛶</button><button class="action" id="themeNavBtn" aria-label="Ganti tema gelap/terang" title="Ganti tema">◐ Tema</button><button class="action" id="smartCounterNavBtn" aria-label="Buka Smart Counter" title="Smart Counter">🔢 Counter</button><button class="action" id="prevBtn">◀</button><button class="action" id="focusBtn">Fokus</button><button class="action primary" id="autoBtn">▶ Scroll</button><button class="action" id="autoFocusBtn">◎ Auto Fokus</button><button class="action" id="nextBtn">▶</button><button class="action" id="fontDownBtn">A−</button><button class="action" id="fontBtn">A+</button><button class="action" id="checkpointBtn">📍 Simpan</button><button class="action" id="editBtn">✏️ Edit</button></footer></div><div class="drawer" id="drawer"><div class="shade"></div><aside class="panel"><button aria-label="Tutup menu" class="icon" id="closeBtn">✕</button><h3>Daftar Isi</h3><input class="searchbox" id="search" placeholder="Cari kata dalam bacaan..."/><button class="action primary" id="manageTocBtn" style="width:100%;margin:14px 0">☰ Atur Daftar Isi</button><div class="toc-group" data-menu-id="panduan-ziarah"><button class="toc-head"><span>🕌 Panduan Ziarah Kubur</span><b>+</b></button><div class="toc-list">
-<button onclick="goTo('panduan-ziarah')">Buka</button></div></div><div class="toc-group" data-menu-id="tawasulan"><button class="toc-head"><span>📿 TAWASULAN</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('tawasulan')">Buka</button><small>Bacaan Tawassul</small></div></div><div class="toc-group" data-menu-id="surat-yasin-ziarah"><button class="toc-head"><span>📖 Surat Yasin</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-yasin-ziarah')">Buka</button><small>83 ayat • Ritual Ziarah</small></div></div><div class="toc-group" data-menu-id="tahlil-ziarah"><button class="toc-head"><span>📿 Tahlil</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('tahlil-ziarah')">Buka</button><small>Bacaan Tahlil • Ritual Ziarah</small></div></div><div class="toc-group" data-menu-id="surat-mulk"><button class="toc-head"><span>🌙 Surat Al-Mulk</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-mulk')">Buka</button><small>30 ayat</small></div></div><div class="toc-group" data-menu-id="surat-waqiah"><button class="toc-head"><span>🌾 Surat Al-Waqi’ah</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-waqiah')">Buka</button><small>96 ayat</small></div></div><div class="toc-group" data-menu-id="yasin-waqiah-tabarok"><button class="toc-head"><span>📚 Yasin Waqiah Tabarok</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('yasin-waqiah-tabarok')">Buka</button><small>Yasin • Al-Waqi’ah • Al-Mulk</small></div></div><div class="toc-group" data-menu-id="doa-1"><button class="toc-head"><span>🤲 Doa Setelah Sholat</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-1')">Buka</button><small>Bacaan pilihan</small></div></div><div class="toc-group" data-menu-id="doa-2"><button class="toc-head"><span>⭐ Doa Hajat</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-2')">Buka</button><small>Bacaan pilihan</small></div></div><div class="toc-group" data-menu-id="library-bacaan"><button class="toc-head"><span>📚 Library Bacaan</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('library-bacaan')">Buka</button><small>Koleksi bacaan</small></div></div><div class="toc-group" data-menu-id="galeri-foto"><button class="toc-head"><span>🎞️ Galeri Media</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('galeri-foto')">Buka</button><small>Foto, Audio &amp; Video</small></div></div><div class="toc-group" data-menu-id="catatan"><button class="toc-head"><span>📝 Catatan</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('catatan')">Buka</button><small>Catatan pribadi</small></div></div><h3>Pengaturan</h3><div class="settings-row"><button data-theme="emerald">Emerald</button><button data-theme="sepia">Sepia</button><button data-theme="dark">Gelap</button></div><div class="settings-row"><button id="speedDown">Scroll −</button><button id="speedLabel">1.0×</button><button id="speedUp">Scroll +</button><button id="speedTurbo" type="button">⚡ +60</button></div><div class="settings-row"><button id="focusSpeedDown">Fokus lebih lambat</button><button id="focusSpeedLabel">0,75×</button><button id="focusSpeedUp">Fokus lebih cepat</button></div><div class="control-card"><label>Kecepatan Auto Scroll: <output id="lpmOut">200 baris/menit</output></label><input id="lpmRange" max="420" min="10" step="5" type="range" value="200"/><div class="hint">Kecepatan dihitung berdasarkan tinggi baris aktual. Font lebih besar otomatis disesuaikan agar ritme baca tetap stabil.</div></div><div class="control-card"><label>Auto Fokus</label><select id="focusMode"><option selected="" value="phrase">Per frasa</option><option value="paragraph">Per paragraf</option></select><div class="hint">Auto Fokus memiliki ritme sendiri dan tidak bergantung pada kecepatan Auto Scroll.</div></div>
-<div class="control-card" id="paragraphKaraokeCard">
-<label>🎤 Karaoke per paragraf: <output id="karaokeParagraphOut">7,5 dtk</output></label>
-<input id="karaokeParagraphRange" max="30" min="2" step="0.5" type="range" value="7.5"/>
-<div class="hint">Durasi slider karaoke untuk satu paragraf. Setelah selesai, Auto Fokus berpindah ke paragraf berikutnya.</div>
-</div><button class="action" id="resumeBtn" style="width:100%">▶ Lanjutkan bacaan terakhir</button><p style="color:var(--muted);font-size:13px">Posisi terakhir, tema, ukuran huruf, kecepatan LPM, perubahan teks, dan penanda tersimpan otomatis.</p></aside></div><div class="modal wide" id="libraryModal"><div class="modal-card"><h3 id="libraryModalTitle" style="margin-top:0">Tambah Bacaan</h3><div class="form-grid"><label>Nama bacaan<input id="libTitle"/></label><label>Kategori<select id="libCategory"><option>Doa</option><option>Surat</option><option>Dzikir</option><option>Sholawat</option><option>Tahlil</option><option>Hizib</option><option>Ayat Pilihan</option><option>Lainnya</option></select></label><label>Teks Arab<textarea dir="rtl" id="libArabic"></textarea></label><label>Latin<textarea id="libLatin"></textarea></label><label>Terjemahan<textarea id="libTranslation"></textarea></label><label class="rc35-hidden-source">Sumber / catatan<input id="libSource" placeholder="Sumber internal"/></label></div><div class="modal-actions"><button class="action" id="libraryCancelBtn" type="button">Batal</button><button class="action primary" id="librarySaveBtn" type="button">Simpan</button></div></div></div>
+<button onclick="goTo('panduan-ziarah')">Buka</button></div></div><div class="toc-group" data-menu-id="tawasulan"><button class="toc-head"><span>📿 TAWASULAN</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('tawasulan')">Buka</button><small>Bacaan Tawassul</small></div></div><div class="toc-group" data-menu-id="surat-yasin-ziarah"><button class="toc-head"><span>📖 Surat Yasin</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-yasin-ziarah')">Buka</button><small>83 ayat • Ritual Ziarah</small></div></div><div class="toc-group" data-menu-id="tahlil-ziarah"><button class="toc-head"><span>📿 Tahlil</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('tahlil-ziarah')">Buka</button><small>Bacaan Tahlil • Ritual Ziarah</small></div></div><div class="toc-group" data-menu-id="surat-mulk"><button class="toc-head"><span>🌙 Surat Al-Mulk</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-mulk')">Buka</button><small>30 ayat</small></div></div><div class="toc-group" data-menu-id="surat-waqiah"><button class="toc-head"><span>🌾 Surat Al-Waqi’ah</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('surat-waqiah')">Buka</button><small>96 ayat</small></div></div><div class="toc-group" data-menu-id="yasin-waqiah-tabarok"><button class="toc-head"><span>📚 Yasin Waqiah Tabarok</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('yasin-waqiah-tabarok')">Buka</button><small>Yasin • Al-Waqi’ah • Al-Mulk</small></div></div><div class="toc-group" data-menu-id="doa-1"><button class="toc-head"><span>🤲 Doa Setelah Sholat</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-1')">Buka</button><small>Bacaan pilihan</small></div></div><div class="toc-group" data-menu-id="doa-2"><button class="toc-head"><span>⭐ Doa Hajat</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('doa-2')">Buka</button><small>Bacaan pilihan</small></div></div><div class="toc-group" data-menu-id="library-bacaan"><button class="toc-head"><span>📚 Library Bacaan</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('library-bacaan')">Buka</button><small>Koleksi bacaan</small></div></div><div class="toc-group" data-menu-id="galeri-foto"><button class="toc-head"><span>🎞️ Galeri Media</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('galeri-foto')">Buka</button><small>Foto, Audio &amp; Video</small></div></div><div class="toc-group" data-menu-id="catatan"><button class="toc-head"><span>📝 Catatan</span><b>+</b></button><div class="toc-sub"><button onclick="goTo('catatan')">Buka</button><small>Catatan pribadi</small></div></div><h3>Pengaturan</h3><div class="settings-row"><button data-theme="emerald">Emerald</button><button data-theme="sepia">Sepia</button><button data-theme="dark">Gelap</button></div><button class="action primary unified-speed-button" id="unifiedSpeedBtn" type="button">⚙️ Kecepatan Auto Fokus • Scroll • Karaoke</button>
+<div class="unified-speed-panel" id="unifiedSpeedPanel" hidden>
+<div class="unified-speed-head"><b>⚙️ Pengaturan Kecepatan</b><button class="icon" id="unifiedSpeedClose" type="button">✕</button></div>
+<label>◎ Auto Fokus <output id="unifiedFocusOut">0,75×</output></label><input id="unifiedFocusRange" type="range" min="0.45" max="2.5" step="0.05" value="0.75">
+<label>▶ Auto Scroll <output id="unifiedScrollOut">200 baris/menit</output></label><input id="unifiedScrollRange" type="range" min="10" max="420" step="5" value="200">
+<label>🎤 Karaoke/paragraf <output id="unifiedKaraokeOut">7,5 dtk</output></label><input id="unifiedKaraokeRange" type="range" min="2" max="30" step="0.5" value="7.5">
+<div class="hint">Satu panel untuk Auto Fokus, Auto Scroll, dan Karaoke. Semua nilai tersimpan otomatis.</div></div>
+<div hidden aria-hidden="true"><button id="speedDown"></button><button id="speedLabel"></button><button id="speedUp"></button><button id="speedTurbo"></button><button id="focusSpeedDown"></button><button id="focusSpeedLabel"></button><button id="focusSpeedUp"></button><output id="lpmOut"></output><input id="lpmRange" type="range" min="10" max="420" value="200"></div>
+<div class="control-card"><label>Auto Fokus</label><select id="focusMode"><option selected value="phrase">Per frasa</option><option value="paragraph">Per paragraf</option></select><div class="hint">Pilih fokus per frasa atau per paragraf.</div></div>
+<div hidden aria-hidden="true" id="paragraphKaraokeCard"><output id="karaokeParagraphOut"></output><input id="karaokeParagraphRange" type="range" min="2" max="30" step="0.5" value="7.5"></div><button class="action" id="resumeBtn" style="width:100%">▶ Lanjutkan bacaan terakhir</button><p style="color:var(--muted);font-size:13px">Posisi terakhir, tema, ukuran huruf, kecepatan LPM, perubahan teks, dan penanda tersimpan otomatis.</p></aside></div><div class="modal wide" id="libraryModal"><div class="modal-card"><h3 id="libraryModalTitle" style="margin-top:0">Tambah Bacaan</h3><div class="form-grid"><label>Nama bacaan<input id="libTitle"/></label><label>Kategori<select id="libCategory"><option>Doa</option><option>Surat</option><option>Dzikir</option><option>Sholawat</option><option>Tahlil</option><option>Hizib</option><option>Ayat Pilihan</option><option>Lainnya</option></select></label><label>Teks Arab<textarea dir="rtl" id="libArabic"></textarea></label><label>Latin<textarea id="libLatin"></textarea></label><label>Terjemahan<textarea id="libTranslation"></textarea></label><label class="rc35-hidden-source">Sumber / catatan<input id="libSource" placeholder="Sumber internal"/></label></div><div class="modal-actions"><button class="action" id="libraryCancelBtn" type="button">Batal</button><button class="action primary" id="librarySaveBtn" type="button">Simpan</button></div></div></div>
 <div class="modal wide" id="ritualModal"><div class="modal-card"><h3 id="ritualModalTitle" style="margin-top:0">Buat Ritual</h3><div class="form-grid"><label>Nama ritual<input id="ritualName" placeholder="Contoh: Wirid Pagi"/></label><label>Keterangan<input id="ritualDescription" placeholder="Opsional"/></label></div><h4>Pilih bacaan dari Library</h4><div class="check-list" id="ritualLibraryChoices"></div><h4>Susunan bacaan</h4><div class="ritual-builder-list" id="ritualBuilderList"></div><div class="modal-actions"><button class="action" id="ritualCancelBtn" type="button">Batal</button><button class="action primary" id="ritualSaveBtn" type="button">Simpan Ritual</button></div></div></div>
 <div class="modal wide" id="libraryImportModal"><div class="modal-card"><h3 style="margin-top:0">Impor ke Library</h3><p class="word-note" id="importFileInfo">Pilih file Word (.docx), TXT, atau JSON.</p><div class="import-summary"><div class="import-stat"><b id="importFoundCount">0</b>Ditemukan</div><div class="import-stat"><b id="importSelectedCount">0</b>Dipilih</div><div class="import-stat"><b id="importDuplicateCount">0</b>Duplikat</div></div><div class="import-controls"><label>Kategori default<select id="importDefaultCategory"><option>Doa</option><option>Surat</option><option>Dzikir</option><option>Sholawat</option><option>Tahlil</option><option>Hizib</option><option>Ayat Pilihan</option><option>Lainnya</option></select></label><label>Jika duplikat<select id="importDuplicatePolicy"><option value="skip">Lewati</option><option value="replace">Ganti data lama</option><option value="copy">Simpan sebagai versi baru</option></select></label></div><div class="import-preview-list" id="importPreviewList"></div><div class="import-status" id="importStatus"></div><div class="import-progress"><span id="importProgressBar"></span></div><div class="modal-actions"><button class="action" id="importCancelBtn" type="button">Batal</button><button class="action" id="importSelectAllBtn" type="button">Pilih Semua</button><button class="action primary" id="importCommitBtn" type="button">Impor Terpilih</button></div></div></div>
-<div class="modal" id="editorModal"><div class="modal-card"><h3 style="margin-top:0">✏️ Edit Bacaan</h3><div class="hint" id="editLocation"></div><label>Teks bacaan <small style="color:var(--muted)">(sumber utama)</small></label>
+<div class="modal" id="editorModal"><div class="modal-card"><h3 style="margin-top:0">✏️ Edit Bacaan</h3><div class="hint" id="editLocation"></div>
+<div class="editor-paragraph-nav" id="editorParagraphNav">
+<button class="action" id="editPrevParaBtn" type="button">◀ PREV Paragraf</button>
+<span id="editParaCounter" aria-live="polite">—</span>
+<button class="action" id="editNextParaBtn" type="button">NEXT Paragraf ▶</button>
+</div>
+<label>Teks bacaan <small style="color:var(--muted)">(sumber utama)</small></label>
 <div aria-label="Alat edit teks" class="editor-toolbar editor-toolbar-main">
 <button id="insertLineBtn" type="button">↵ Baris</button>
 <button id="insertParagraphBtn" type="button">¶ Paragraf</button>
@@ -3644,11 +3661,11 @@ html:-webkit-full-screen .nav-fullscreen-btn{
       ctl.style.left=clamp(p.x,4,Math.max(4,innerWidth-90))+'px';
       ctl.style.top=clamp(p.y,4,Math.max(4,innerHeight-90))+'px';
       ctl.style.right='auto'; ctl.style.bottom='auto';
-      ctl.style.transform='scale(.70)';
+      ctl.style.transform='scale(.58)';
     }else{
       ctl.style.left='50%'; ctl.style.top='calc(env(safe-area-inset-top) + 8px)';
       ctl.style.right='auto'; ctl.style.bottom='auto';
-      ctl.style.transform='translateX(-50%) scale(.70)';
+      ctl.style.transform='translateX(-50%) scale(.58)';
     }
   }
   function start(e){
@@ -3669,7 +3686,7 @@ html:-webkit-full-screen .nav-fullscreen-btn{
     const x=clamp(drag.left+dx,4,Math.max(4,innerWidth-r.width-4));
     const y=clamp(drag.top+dy,4,Math.max(4,innerHeight-r.height-4));
     ctl.style.left=x+'px'; ctl.style.top=y+'px'; ctl.style.right='auto'; ctl.style.bottom='auto';
-    ctl.style.transform='scale(.70)';
+    ctl.style.transform='scale(.58)';
   }
   function end(e){
     if(!drag||e.pointerId!==drag.id)return;
@@ -4020,5 +4037,34 @@ window.RC71VisualPDFTeleprompter={open,close,start,stop};
 })();
 </script>
 
+<style id="rc80-3-final-af-compact">
+@media(orientation:landscape){
+#af76Controller.show,body.app-fullscreen #af76Controller.show,html:fullscreen #af76Controller.show,html:-webkit-full-screen #af76Controller.show{transform:translateX(-50%) scale(.58)!important;transform-origin:top center!important}
+#af76Controller.rc71-v6-dragging{transform:scale(.58)!important}
+}
+</style>
+<script id="rc80-3-persistence-editor-speed">
+(()=>{'use strict';
+const OV_KEY='amp-b4-overrides',DB='amalan-rc80-persistent',STORE='kv',KKEY='amp-b4-karaokeParagraphSeconds';
+function openDB(){return new Promise((a,b)=>{try{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=()=>a(r.result);r.onerror=()=>b(r.error)}catch(e){b(e)}})}
+async function dbSet(k,v){try{const d=await openDB();await new Promise((a,b)=>{const t=d.transaction(STORE,'readwrite');t.objectStore(STORE).put(v,k);t.oncomplete=a;t.onerror=()=>b(t.error)});d.close();return true}catch(e){return false}}
+async function dbGet(k){try{const d=await openDB();const v=await new Promise((a,b)=>{const t=d.transaction(STORE,'readonly'),r=t.objectStore(STORE).get(k);r.onsuccess=()=>a(r.result);r.onerror=()=>b(r.error)});d.close();return v}catch(e){return null}}
+async function mirror(){try{await dbSet(OV_KEY,SAFE_STORE.getItem(OV_KEY)||'{}');navigator.storage?.persist?.().catch(()=>{})}catch(e){}}
+(async()=>{try{const l=SAFE_STORE.getItem(OV_KEY);if(l&&l!=='{}')return;const b=await dbGet(OV_KEY);if(b){SAFE_STORE.setItem(OV_KEY,String(b));applyOverridesAndSemantic?.()}}catch(e){}})();
+document.getElementById('saveEditBtn')?.addEventListener('click',()=>setTimeout(()=>{if(!document.getElementById('editorModal')?.classList.contains('open'))mirror()},50));
+window.addEventListener('pagehide',mirror);document.addEventListener('visibilitychange',()=>{if(document.hidden)mirror()});
+
+function updateEditorCounter(){const o=document.getElementById('editParaCounter'),p=paras[active];if(!o)return;o.textContent=`${active+1} / ${paras.length}${p?.dataset.ayah?' • Ayat '+p.dataset.ayah:''}`;document.getElementById('editPrevParaBtn').disabled=active<=0;document.getElementById('editNextParaBtn').disabled=active>=paras.length-1}
+async function moveEdit(d){const m=document.getElementById('editorModal'),i=active;window.__ampGenericSaveEdit?.();if(m?.classList.contains('open'))return;await mirror();setActive(Math.max(0,Math.min(paras.length-1,i+d)),true);editBtn?.onclick?.({type:'rc80-nav',preventDefault(){},stopPropagation(){}});setTimeout(updateEditorCounter,25)}
+document.getElementById('editPrevParaBtn')?.addEventListener('click',()=>moveEdit(-1));document.getElementById('editNextParaBtn')?.addEventListener('click',()=>moveEdit(1));editBtn?.addEventListener('click',()=>setTimeout(updateEditorCounter,25));
+const em=document.getElementById('editorModal');if(em)new MutationObserver(()=>{if(em.classList.contains('open'))updateEditorCounter()}).observe(em,{attributes:true,attributeFilter:['class']});
+
+const panel=document.getElementById('unifiedSpeedPanel'),f=document.getElementById('unifiedFocusRange'),sr=document.getElementById('unifiedScrollRange'),k=document.getElementById('unifiedKaraokeRange'),fo=document.getElementById('unifiedFocusOut'),so=document.getElementById('unifiedScrollOut'),ko=document.getElementById('unifiedKaraokeOut');let ks=Math.max(2,Math.min(30,Number(SAFE_STORE.getItem(KKEY)||7.5)));
+function sync(){f.value=focusTempo;fo.textContent=focusTempo.toFixed(2).replace('.',',')+'×';sr.value=lpm;so.textContent=lpm+' baris/menit';k.value=ks;ko.textContent=ks.toFixed(1).replace('.',',')+' dtk';const lk=document.getElementById('karaokeParagraphRange');if(lk)lk.value=ks}
+document.getElementById('unifiedSpeedBtn')?.addEventListener('click',()=>{panel.hidden=!panel.hidden;sync()});document.getElementById('unifiedSpeedClose')?.addEventListener('click',()=>panel.hidden=true);
+f?.addEventListener('input',()=>{focusTempo=Number(f.value);updateFocusTempo?.(false);sync()});sr?.addEventListener('input',()=>{lpm=Number(sr.value);document.getElementById('lpmRange').value=lpm;updateLpm?.(false);sync()});k?.addEventListener('input',()=>{ks=Number(k.value);SAFE_STORE.setItem(KKEY,ks);sync();if(autoFocus&&document.getElementById('focusMode')?.value==='paragraph')startPhraseFocus?.()});sync();
+if(typeof startPhraseFocus==='function'){const orig=startPhraseFocus;startPhraseFocus=function(){clearTimeout(phraseTimer);if(!autoFocus)return;if(document.getElementById('focusMode').value==='paragraph'){const p=paras[active],sp=[...(p?.querySelectorAll('.semantic')||[])],total=Math.max(2000,ks*1000),each=sp.length?total/sp.length:total;p?.classList.add('af-karaoke-paragraph');sp.forEach((e,i)=>{e.style.setProperty('--rc24-word-duration',Math.max(180,each)+'ms');e.style.setProperty('--rc24-word-delay',(i*each)+'ms')});phraseTimer=setTimeout(()=>{p?.classList.remove('af-karaoke-paragraph');sp.forEach(e=>{e.style.removeProperty('--rc24-word-duration');e.style.removeProperty('--rc24-word-delay')});if(active<paras.length-1)setActive(active+1);startPhraseFocus()},total);return}return orig()}}
+})();
+</script>
 </body>
 </html>
