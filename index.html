@@ -11,22 +11,22 @@ Do not alter the Waqi'ah 74–96 numbering/content without a new revision.
 -->
 <!-- RC54 STABLE CANONICAL: legacy patch cleanup; canonical gallery + editor retained. -->
 <!DOCTYPE html>
-<!-- AMALAN RC80.3 iPadOS EDITION — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
+<!-- AMALAN RC80.4 iPadOS EDITION — based on verified RC71 V6.2.4 FORCE GALERI MEDIA baseline. -->
 <!-- RC46 -->
 <html lang="id" data-build="AMALAN-RC80-iPadOS">
 <head>
 <meta name="amalan-build" content="RC54-STABLE-CANONICAL">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Amalan Muslim — RC80.3 iPadOS</title>
+<title>Amalan Muslim — RC80.4 iPadOS</title>
 <script id="tuned-safe-storage">
 (function(){
   'use strict';
   var mem={};
   window.SAFE_STORE={
-    getItem:function(k){try{return window.localStorage.getItem(k)}catch(e){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null}},
-    setItem:function(k,v){v=String(v);try{window.localStorage.setItem(k,v)}catch(e){mem[k]=v}},
-    removeItem:function(k){try{window.localStorage.removeItem(k)}catch(e){delete mem[k]}},
+    getItem:function(k){try{var v=window.localStorage.getItem(k);return v!==null?v:(Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null)}catch(e){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null}},
+    setItem:function(k,v){v=String(v);mem[k]=v;try{window.localStorage.setItem(k,v)}catch(e){}},
+    removeItem:function(k){delete mem[k];try{window.localStorage.removeItem(k)}catch(e){}},
     clear:function(){try{window.localStorage.clear()}catch(e){mem={}}},
     key:function(i){try{return window.localStorage.key(i)}catch(e){return Object.keys(mem)[i]||null}}
   };
@@ -4066,5 +4066,101 @@ f?.addEventListener('input',()=>{focusTempo=Number(f.value);updateFocusTempo?.(f
 if(typeof startPhraseFocus==='function'){const orig=startPhraseFocus;startPhraseFocus=function(){clearTimeout(phraseTimer);if(!autoFocus)return;if(document.getElementById('focusMode').value==='paragraph'){const p=paras[active],sp=[...(p?.querySelectorAll('.semantic')||[])],total=Math.max(2000,ks*1000),each=sp.length?total/sp.length:total;p?.classList.add('af-karaoke-paragraph');sp.forEach((e,i)=>{e.style.setProperty('--rc24-word-duration',Math.max(180,each)+'ms');e.style.setProperty('--rc24-word-delay',(i*each)+'ms')});phraseTimer=setTimeout(()=>{p?.classList.remove('af-karaoke-paragraph');sp.forEach(e=>{e.style.removeProperty('--rc24-word-duration');e.style.removeProperty('--rc24-word-delay')});if(active<paras.length-1)setActive(active+1);startPhraseFocus()},total);return}return orig()}}
 })();
 </script>
+
+<style id="rc80-4-layout-fix">
+/* RC80.4 — continuous paragraphs + protected ayah number gutter */
+#reader .chapter .para{
+  margin-top:0!important;
+  margin-bottom:0!important;
+  padding-top:1px!important;
+  padding-bottom:1px!important;
+}
+#reader #surat-yasin-ziarah .para.ayah,
+#reader #surat-waqiah .para.ayah,
+#reader #surat-mulk .para.ayah{
+  position:relative!important;
+  padding-left:46px!important;
+  min-height:34px!important;
+}
+#reader #surat-yasin-ziarah .para.ayah>.ayah-no,
+#reader #surat-waqiah .para.ayah>.ayah-no,
+#reader #surat-mulk .para.ayah>.ayah-no{
+  position:absolute!important;
+  left:7px!important;
+  top:4px!important;
+  transform:none!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  z-index:1!important;
+  pointer-events:none!important;
+}
+/* keep first phrase/text strictly outside the numbering gutter */
+#reader #surat-yasin-ziarah .para.ayah>.semantic:first-of-type,
+#reader #surat-waqiah .para.ayah>.semantic:first-of-type,
+#reader #surat-mulk .para.ayah>.semantic:first-of-type{
+  margin-left:0!important;
+}
+@media(min-width:760px){
+  #reader .chapter .para{padding-top:1px!important;padding-bottom:1px!important}
+  #reader #surat-yasin-ziarah .para.ayah,
+  #reader #surat-waqiah .para.ayah,
+  #reader #surat-mulk .para.ayah{padding-left:50px!important}
+}
+</style>
+<script id="rc80-4-editor-persistence-fix">
+(()=>{'use strict';
+const PRIMARY='amp-b4-overrides';
+const SHADOW='amp-b4-overrides-shadow-v2';
+const DB='amalan-rc80-persistent';
+const STORE='kv';
+let persistQueue=Promise.resolve();
+function validMap(raw){try{const v=typeof raw==='string'?JSON.parse(raw):raw;return v&&typeof v==='object'&&!Array.isArray(v)?v:null}catch(_){return null}}
+function newestTime(map){let n=0;if(!map)return n;for(const v of Object.values(map)){const t=Date.parse(v&&v.time||'');if(Number.isFinite(t))n=Math.max(n,t)}return n}
+function dbOpen(){return new Promise((resolve,reject)=>{try{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)}catch(e){reject(e)}})}
+async function dbPut(raw){try{const db=await dbOpen();await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put({value:raw,updatedAt:Date.now()},PRIMARY);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close();return true}catch(_){return false}}
+async function dbRead(){try{const db=await dbOpen();const out=await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readonly'),r=tx.objectStore(STORE).get(PRIMARY);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});db.close();if(typeof out==='string')return out;if(out&&typeof out.value==='string')return out.value;return null}catch(_){return null}}
+function writeLocal(raw){try{SAFE_STORE.setItem(PRIMARY,raw)}catch(_){}try{SAFE_STORE.setItem(SHADOW,raw)}catch(_){} }
+window.__rc80CommitOverrides=function(map){const raw=JSON.stringify(map||{});writeLocal(raw);persistQueue=persistQueue.then(()=>dbPut(raw)).catch(()=>false);return persistQueue};
+const originalSet=window.setOverrides;
+window.setOverrides=function(v){const raw=JSON.stringify(v||{});writeLocal(raw);persistQueue=persistQueue.then(()=>dbPut(raw)).catch(()=>false);return v};
+async function restoreBest(){
+  const primaryRaw=SAFE_STORE.getItem(PRIMARY), shadowRaw=SAFE_STORE.getItem(SHADOW), dbRaw=await dbRead();
+  const candidates=[primaryRaw,shadowRaw,dbRaw].map(raw=>({raw,map:validMap(raw)})).filter(x=>x.map);
+  if(!candidates.length)return;
+  candidates.sort((a,b)=>newestTime(b.map)-newestTime(a.map));
+  const best=candidates[0];
+  const raw=JSON.stringify(best.map);writeLocal(raw);
+  try{applyOverridesAndSemantic()}catch(_){}
+}
+restoreBest();
+
+async function saveEditPersistent(){
+  const p=paras[active],k=paraKey(p),ovs=getOverrides(),vs=versions();
+  const text=normalizeEditorText(editText.value);
+  if(!text){toast('Teks bacaan tidak boleh kosong');editText.focus();return}
+  let phrases=manualPhraseMode?editPhrases.value.trim():'';
+  if(phrases&&!phraseSpecMatchesText(text,phrases)){editorStatus.textContent='Jeda manual belum sesuai dengan teks.';toast('Periksa kembali susunan frasa');editPhrases.focus();return}
+  vs[k]=vs[k]||[];
+  if(ovs[k])vs[k].push({...ovs[k],time:new Date().toISOString()});
+  else vs[k].push({text:p.dataset.sourceText||p.innerText.trim(),phrases:p.dataset.phrases||'',color:p.style.color||'',fontSize:p.style.fontSize||'',time:new Date().toISOString(),original:true});
+  ovs[k]={text,phrases,color:editColor.value,fontSize:editFontSize.value,time:new Date().toISOString()};
+  editorStatus.textContent='Menyimpan permanen…';
+  writeLocal(JSON.stringify(ovs));
+  saveVersions(vs);
+  semanticize(p,phrases,text);applyOverrideStyle(p,ovs[k]);p.classList.add('edited');
+  const ok=await window.__rc80CommitOverrides(ovs);
+  SAFE_STORE.removeItem(B4KEY+'editor-draft:'+k);
+  editorStatus.textContent=ok===false?'Tersimpan lokal. Backup permanen belum tersedia.':'Tersimpan permanen.';
+  toast(ok===false?'Perubahan tersimpan lokal':'Perubahan tersimpan permanen');
+  modal.classList.remove('open');
+}
+const saveBtn=document.getElementById('saveEditBtn');
+if(saveBtn)saveBtn.onclick=saveEditPersistent;
+window.__ampGenericSaveEdit=saveEditPersistent;
+window.addEventListener('pageshow',()=>restoreBest());
+})();
+</script>
+
 </body>
 </html>

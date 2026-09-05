@@ -13,4 +13,6 @@ Important: Service Worker/offline caching requires HTTP/HTTPS and will not work 
 
 Baseline: RC71 V6.2.4 FORCE GALERI MEDIA. RC80 adds an iPadOS deployment layer, manifest, Home Screen icons, safe-area handling and responsive iPad layouts without replacing the baseline application content or logic.
 
-RC80.3 changes: persistent text edits (localStorage + IndexedDB backup), PREV/NEXT paragraph editor navigation, unified speed panel for Auto Fokus/Scroll/Karaoke, smaller Auto Fokus floating controls.
+RC80.4 changes: persistent text edits (localStorage + IndexedDB backup), PREV/NEXT paragraph editor navigation, unified speed panel for Auto Fokus/Scroll/Karaoke, smaller Auto Fokus floating controls.
+
+RC80.4: editor permanent-save hardening, zero paragraph gap, protected ayah-number gutter for Yasin/Waqiah/Mulk.
