@@ -1102,6 +1102,19 @@ header{padding-top:max(10px,calc(10px + var(--rc80-safe-top)))}
 }
 </style>
 
+<style id="rc80-10-pdf-cover-fix">
+/* RC80.10 — precise low-speed teleprompter + uncropped cover */
+body.cover-mode #cover-depan .cover-bg,
+#cover-depan.cover-ziarah .cover-bg{
+  object-fit:contain!important;
+  object-position:center center!important;
+  width:100%!important;
+  height:100%!important;
+  background:#073b2b!important;
+}
+body.cover-mode #cover-depan{background:#073b2b!important;}
+</style>
+
 <style id="rc80-9-autofocus-gradient">
 /* RC80.9 — Auto Fokus gradient karaoke highlight. */
 body.focus .para.active .semantic.focus-word{
@@ -3922,9 +3935,21 @@ function clampSpeed(){speed=Math.max(1,Math.min(60,Math.round(speed)));localStor
 function clearAutoHide(){clearTimeout(controlsHideTimer);controlsHideTimer=0;ov.classList.remove('rc71-vtp-controls-hidden')}
 function armAutoHide(){clearTimeout(controlsHideTimer);if(!running||readerMode)return;controlsHideTimer=setTimeout(()=>{if(running)ov.classList.add('rc71-vtp-controls-hidden')},90000)}
 function showControls(){clearAutoHide();if(running)armAutoHide()}
-function stop(){running=false;cancelAnimationFrame(raf);raf=0;last=0;scrollFloat=Number(vp.scrollTop)||0;clearTimeout(controlsHideTimer);ov.classList.remove('rc71-vtp-controls-hidden');pause.textContent='▶ Auto Scroll'}
-function tick(t){if(!running)return;if(!last){last=t;scrollFloat=Number(vp.scrollTop)||0;}const dt=Math.min(50,Math.max(0,t-last));last=t;scrollFloat+=speed*dt/1000;const maxTop=Math.max(0,vp.scrollHeight-vp.clientHeight);if(scrollFloat>maxTop)scrollFloat=maxTop;vp.scrollTop=scrollFloat;if(scrollFloat>=maxTop-0.5){stop();status.textContent='Selesai • semua halaman telah dibaca';return}raf=requestAnimationFrame(tick)}
-function start(){if(vp.scrollHeight<=vp.clientHeight+2)return;running=true;pause.textContent='Ⅱ Jeda';last=0;scrollFloat=Number(vp.scrollTop)||0;armAutoHide();raf=requestAnimationFrame(tick)}
+let autoScrollStartTime=0,autoScrollStartTop=0;
+function stop(){running=false;cancelAnimationFrame(raf);raf=0;last=0;autoScrollStartTime=0;autoScrollStartTop=Number(vp.scrollTop)||0;scrollFloat=autoScrollStartTop;clearTimeout(controlsHideTimer);ov.classList.remove('rc71-vtp-controls-hidden');pause.textContent='▶ Auto Scroll'}
+function tick(t){
+  if(!running)return;
+  if(!autoScrollStartTime){autoScrollStartTime=t;autoScrollStartTop=Number(vp.scrollTop)||0;}
+  const elapsed=Math.max(0,(t-autoScrollStartTime)/1000);
+  const maxTop=Math.max(0,vp.scrollHeight-vp.clientHeight);
+  scrollFloat=Math.min(maxTop,autoScrollStartTop+(speed*elapsed));
+  /* iOS/WKWebView may quantize scrollTop. Driving from total elapsed time prevents
+     fractional movement from being lost at 1–59 px/s. */
+  vp.scrollTop=Math.floor(scrollFloat+0.0001);
+  if(scrollFloat>=maxTop-0.001){stop();status.textContent='Selesai • semua halaman telah dibaca';return}
+  raf=requestAnimationFrame(tick);
+}
+function start(){if(vp.scrollHeight<=vp.clientHeight+2)return;running=true;pause.textContent='Ⅱ Jeda';last=0;autoScrollStartTime=0;autoScrollStartTop=Number(vp.scrollTop)||0;scrollFloat=autoScrollStartTop;armAutoHide();raf=requestAnimationFrame(tick)}
 function toggle(){running?stop():start()}
 async function close(){
   // X = EXIT: leave native fullscreen first, then close this Visual Teleprompter.
@@ -4100,7 +4125,7 @@ document.addEventListener('click',async e=>{
 pause.onclick=toggle;
 $('rc71VtpSlow').onclick=()=>{speed-=1;clampSpeed()};
 $('rc71VtpFast').onclick=()=>{speed+=1;clampSpeed()};
-if(speedRange){speedRange.value=String(speed);speedRange.addEventListener('input',()=>{speed=Number(speedRange.value)||20;clampSpeed();if(running)scrollFloat=Number(vp.scrollTop)||scrollFloat},{passive:true});}
+if(speedRange){speedRange.value=String(speed);speedRange.addEventListener('input',()=>{speed=Number(speedRange.value)||20;clampSpeed();if(running){scrollFloat=Number(vp.scrollTop)||scrollFloat;autoScrollStartTop=scrollFloat;autoScrollStartTime=performance.now()}},{passive:true});}
 $('rc71VtpRestart').onclick=()=>{stop();vp.scrollTo({top:0,behavior:'auto'});status.textContent='Awal PDF'};
 $('rc71VtpPageUp').onclick=()=>vp.scrollBy({top:-Math.round(vp.clientHeight*.85),behavior:'smooth'});
 $('rc71VtpPageDown').onclick=()=>vp.scrollBy({top:Math.round(vp.clientHeight*.85),behavior:'smooth'});

@@ -1,4 +1,4 @@
-AMALAN MUSLIM RC80.9 — COMPLETE STANDALONE PACKAGE
+AMALAN MUSLIM RC80.10 — COMPLETE STANDALONE PACKAGE
 
 Perubahan utama:
 - Auto Fokus highlight memakai gradasi multiwarna bergerak kiri-ke-kanan.
@@ -6,7 +6,7 @@ Perubahan utama:
 - PDF center-guide mempertahankan highlighter gradasi bergerak.
 - Cover landscape tetap utuh dengan object-fit: contain.
 - index.html menjadi entry point utama.
-- Service worker RC80.9 menyimpan index.html + manifest + icons untuk core offline/PWA.
+- Service worker RC80.10 menyimpan index.html + manifest + icons untuk core offline/PWA.
 - Cache RC lama dibersihkan saat service worker baru aktif.
 
 Isi paket:
