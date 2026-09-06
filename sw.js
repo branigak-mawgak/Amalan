@@ -1,5 +1,5 @@
-const CACHE='amalan-rc80-7-v1';
-const ASSETS=['./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'];
+const CACHE='amalan-rc80-9-v1';
+const ASSETS=['./index.html','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(
@@ -18,22 +18,19 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET') return;
   const url=new URL(event.request.url);
-
-  // HTML/navigation must not be trapped on an obsolete RC build.
   if(event.request.mode==='navigate' || /\/index\.html$/.test(url.pathname) || url.pathname.endsWith('/')){
     event.respondWith((async()=>{
       try{
         const fresh=await fetch(event.request,{cache:'no-store'});
         const cache=await caches.open(CACHE);
-        cache.put(event.request,fresh.clone()).catch(()=>{});
+        cache.put('./index.html',fresh.clone()).catch(()=>{});
         return fresh;
       }catch(_){
-        return (await caches.match(event.request)) || (await caches.match('./index.html')) || Response.error();
+        return (await caches.match('./index.html')) || Response.error();
       }
     })());
     return;
   }
-
   event.respondWith((async()=>{
     const cached=await caches.match(event.request);
     if(cached) return cached;

@@ -1085,8 +1085,51 @@ header{padding-top:max(10px,calc(10px + var(--rc80-safe-top)))}
 @keyframes rc80GuideSweep{from{left:-24%}to{left:100%}}
 .rc80-vtp-speed-range{display:flex;align-items:center;gap:7px;min-width:min(300px,44vw)}#rc71VtpSpeedRange{width:min(220px,30vw);accent-color:#69e6be}
 </style>
+<style id="rc80-8-scroll-gradient-cover-fix">
+/* RC80.9 — 1–60 px/s precision teleprompter + richer moving gradient. */
+#rc71VtpGuide{height:10px!important;border:0!important;background:linear-gradient(90deg,rgba(87,220,255,.10),rgba(124,255,178,.11),rgba(255,225,92,.12),rgba(255,145,180,.10),rgba(166,124,255,.10))!important;box-shadow:0 0 10px rgba(105,230,190,.18)!important;overflow:hidden!important}
+#rc71VtpGuide::after{content:""!important;position:absolute!important;inset:-3px auto -3px -38%!important;width:38%!important;height:16px!important;border-radius:999px!important;background:linear-gradient(90deg,transparent 0%,rgba(72,202,255,.28) 12%,rgba(69,238,169,.85) 30%,rgba(255,231,87,.98) 50%,rgba(255,132,173,.88) 70%,rgba(155,120,255,.55) 86%,transparent 100%)!important;filter:blur(.2px) drop-shadow(0 0 7px rgba(255,225,92,.62))!important;animation:rc80GuideSweepGradient 2.6s linear infinite!important}
+@keyframes rc80GuideSweepGradient{0%{transform:translateX(0)}100%{transform:translateX(365%)}}
+#rc71VtpSpeedRange{min-width:150px;max-width:260px}
+#rc71VtpSpeedLabel{min-width:66px!important;font-variant-numeric:tabular-nums}
+/* Landscape cover: preserve the complete artwork instead of cropping it. */
+@media (orientation:landscape){
+ body.cover-mode #cover-depan{background:#073b2b!important;overflow:hidden!important}
+ body.cover-mode #cover-depan .cover-bg{object-fit:contain!important;object-position:center center!important;width:100%!important;height:100%!important;background:#073b2b!important}
+ body.cover-mode #cover-depan:before{content:"";position:absolute;inset:0;background:#073b2b;z-index:-1}
+ #cover-depan .cover-date{max-width:38%!important;font-size:clamp(10px,1.55vw,13px)!important;padding:6px 9px!important}
+ #cover-depan .cover-actions{margin-bottom:max(10px,calc(env(safe-area-inset-bottom) + 8px))!important}
+}
+</style>
+
+<style id="rc80-9-autofocus-gradient">
+/* RC80.9 — Auto Fokus gradient karaoke highlight. */
+body.focus .para.active .semantic.focus-word{
+  background-image:linear-gradient(90deg,
+    rgba(72,202,255,.30) 0%,
+    rgba(69,238,169,.48) 24%,
+    rgba(255,231,87,.62) 50%,
+    rgba(255,132,173,.50) 74%,
+    rgba(155,120,255,.34) 100%)!important;
+  background-repeat:no-repeat!important;
+  background-position:left center!important;
+  background-size:0% 100%;
+  animation:rc809AutoFocusGradient var(--karaoke-duration,2200ms) linear forwards!important;
+  box-shadow:0 0 0 2px rgba(62,140,111,.20),0 4px 14px rgba(255,210,80,.10),inset 0 0 0 1px rgba(255,255,255,.15)!important;
+}
+html[data-theme="dark"] body.focus .para.active .semantic.focus-word{
+  background-image:linear-gradient(90deg,
+    rgba(72,202,255,.24) 0%,
+    rgba(69,238,169,.38) 24%,
+    rgba(255,231,87,.48) 50%,
+    rgba(255,132,173,.40) 74%,
+    rgba(155,120,255,.28) 100%)!important;
+  box-shadow:0 0 0 2px rgba(125,224,184,.25),0 4px 15px rgba(255,220,90,.12),inset 0 0 0 1px rgba(255,255,255,.08)!important;
+}
+@keyframes rc809AutoFocusGradient{from{background-size:0% 100%}to{background-size:100% 100%}}
+</style>
 </head>
-<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC80.7-SMARTCOUNTER-PDF-TELEPROMPTER">
+<body data-revision="RC71-V6.2.3-GALERI-MEDIA" data-amalan-build="RC80.9-STANDALONE-AF-GRADIENT">
 <button aria-label="Smart Counter manual" id="manualSmartCounterBtn" title="Smart Counter Manual" type="button">🔢</button><button aria-label="Kurangi satu hitungan" class="counter-undo" id="counterUndo" type="button">↶ Kurangi</button>
 <button aria-label="Lanjutkan Auto Fokus dan tutup Smart Counter" class="counter-continue" id="counterContinue" type="button">▶ Lanjut Auto Fokus</button>
 <button aria-label="Tambah hitungan dzikir" class="counter-fab" id="counterFab" type="button"><span class="counter-value" id="counterValue">0 / 33</span><span class="counter-mini-progress"><i id="counterProgress"></i></span><span class="counter-label" id="counterLabel">Dzikir</span><span class="counter-hint">Ketuk +1</span></button>
@@ -3836,7 +3879,7 @@ html:-webkit-full-screen .nav-fullscreen-btn{
   <div id="rc71VtpGuide"></div>
   <div class="rc71-vtp-bottom">
     <button type="button" id="rc71VtpPause">▶ Auto Scroll</button>
-    <div class="rc80-vtp-speed-range"><button type="button" id="rc71VtpSlow">−</button><input id="rc71VtpSpeedRange" type="range" min="5" max="300" step="1" value="40" aria-label="Kecepatan Auto Scroll"><span id="rc71VtpSpeedLabel">40 px/s</span><button type="button" id="rc71VtpFast">＋</button></div>
+    <div class="rc80-vtp-speed-range"><button type="button" id="rc71VtpSlow">−</button><input id="rc71VtpSpeedRange" type="range" min="1" max="60" step="1" value="20" aria-label="Kecepatan Auto Scroll"><span id="rc71VtpSpeedLabel">20 px/s</span><button type="button" id="rc71VtpFast">＋</button></div>
     <button type="button" id="rc71VtpRestart">↺ Awal</button>
     <button type="button" id="rc71VtpPageUp">▲ Halaman</button>
     <button type="button" id="rc71VtpPageDown">▼ Halaman</button>
@@ -3852,7 +3895,7 @@ const $=id=>document.getElementById(id);
 const ov=$('rc71PdfVisualTpOverlay'), vp=$('rc71VtpViewport'), pages=$('rc71VtpPages');
 const title=$('rc71VtpTitle'), pause=$('rc71VtpPause'), speedLabel=$('rc71VtpSpeedLabel'), speedRange=$('rc71VtpSpeedRange'), status=$('rc71VtpStatus');
 if(!ov||!vp||!pages)return;
-let running=false, raf=0, last=0, speed=+(localStorage.getItem('rc71-vtp-speed')||40), current=null, pdfUrl=null, readerMode=false, controlsHideTimer=0, backgroundAbort=0, activePdfDoc=null, renderQueue=[], renderBusy=0, maxCachedPages=100000, pageCache=new Set();
+let running=false, raf=0, last=0, scrollFloat=0, speed=+(localStorage.getItem('rc71-vtp-speed')||20), current=null, pdfUrl=null, readerMode=false, controlsHideTimer=0, backgroundAbort=0, activePdfDoc=null, renderQueue=[], renderBusy=0, maxCachedPages=100000, pageCache=new Set();
 let zoom=+(localStorage.getItem('rc71-vtp-zoom')||100);
 const zoomLevels=[75,85,100,115,130,150,175];
 function applyZoom(){
@@ -3874,14 +3917,14 @@ function setZoom(delta){
     try{renderPdf(current)}catch(e){console.warn('PDF zoom render gagal',e)}
   }
 }
-const speeds=[5,10,15,20,30,40,55,70,90,120,160,220,300];
-function clampSpeed(){speed=Math.max(5,Math.min(300,Math.round(speed)));localStorage.setItem('rc71-vtp-speed',String(speed));speedLabel.textContent=speed+' px/s';if(speedRange&&String(speedRange.value)!==String(speed))speedRange.value=String(speed)}
+const speeds=Array.from({length:60},(_,i)=>i+1);
+function clampSpeed(){speed=Math.max(1,Math.min(60,Math.round(speed)));localStorage.setItem('rc71-vtp-speed',String(speed));speedLabel.textContent=speed+' px/s';if(speedRange&&String(speedRange.value)!==String(speed))speedRange.value=String(speed)}
 function clearAutoHide(){clearTimeout(controlsHideTimer);controlsHideTimer=0;ov.classList.remove('rc71-vtp-controls-hidden')}
 function armAutoHide(){clearTimeout(controlsHideTimer);if(!running||readerMode)return;controlsHideTimer=setTimeout(()=>{if(running)ov.classList.add('rc71-vtp-controls-hidden')},90000)}
 function showControls(){clearAutoHide();if(running)armAutoHide()}
-function stop(){running=false;cancelAnimationFrame(raf);raf=0;last=0;clearTimeout(controlsHideTimer);ov.classList.remove('rc71-vtp-controls-hidden');pause.textContent='▶ Auto Scroll'}
-function tick(t){if(!running)return;if(!last)last=t;const dt=Math.min(32,t-last);last=t;vp.scrollTop+=speed*dt/1000; if(vp.scrollTop+vp.clientHeight>=vp.scrollHeight-2){stop();status.textContent='Selesai • semua halaman telah dibaca';return}raf=requestAnimationFrame(tick)}
-function start(){if(vp.scrollHeight<=vp.clientHeight+2)return;running=true;pause.textContent='Ⅱ Jeda';last=0;armAutoHide();raf=requestAnimationFrame(tick)}
+function stop(){running=false;cancelAnimationFrame(raf);raf=0;last=0;scrollFloat=Number(vp.scrollTop)||0;clearTimeout(controlsHideTimer);ov.classList.remove('rc71-vtp-controls-hidden');pause.textContent='▶ Auto Scroll'}
+function tick(t){if(!running)return;if(!last){last=t;scrollFloat=Number(vp.scrollTop)||0;}const dt=Math.min(50,Math.max(0,t-last));last=t;scrollFloat+=speed*dt/1000;const maxTop=Math.max(0,vp.scrollHeight-vp.clientHeight);if(scrollFloat>maxTop)scrollFloat=maxTop;vp.scrollTop=scrollFloat;if(scrollFloat>=maxTop-0.5){stop();status.textContent='Selesai • semua halaman telah dibaca';return}raf=requestAnimationFrame(tick)}
+function start(){if(vp.scrollHeight<=vp.clientHeight+2)return;running=true;pause.textContent='Ⅱ Jeda';last=0;scrollFloat=Number(vp.scrollTop)||0;armAutoHide();raf=requestAnimationFrame(tick)}
 function toggle(){running?stop():start()}
 async function close(){
   // X = EXIT: leave native fullscreen first, then close this Visual Teleprompter.
@@ -4055,9 +4098,9 @@ document.addEventListener('click',async e=>{
  }catch(err){console.error(err);alert('Teleprompter PDF gagal dibuka: '+err.message)}
 },true);
 pause.onclick=toggle;
-$('rc71VtpSlow').onclick=()=>{speed-=speed<=30?2:speed<=100?5:10;clampSpeed()};
-$('rc71VtpFast').onclick=()=>{speed+=speed<30?2:speed<100?5:10;clampSpeed()};
-if(speedRange){speedRange.value=String(speed);speedRange.addEventListener('input',()=>{speed=Number(speedRange.value)||40;clampSpeed()},{passive:true});}
+$('rc71VtpSlow').onclick=()=>{speed-=1;clampSpeed()};
+$('rc71VtpFast').onclick=()=>{speed+=1;clampSpeed()};
+if(speedRange){speedRange.value=String(speed);speedRange.addEventListener('input',()=>{speed=Number(speedRange.value)||20;clampSpeed();if(running)scrollFloat=Number(vp.scrollTop)||scrollFloat},{passive:true});}
 $('rc71VtpRestart').onclick=()=>{stop();vp.scrollTo({top:0,behavior:'auto'});status.textContent='Awal PDF'};
 $('rc71VtpPageUp').onclick=()=>vp.scrollBy({top:-Math.round(vp.clientHeight*.85),behavior:'smooth'});
 $('rc71VtpPageDown').onclick=()=>vp.scrollBy({top:Math.round(vp.clientHeight*.85),behavior:'smooth'});

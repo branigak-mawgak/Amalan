@@ -1,24 +1,26 @@
-RC80.2 — REFERENCE-STYLE SMOOTH HIGHLIGHT
-Active phrase: dark-red text, soft green rounded outline, left-to-right pale-yellow sweep.
-Highlight handoff remains seamless with no blank inter-phrase frame.
+AMALAN MUSLIM RC80.9 — COMPLETE STANDALONE PACKAGE
 
-AMALAN RC80 — iPadOS Deployment Package
+Perubahan utama:
+- Auto Fokus highlight memakai gradasi multiwarna bergerak kiri-ke-kanan.
+- PDF Teleprompter mempertahankan Auto Scroll presisi 1–60 px/s.
+- PDF center-guide mempertahankan highlighter gradasi bergerak.
+- Cover landscape tetap utuh dengan object-fit: contain.
+- index.html menjadi entry point utama.
+- Service worker RC80.9 menyimpan index.html + manifest + icons untuk core offline/PWA.
+- Cache RC lama dibersihkan saat service worker baru aktif.
 
-1. Upload the entire folder contents to an HTTPS web server.
-2. Keep these files together and preserve folder names.
-3. Open index.html through the deployed HTTPS address.
-4. On iPad Safari: Share > Add to Home Screen > enable Open as Web App if shown.
+Isi paket:
+- index.html
+- manifest.webmanifest
+- sw.js
+- icons/icon-192.png
+- icons/icon-512.png
+- icons/apple-touch-icon.png
 
-Important: Service Worker/offline caching requires HTTP/HTTPS and will not work when opening the HTML directly from Files (file://).
+Cara pakai:
+1. Ekstrak seluruh ZIP dalam satu folder.
+2. Buka index.html untuk penggunaan lokal biasa.
+3. Untuk instalasi PWA/service worker, jalankan dari HTTPS atau localhost dan jangan memisahkan file di dalam paket.
 
-Baseline: RC71 V6.2.4 FORCE GALERI MEDIA. RC80 adds an iPadOS deployment layer, manifest, Home Screen icons, safe-area handling and responsive iPad layouts without replacing the baseline application content or logic.
-
-RC80.4 changes: persistent text edits (localStorage + IndexedDB backup), PREV/NEXT paragraph editor navigation, unified speed panel for Auto Fokus/Scroll/Karaoke, smaller Auto Fokus floating controls.
-
-RC80.4: editor permanent-save hardening, zero paragraph gap, protected ayah-number gutter for Yasin/Waqiah/Mulk.
-
-RC80.5 fixes:
-- Auto Focus never starts automatically on reload/menu navigation.
-- PREV/NEXT display as << and >>; while Auto Focus is running, navigation restarts from phrase 1 of the destination paragraph.
-- PDF/document import uses version-safe IndexedDB opening; no hard-coded DB downgrade.
-- Duplicate top Smart Counter launcher hidden. Bottom Counter button opens manual target selection (3/7/10/11/33/41/99/100/custom).
+Catatan:
+Fungsi PDF.js pada build ini tetap memakai library PDF.js 3.11.174 dari CDN saat modul PDF pertama kali dipakai. Core aplikasi dan konten utama berada di dalam paket.
