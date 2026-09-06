@@ -1,4 +1,4 @@
-const CACHE='amalan-rc80-6-v1';
+const CACHE='amalan-rc80-7-v1';
 const ASSETS=['./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'];
 
 self.addEventListener('install',event=>{
