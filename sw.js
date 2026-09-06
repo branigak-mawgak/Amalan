@@ -1,6 +1,7 @@
-const CACHE='amalan-rc80-10-offline-v2';
+const CACHE='amalan-rc80-10-offline-v3-dual-entry';
 const ASSETS=[
   './index.html',
+  './Amalan_RC80.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -76,15 +77,16 @@ self.addEventListener('fetch',event=>{
     return;
   }
 
-  if(event.request.mode==='navigate' || /\/index\.html$/.test(url.pathname) || url.pathname.endsWith('/')){
+  if(event.request.mode==='navigate' || /\/(index|Amalan_RC80)\.html$/.test(url.pathname) || url.pathname.endsWith('/')){
     event.respondWith((async()=>{
+      const requestedEntry = /\/Amalan_RC80\.html$/.test(url.pathname) ? './Amalan_RC80.html' : './index.html';
       try{
         const fresh=await fetch(event.request,{cache:'no-store'});
         const cache=await caches.open(CACHE);
-        cache.put('./index.html',fresh.clone()).catch(()=>{});
+        cache.put(requestedEntry,fresh.clone()).catch(()=>{});
         return fresh;
       }catch(_){
-        return (await caches.match('./index.html')) || Response.error();
+        return (await caches.match(requestedEntry)) || (await caches.match('./index.html')) || Response.error();
       }
     })());
     return;

@@ -3,7 +3,7 @@ AMALAN MUSLIM RC80.10 — OFFLINE BASELINE
 PAKET PWA / HOME SCREEN
 ========================
 1. Upload SEMUA isi folder ini ke satu folder pada hosting HTTPS.
-2. Buka alamat index.html dari Safari pada iPhone/iPad.
+2. Buka alamat index.html dari Safari pada iPhone/iPad. File Amalan_RC80.html juga tersedia sebagai entry file aplikasi lengkap.
 3. Tunggu halaman selesai terbuka saat perangkat masih ONLINE.
 4. Tekan Share → Add to Home Screen / Tambahkan ke Layar Utama.
 5. Buka aplikasi dari icon Home Screen sekali lagi saat masih online.
@@ -18,7 +18,10 @@ dan Teleprompter tetap dapat memuat modul PDF.js tanpa koneksi internet.
 PENTING
 =======
 - Instalasi awal tetap membutuhkan internet dan HTTPS karena iOS/PWA Service Worker memerlukannya.
-- Jangan hanya membuka index.html melalui aplikasi Files (file://), karena Service Worker tidak aktif.
+- index.html = entry point utama PWA/Home Screen.
+- Amalan_RC80.html = salinan penuh aplikasi untuk workflow/akses nama file lama.
+- Keduanya dimasukkan ke offline cache.
+- Jangan hanya membuka HTML melalui aplikasi Files (file://), karena Service Worker tidak aktif.
 - Setelah update versi aplikasi, buka sekali secara online agar cache versi baru terpasang.
 - File PDF milik pengguna tetap diimpor/dibaca dari perangkat; file PDF tidak otomatis dimasukkan ke ZIP ini.
 
