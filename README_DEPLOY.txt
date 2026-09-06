@@ -16,3 +16,9 @@ Baseline: RC71 V6.2.4 FORCE GALERI MEDIA. RC80 adds an iPadOS deployment layer, 
 RC80.4 changes: persistent text edits (localStorage + IndexedDB backup), PREV/NEXT paragraph editor navigation, unified speed panel for Auto Fokus/Scroll/Karaoke, smaller Auto Fokus floating controls.
 
 RC80.4: editor permanent-save hardening, zero paragraph gap, protected ayah-number gutter for Yasin/Waqiah/Mulk.
+
+RC80.5 fixes:
+- Auto Focus never starts automatically on reload/menu navigation.
+- PREV/NEXT display as << and >>; while Auto Focus is running, navigation restarts from phrase 1 of the destination paragraph.
+- PDF/document import uses version-safe IndexedDB opening; no hard-coded DB downgrade.
+- Duplicate top Smart Counter launcher hidden. Bottom Counter button opens manual target selection (3/7/10/11/33/41/99/100/custom).
