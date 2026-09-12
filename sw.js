@@ -1,8 +1,9 @@
-const CACHE='amalan-rc80-10-offline-v3-dual-entry';
+const CACHE='amalan-rc80-10-offline-v4-landscape-cover';
 const ASSETS=[
   './index.html',
   './Amalan_RC80.html',
   './manifest.webmanifest',
+  './cover-landscape.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png'
