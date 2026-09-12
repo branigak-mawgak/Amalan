@@ -1,4 +1,4 @@
-const CACHE='amalan-rc80-10-offline-v4-landscape-cover';
+const CACHE='amalan-rc80-10-offline-v5-hifz-yasin-landscape90';
 const ASSETS=[
   './index.html',
   './Amalan_RC80.html',
